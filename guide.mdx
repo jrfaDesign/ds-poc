@@ -1,0 +1,245 @@
+Multi‑Platform Design System Architecture A scalable design system for web + mobile must balance shared foundations with platform‑specific UX expectations. This document outlines the architectural principles, trade‑offs, and recommended structure for building a multi‑brand, multi‑theme system.
+
+Goals Support light/dark themes
+
+Support **100**+ brands
+
+Support web + mobile platforms
+
+Enforce strict contracts
+
+Enable runtime theme switching
+
+Maintain platform-native UX
+
+Avoid duplication while preventing cross-platform hacks
+
+### Core Architecture Overview
+
+A multi-platform design system should be split into three layers:
+
+Design Tokens — cross-platform, brand-aware, theme-aware
+
+Platform UI Libraries — web + mobile
+
+Application Integration Layer — theme providers, runtime managers
+
+This structure ensures shared semantics but platform-native implementations.
+
+Single vs Multiple UI Libraries Option A — Single Cross‑Platform UI Library Pros
+
+Shared components
+
+Shared mental model
+
+Strong brand consistency
+
+Less duplication
+
+Cons
+
+Hard to respect platform idioms
+
+Layout/performance compromises
+
+Web accessibility gaps
+
+RN Web edge cases
+
+Slower iteration for web-specific needs
+
+Best for: internal tools, simple products, orgs fully aligned on React Native.
+
+Option B — Two UI Libraries (Web + Mobile) Pros
+
+Native UX per platform
+
+Independent release cadence
+
+No cross-platform hacks
+
+Better accessibility on web
+
+Better gesture/navigation on mobile
+
+Cons
+
+More code (but less pain long-term)
+
+Requires strong token governance
+
+Best for: multi-brand ecosystems, long-term scale, production apps.
+
+Option C — Hybrid Pros
+
+Shared vocabulary
+
+Flexible implementation
+
+Balanced consistency + native feel
+
+Cons
+
+Requires clear boundaries
+
+More upfront architecture work
+
+Best for: most real-world multi-brand systems.
+
+Recommendation Build one design system (tokens + semantics) and two UI libraries (web + mobile). Share tokens, contracts, and component semantics, but not the components themselves.
+
+What To Do / What Not To Do ### What To Do Use design tokens as the core contract
+
+Separate global, semantic, and component tokens
+
+Use runtime theming for brand + dark/light switching
+
+Export tokens in platform-agnostic **JSON**
+
+Generate platform-specific outputs (**CSS** vars, RN styles, Swift/Kotlin resources)
+
+Enforce strict component contracts via TypeScript
+
+Add CI for token changes (contrast, visual regression, breaking-change detection)
+
+### What Not To Do
+
+Don’t hardcode brand colors in components
+
+Don’t let platforms invent their own token names
+
+Don’t skip semantic tokens
+
+Don’t force a single UI library across platforms
+
+Don’t expose styling escape hatches (style, className, arbitrary overrides)
+
+### Token Architecture
+
+Tokens are the foundation of multi-brand + multi-theme support.
+
+### Token Layers
+
+### Global Tokens Raw values:
+
+Colors
+
+Spacing
+
+Typography scales
+
+Radii
+
+Elevation
+
+Motion
+
+### Semantic Tokens
+
+Meaning-based values:
+
+color.bg.surface
+
+color.text.primary
+
+radius.control
+
+shadow.card
+
+### Component Tokens
+
+Per-component hooks:
+
+button.primary.bg
+
+input.border.focus
+
+tab.active.indicator
+
+Multi‑Brand Strategy ### Base Brand Define a canonical brand with full semantic coverage.
+
+### Brand Inheritance
+
+Each brand overrides only what differs:
+
+json
+{
+_brandA_: {
+_color_: {
+_primary_: _{global.color.blue.**500**}_
+}
+},
+_brandB_: {
+_color_: {
+_primary_: _{global.color.green.**500**}_
+}
+}
+}
+Guardrails
+Automated contrast checks
+
+Limit brand-specific components
+
+Prefer brand-specific tokens
+
+Web Architecture: Build‑Time vs Runtime Styling Build-Time Styling Examples: Tailwind, StyleX, vanilla-extract
+
+Pros
+
+Great performance
+
+Strong static analysis
+
+Tree-shaking
+
+Cons
+
+Hard for dynamic theme switching
+
+Multi-brand often requires separate builds
+
+### Runtime Styling
+
+Examples: **CSS** variables, runtime **CSS**-in-JS
+
+Pros
+
+Perfect for dynamic theme/brand switching
+
+Single build supports all brands
+
+Easy to override at runtime
+
+Cons
+
+Slight runtime overhead
+
+### Recommended Web Pattern
+
+Use build-time tooling for structure + runtime **CSS** variables for theming.
+
+Build-time: layout, base styles
+
+Runtime: theme + brand via **CSS** variables
+
+Components read from tokens, not from Tailwind/StyleX directly
+
+### Mobile Architecture
+
+Mobile consumes the same tokens but uses platform-native implementations.
+
+### Token Outputs
+
+React Native: JS/TS maps + hooks
+
+iOS: generated Swift resources
+
+Android: generated Kotlin/**XML** resources
+
+Platform-Specific Components Buttons respect touch targets
+
+Inputs respect mobile keyboard behavior
+
+Navigation respects mobile patterns
+
+Gestures use native APIs

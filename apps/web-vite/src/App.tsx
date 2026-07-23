@@ -1,122 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { StylexExample } from './components/StylexExample/StylexExample';
+import { AppStyles } from './App.styles';
+
+import * as stylex from '@stylexjs/stylex';
+import { applyTheme } from './design-system/adapters/stylex/createStylexTheme.stylex';
+import defaultTheme from './design-system/themes/default';
+import cagTheme from './design-system/themes/cag';
+import ThemeVariables from './components/ThemeVariables/ThemeVariables';
+import { Example } from './components/Example/Example';
+import caosTheme from './design-system/themes/caos';
 
 function App() {
-  const [count, setCount] = useState(0)
+	const [darkMode, setDarkMode] = useState(false);
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+	const [theme, setTheme] = useState(defaultTheme);
 
-      <div className="ticks"></div>
+	useEffect(() => {
+		applyTheme(theme, darkMode);
+	}, [darkMode, theme]);
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+	const toggleDarkMode = () => {
+		setDarkMode((prev) => !prev);
+	};
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+	return (
+		<div {...stylex.props(AppStyles.container)}>
+			<div {...stylex.props(AppStyles.toolbar)}>
+				<button onClick={toggleDarkMode}>Toggle {darkMode ? 'Light' : 'Dark'} Mode</button>
+
+				<div {...stylex.props(AppStyles.controls)}>
+					<button onClick={() => setTheme(defaultTheme)}>BCA theme</button>
+					<button onClick={() => setTheme(cagTheme)}>CAG theme</button>
+					<button onClick={() => setTheme(caosTheme)}>CAOS theme</button>
+				</div>
+			</div>
+
+			{/* <StylexExample />
+			<div style={{ display: 'flex', gap: 20 }}>
+				<StylexExample showError />
+				<StylexExample showSuccess />
+			</div> */}
+
+			<Example />
+
+			<ThemeVariables />
+		</div>
+	);
 }
 
-export default App
+export default App;
+
+export function toggleDarkMode() {
+	const root = document.documentElement;
+	const current = root.style.colorScheme;
+	root.style.colorScheme = current === 'dark' ? 'light' : 'dark';
+}
