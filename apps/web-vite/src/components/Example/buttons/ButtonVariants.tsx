@@ -1,47 +1,53 @@
 import * as stylex from '@stylexjs/stylex';
-import { styles } from './ButtonVariants.styles';
+import { create } from '@stylexjs/stylex';
+import { spacing } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+import { Section } from '../ui/Section/Section';
+import { Button } from '../ui/Button/Button';
+import { Typography } from '../ui/Typography/Typography';
+
+const btnStyles = create({
+	row: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		gap: spacing.md,
+		marginBottom: spacing.md,
+		alignItems: 'center',
+	},
+});
 
 export function ButtonVariants() {
 	return (
-		<div {...stylex.props(styles.section)}>
-			<span {...stylex.props(styles.tag)}>
-				{
-					'actionPrimary* / actionSecondary* / actionGhost* / actionLink* (Bg / Fg / Border / Hover / Active / Disabled)'
-				}
-			</span>
-			<h3 {...stylex.props(styles.heading)}>Button Variants</h3>
-
-			<div {...stylex.props(styles.row)}>
-				<span {...stylex.props(styles.groupLabel)}>Primary</span>
-				<button {...stylex.props(styles.btn, styles.primary)}>Default</button>
-				<button {...stylex.props(styles.btn, styles.primary, styles.primaryDisabled)} disabled>
-					Disabled
-				</button>
+		<Section title="Button Variants">
+			<div>
+				<div {...stylex.props(btnStyles.row)}>
+					<Typography role="overline">Primary</Typography>
+					<Button variant="primary">Default</Button>
+					<Button variant="primary" disabled>
+						Disabled
+					</Button>
+				</div>
+				<div {...stylex.props(btnStyles.row)}>
+					<Typography role="overline">Secondary</Typography>
+					<Button variant="secondary">Default</Button>
+					<Button variant="secondary" disabled>
+						Disabled
+					</Button>
+				</div>
+				<div {...stylex.props(btnStyles.row)}>
+					<Typography role="overline">Ghost</Typography>
+					<Button variant="ghost">Default</Button>
+					<Button variant="ghost" disabled>
+						Disabled
+					</Button>
+				</div>
+				<div {...stylex.props(btnStyles.row)}>
+					<Typography role="overline">Link</Typography>
+					<Button variant="link">Default</Button>
+					<Button variant="link" disabled>
+						Disabled
+					</Button>
+				</div>
 			</div>
-
-			<div {...stylex.props(styles.row)}>
-				<span {...stylex.props(styles.groupLabel)}>Secondary</span>
-				<button {...stylex.props(styles.btn, styles.secondary)}>Default</button>
-				<button {...stylex.props(styles.btn, styles.secondary, styles.secondaryDisabled)} disabled>
-					Disabled
-				</button>
-			</div>
-
-			<div {...stylex.props(styles.row)}>
-				<span {...stylex.props(styles.groupLabel)}>Ghost</span>
-				<button {...stylex.props(styles.btn, styles.ghost)}>Default</button>
-				<button {...stylex.props(styles.btn, styles.ghost, styles.ghostDisabled)} disabled>
-					Disabled
-				</button>
-			</div>
-
-			<div {...stylex.props(styles.row)}>
-				<span {...stylex.props(styles.groupLabel)}>Link</span>
-				<button {...stylex.props(styles.btn, styles.link)}>Default</button>
-				<button {...stylex.props(styles.btn, styles.link, styles.linkDisabled)} disabled>
-					Disabled
-				</button>
-			</div>
-		</div>
+		</Section>
 	);
 }

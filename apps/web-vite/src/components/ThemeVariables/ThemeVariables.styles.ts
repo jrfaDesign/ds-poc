@@ -8,6 +8,7 @@ export const styles = create({
 		margin: '0 auto',
 		fontFamily: 'system-ui, -apple-system, sans-serif',
 		color: roles.text,
+		overflowX: 'hidden' as const,
 	},
 	header: {
 		marginBottom: spacing.lg,
@@ -35,6 +36,7 @@ export const styles = create({
 		borderStyle: 'solid',
 		borderColor: roles.border,
 		borderRadius: radii.lg,
+		overflow: 'hidden' as const,
 	},
 	h2: {
 		fontSize: 18,
@@ -69,7 +71,8 @@ export const styles = create({
 	},
 	swatchGroup: {
 		display: 'flex',
-		//gap: 2,
+		flexWrap: 'wrap',
+		gap: 2,
 		flex: 1,
 	},
 	swatch: {
@@ -77,13 +80,10 @@ export const styles = create({
 		flexDirection: 'column',
 		alignItems: 'center',
 		gap: 2,
-		// minHeight: '88px',
 		flex: 1,
-		minWidth: 0,
 	},
 	swatchColor: {
 		width: '100%',
-		minWidth: 60,
 		height: 52,
 		// borderRadius: radii.sm,
 		borderWidth: 0,
@@ -97,11 +97,6 @@ export const styles = create({
 	},
 
 	// -- Roles -----------------------------------------------------------------
-	grid3: {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-		gap: spacing.lg,
-	},
 	card: {
 		padding: spacing.md,
 		backgroundColor: roles.surfaceAlt,
@@ -228,22 +223,7 @@ export const styles = create({
 		color: roles.textSecondary,
 	},
 
-	// -- Split layout ----------------------------------------------------------
-	split: {
-		display: 'flex',
-		gap: spacing.lg,
-	},
-	splitCol: {
-		flex: 1,
-		minWidth: 0,
-	},
-
 	// -- Component tokens ------------------------------------------------------
-	grid2: {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-		gap: spacing.sm,
-	},
 	compBody: {
 		display: 'flex',
 		alignItems: 'center',
@@ -262,51 +242,15 @@ export const styles = create({
 		borderColor: roles.border,
 		flexShrink: 0,
 	},
-	mono: {
-		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-	},
 
 	// -- Shadows ---------------------------------------------------------------
-	shadowGrid: {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-		gap: spacing.md,
-	},
-	shadowCard: {
-		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center',
-		gap: spacing.sm,
-	},
-	shadowBox: {
-		width: 80,
-		height: 80,
-		backgroundColor: roles.surfaceAlt,
-		borderRadius: radii.md,
-		borderWidth: 1,
-		borderStyle: 'solid',
-		borderColor: roles.border,
-	},
 	shadowLabel: {
 		fontSize: 13,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
 		color: roles.text,
 	},
-	shadowVal: {
-		fontSize: 9,
-		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
-		textAlign: 'center',
-		wordBreak: 'break-all',
-	},
-
 	// -- Gradients -------------------------------------------------------------
-	gradientGrid: {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-		gap: spacing.md,
-	},
 	gradientCard: {
 		display: 'flex',
 		flexDirection: 'column',
@@ -327,11 +271,24 @@ export const styles = create({
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
 		color: roles.text,
 	},
-	gradientVal: {
-		fontSize: 9,
-		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
+	// -- Layout ----------------------------------------------------------------
+	tokenTable: {
+		backgroundColor: roles.surfaceAlt,
+		borderRadius: radii.md,
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: roles.border,
+		marginTop: spacing.sm,
+		overflow: 'hidden',
+	},
+	colDemo: {
+		backgroundColor: roles.actionPrimaryBg,
+		color: roles.white,
+		fontSize: 12,
+		fontWeight: 600,
+		fontFamily: '"SF Mono", "Cascadia Code", monospace',
 		textAlign: 'center',
-		wordBreak: 'break-all',
+		padding: '8px 0',
+		borderRadius: radii.sm,
 	},
 });

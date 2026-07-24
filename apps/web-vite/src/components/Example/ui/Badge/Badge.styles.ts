@@ -3,34 +3,10 @@ import {
 	roles,
 	spacing,
 	radii,
-} from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+} from '../../../../design-system/adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
-	section: {
-		marginBottom: spacing.lg,
-	},
-	tag: {
-		fontSize: 10,
-		fontFamily: '"SF Mono", "Cascadia Code", monospace',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	heading: {
-		fontSize: 13,
-		fontWeight: 600,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	row: {
-		display: 'flex',
-		flexWrap: 'wrap',
-		gap: spacing.sm,
-		alignItems: 'center',
-		marginBottom: spacing.sm,
-	},
-	badge: {
+	base: {
 		display: 'inline-flex',
 		alignItems: 'center',
 		gap: 4,
@@ -47,15 +23,15 @@ export const styles = create({
 		color: roles.textBrand,
 		borderColor: 'transparent',
 	},
-	outline: {
-		backgroundColor: 'transparent',
-		color: roles.textSecondary,
-		borderColor: roles.borderWeak,
-	},
 	alt: {
 		backgroundColor: roles.surfaceAlt,
 		color: roles.textSecondary,
 		borderColor: 'transparent',
+	},
+	outline: {
+		backgroundColor: 'transparent',
+		color: roles.textSecondary,
+		borderColor: roles.borderWeak,
 	},
 	error: {
 		backgroundColor: roles.errorBg,

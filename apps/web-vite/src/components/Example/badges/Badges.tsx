@@ -1,38 +1,41 @@
 import * as stylex from '@stylexjs/stylex';
-import { styles } from './Badges.styles';
+import { create } from '@stylexjs/stylex';
+import { spacing } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+import { Section } from '../ui/Section/Section';
+import { Badge } from '../ui/Badge/Badge';
+
+const localStyles = create({
+	row: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		gap: spacing.sm,
+		alignItems: 'center',
+		marginBottom: spacing.sm,
+	},
+});
 
 export function Badges() {
 	return (
-		<div {...stylex.props(styles.section)}>
-			<span {...stylex.props(styles.tag)}>
-				{
-					'roles.surfaceBrand/textBrand / surfaceAlt / borderWeak / errorBg/Fg/Border / successBg/Fg/Border / radii.sm'
-				}
-			</span>
-			<h3 {...stylex.props(styles.heading)}>Badges &amp; Tags</h3>
-			<div {...stylex.props(styles.row)}>
-				<span {...stylex.props(styles.badge, styles.brand)}>Premium</span>
-				<span {...stylex.props(styles.badge, styles.alt)}>Draft</span>
-				<span {...stylex.props(styles.badge, styles.outline)}>Archived</span>
+		<Section title="Badges &amp; Tags">
+			<div {...stylex.props(localStyles.row)}>
+				<Badge variant="brand">Premium</Badge>
+				<Badge variant="alt">Draft</Badge>
+				<Badge variant="outline">Archived</Badge>
 			</div>
-			<div {...stylex.props(styles.row)}>
-				<span {...stylex.props(styles.badge, styles.error)}>
-					<span {...stylex.props(styles.dot)} />
+			<div {...stylex.props(localStyles.row)}>
+				<Badge variant="error" dot>
 					Failed
-				</span>
-				<span {...stylex.props(styles.badge, styles.success)}>
-					<span {...stylex.props(styles.dot)} />
+				</Badge>
+				<Badge variant="success" dot>
 					Active
-				</span>
-				<span {...stylex.props(styles.badge, styles.warning)}>
-					<span {...stylex.props(styles.dot)} />
+				</Badge>
+				<Badge variant="warning" dot>
 					Pending
-				</span>
-				<span {...stylex.props(styles.badge, styles.info)}>
-					<span {...stylex.props(styles.dot)} />
+				</Badge>
+				<Badge variant="info" dot>
 					Updated
-				</span>
+				</Badge>
 			</div>
-		</div>
+		</Section>
 	);
 }

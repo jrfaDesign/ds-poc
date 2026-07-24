@@ -3,21 +3,10 @@ import {
 	roles,
 	spacing,
 	components,
-} from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+} from '../../../../design-system/adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
-	section: {
-		marginBottom: spacing.lg,
-	},
-	heading: {
-		fontSize: 13,
-		fontWeight: 600,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	alert: {
+	base: {
 		display: 'flex',
 		alignItems: 'flex-start',
 		gap: spacing.sm,
@@ -91,11 +80,5 @@ export const styles = create({
 		color: 'inherit',
 		opacity: 0.85,
 		margin: '2px 0 0',
-	},
-	tag: {
-		fontSize: 10,
-		fontFamily: '"SF Mono", "Cascadia Code", monospace',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
 	},
 });

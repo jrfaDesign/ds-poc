@@ -7,23 +7,6 @@ import {
 } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
-	section: {
-		marginBottom: spacing.lg,
-	},
-	tag: {
-		fontSize: 10,
-		fontFamily: '"SF Mono", "Cascadia Code", monospace',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	heading: {
-		fontSize: 13,
-		fontWeight: 600,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
 	nav: {
 		backgroundColor: roles.surface,
 		borderWidth: 1,
@@ -37,6 +20,8 @@ export const styles = create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		padding: spacing.md,
+		flexWrap: 'wrap' as const,
+		gap: spacing.sm,
 	},
 	brand: {
 		display: 'flex',
@@ -55,14 +40,13 @@ export const styles = create({
 		color: roles.actionPrimaryFg,
 		fontWeight: 700,
 	},
-	brandName: {
-		fontSize: 16,
-		fontWeight: 700,
-		color: roles.text,
-	},
 	links: {
 		display: 'flex',
 		gap: 0,
+		minWidth: 0,
+		flexShrink: 1,
+		flexWrap: 'wrap' as const,
+		justifyContent: 'center',
 	},
 	linkItem: {
 		padding: `${spacing.sm} ${spacing.md}`,

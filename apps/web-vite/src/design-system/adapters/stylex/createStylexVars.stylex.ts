@@ -4,15 +4,125 @@ import type { TokenNames } from '../../foundations';
 // spacing
 const spacingTokens: Record<TokenNames['spacing'], string> = {
 	none: 'var(--spacing-none)',
+	'3xs': 'var(--spacing-3xs)',
+	'2xs': 'var(--spacing-2xs)',
 	xs: 'var(--spacing-xs)',
 	sm: 'var(--spacing-sm)',
 	md: 'var(--spacing-md)',
 	lg: 'var(--spacing-lg)',
 	xl: 'var(--spacing-xl)',
 	'2xl': 'var(--spacing-2xl)',
+	'3xl': 'var(--spacing-3xl)',
+	'4xl': 'var(--spacing-4xl)',
 };
 
 export const spacing = defineVars(spacingTokens);
+
+// typography — font family
+const fontFamilyTokens: Record<'body' | 'mono', string> = {
+	body: 'var(--typography-fontFamily)',
+	mono: 'var(--typography-monospaceFont)',
+};
+export const fontFamily = defineVars(fontFamilyTokens);
+
+// typography — font size
+const fontSizeTokens: Record<TokenNames['fontSize'], string> = {
+	'2xs': 'var(--typography-fontSize-2xs)',
+	xs: 'var(--typography-fontSize-xs)',
+	sm: 'var(--typography-fontSize-sm)',
+	md: 'var(--typography-fontSize-md)',
+	lg: 'var(--typography-fontSize-lg)',
+	xl: 'var(--typography-fontSize-xl)',
+	'2xl': 'var(--typography-fontSize-2xl)',
+	'3xl': 'var(--typography-fontSize-3xl)',
+	'4xl': 'var(--typography-fontSize-4xl)',
+	'5xl': 'var(--typography-fontSize-5xl)',
+	'6xl': 'var(--typography-fontSize-6xl)',
+};
+export const fontSize = defineVars(fontSizeTokens);
+
+// typography — font weight
+const fontWeightTokens: Record<TokenNames['fontWeight'], string> = {
+	thin: 'var(--typography-fontWeight-thin)',
+	light: 'var(--typography-fontWeight-light)',
+	regular: 'var(--typography-fontWeight-regular)',
+	medium: 'var(--typography-fontWeight-medium)',
+	semibold: 'var(--typography-fontWeight-semibold)',
+	bold: 'var(--typography-fontWeight-bold)',
+	black: 'var(--typography-fontWeight-black)',
+};
+export const fontWeight = defineVars(fontWeightTokens);
+
+// typography — line height
+const lineHeightTokens: Record<TokenNames['lineHeight'], string> = {
+	none: 'var(--typography-lineHeight-none)',
+	tight: 'var(--typography-lineHeight-tight)',
+	normal: 'var(--typography-lineHeight-normal)',
+	relaxed: 'var(--typography-lineHeight-relaxed)',
+	loose: 'var(--typography-lineHeight-loose)',
+};
+export const lineHeight = defineVars(lineHeightTokens);
+
+// typography — letter spacing
+const letterSpacingTokens: Record<TokenNames['letterSpacing'], string> = {
+	tighter: 'var(--typography-letterSpacing-tighter)',
+	tight: 'var(--typography-letterSpacing-tight)',
+	normal: 'var(--typography-letterSpacing-normal)',
+	wide: 'var(--typography-letterSpacing-wide)',
+	wider: 'var(--typography-letterSpacing-wider)',
+	widest: 'var(--typography-letterSpacing-widest)',
+};
+export const letterSpacing = defineVars(letterSpacingTokens);
+
+// typography — roles (resolved compositions from typography.roles)
+const typographyRolesTokens = {
+	heading1FontSize: 'var(--typography-role-heading1-fontSize)',
+	heading1FontWeight: 'var(--typography-role-heading1-fontWeight)',
+	heading1LineHeight: 'var(--typography-role-heading1-lineHeight)',
+	heading1LetterSpacing: 'var(--typography-role-heading1-letterSpacing)',
+	heading1Color: 'var(--typography-role-heading1-color)',
+	heading2FontSize: 'var(--typography-role-heading2-fontSize)',
+	heading2FontWeight: 'var(--typography-role-heading2-fontWeight)',
+	heading2LineHeight: 'var(--typography-role-heading2-lineHeight)',
+	heading2LetterSpacing: 'var(--typography-role-heading2-letterSpacing)',
+	heading2Color: 'var(--typography-role-heading2-color)',
+	heading3FontSize: 'var(--typography-role-heading3-fontSize)',
+	heading3FontWeight: 'var(--typography-role-heading3-fontWeight)',
+	heading3LineHeight: 'var(--typography-role-heading3-lineHeight)',
+	heading3LetterSpacing: 'var(--typography-role-heading3-letterSpacing)',
+	heading3Color: 'var(--typography-role-heading3-color)',
+	heading4FontSize: 'var(--typography-role-heading4-fontSize)',
+	heading4FontWeight: 'var(--typography-role-heading4-fontWeight)',
+	heading4LineHeight: 'var(--typography-role-heading4-lineHeight)',
+	heading4LetterSpacing: 'var(--typography-role-heading4-letterSpacing)',
+	heading4Color: 'var(--typography-role-heading4-color)',
+	bodyFontSize: 'var(--typography-role-body-fontSize)',
+	bodyFontWeight: 'var(--typography-role-body-fontWeight)',
+	bodyLineHeight: 'var(--typography-role-body-lineHeight)',
+	bodyLetterSpacing: 'var(--typography-role-body-letterSpacing)',
+	bodyColor: 'var(--typography-role-body-color)',
+	bodySmFontSize: 'var(--typography-role-bodySm-fontSize)',
+	bodySmFontWeight: 'var(--typography-role-bodySm-fontWeight)',
+	bodySmLineHeight: 'var(--typography-role-bodySm-lineHeight)',
+	bodySmLetterSpacing: 'var(--typography-role-bodySm-letterSpacing)',
+	bodySmColor: 'var(--typography-role-bodySm-color)',
+	captionFontSize: 'var(--typography-role-caption-fontSize)',
+	captionFontWeight: 'var(--typography-role-caption-fontWeight)',
+	captionLineHeight: 'var(--typography-role-caption-lineHeight)',
+	captionLetterSpacing: 'var(--typography-role-caption-letterSpacing)',
+	captionColor: 'var(--typography-role-caption-color)',
+	labelFontSize: 'var(--typography-role-label-fontSize)',
+	labelFontWeight: 'var(--typography-role-label-fontWeight)',
+	labelLineHeight: 'var(--typography-role-label-lineHeight)',
+	labelLetterSpacing: 'var(--typography-role-label-letterSpacing)',
+	labelColor: 'var(--typography-role-label-color)',
+	overlineFontSize: 'var(--typography-role-overline-fontSize)',
+	overlineFontWeight: 'var(--typography-role-overline-fontWeight)',
+	overlineLineHeight: 'var(--typography-role-overline-lineHeight)',
+	overlineLetterSpacing: 'var(--typography-role-overline-letterSpacing)',
+	overlineColor: 'var(--typography-role-overline-color)',
+} as const;
+export const typographyRoles = defineVars(typographyRolesTokens);
 
 // radii
 const radiiTokens: Record<TokenNames['radii'], string> = {
@@ -223,6 +333,41 @@ const shadowTokens: Record<TokenNames['shadows'], string> = {
 };
 
 export const shadows = defineVars(shadowTokens);
+
+// breakpoints
+const breakpointTokens = {
+	mobile: 'var(--breakpoint-mobile)',
+	tablet: 'var(--breakpoint-tablet)',
+	desktop: 'var(--breakpoint-desktop)',
+	wide: 'var(--breakpoint-wide)',
+	ultra: 'var(--breakpoint-ultra)',
+} as const;
+export const breakpoints = defineVars(breakpointTokens);
+
+// grid
+const gridTokens = {
+	mobileColumns: 'var(--grid-mobile-columns)',
+	mobileGutter: 'var(--grid-mobile-gutter)',
+	mobileMargin: 'var(--grid-mobile-margin)',
+	mobileMaxWidth: 'var(--grid-mobile-maxWidth)',
+	tabletColumns: 'var(--grid-tablet-columns)',
+	tabletGutter: 'var(--grid-tablet-gutter)',
+	tabletMargin: 'var(--grid-tablet-margin)',
+	tabletMaxWidth: 'var(--grid-tablet-maxWidth)',
+	desktopColumns: 'var(--grid-desktop-columns)',
+	desktopGutter: 'var(--grid-desktop-gutter)',
+	desktopMargin: 'var(--grid-desktop-margin)',
+	desktopMaxWidth: 'var(--grid-desktop-maxWidth)',
+	wideColumns: 'var(--grid-wide-columns)',
+	wideGutter: 'var(--grid-wide-gutter)',
+	wideMargin: 'var(--grid-wide-margin)',
+	wideMaxWidth: 'var(--grid-wide-maxWidth)',
+	ultraColumns: 'var(--grid-ultra-columns)',
+	ultraGutter: 'var(--grid-ultra-gutter)',
+	ultraMargin: 'var(--grid-ultra-margin)',
+	ultraMaxWidth: 'var(--grid-ultra-maxWidth)',
+} as const;
+export const grid = defineVars(gridTokens);
 
 // gradients
 const gradientTokens: Record<TokenNames['gradients'], string> = {

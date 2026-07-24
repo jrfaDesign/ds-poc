@@ -3,42 +3,10 @@ import {
 	roles,
 	spacing,
 	components,
-} from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+} from '../../../../design-system/adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
-	section: {
-		marginBottom: spacing.lg,
-	},
-	tag: {
-		fontSize: 10,
-		fontFamily: '"SF Mono", "Cascadia Code", monospace',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	heading: {
-		fontSize: 13,
-		fontWeight: 600,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	row: {
-		display: 'flex',
-		flexWrap: 'wrap',
-		gap: spacing.md,
-		marginBottom: spacing.md,
-		alignItems: 'center',
-	},
-	groupLabel: {
-		fontSize: 11,
-		fontWeight: 600,
-		color: roles.textTertiary,
-		minWidth: 70,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
-	},
-	btn: {
+	base: {
 		padding: `${spacing.sm} ${spacing.lg}`,
 		fontSize: 14,
 		fontWeight: 600,
@@ -52,7 +20,7 @@ export const styles = create({
 		lineHeight: 1.4,
 	},
 	primary: {
-		backgroundColor: roles.actionPrimaryBg,
+		backgroundColor: components.buttonBg,
 		color: roles.actionPrimaryFg,
 		borderColor: roles.actionPrimaryBorder,
 		':hover': {

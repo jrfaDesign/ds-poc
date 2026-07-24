@@ -1,40 +1,12 @@
 import { create } from '@stylexjs/stylex';
-import {
-	roles,
-	spacing,
-	components,
-} from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+import { roles, spacing } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
-	section: {
-		marginBottom: spacing.lg,
-	},
-	tag: {
-		fontSize: 10,
-		fontFamily: '"SF Mono", "Cascadia Code", monospace',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	heading: {
-		fontSize: 13,
-		fontWeight: 600,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
-		color: roles.textSecondary,
-		marginBottom: spacing.sm,
-	},
-	card: {
-		backgroundColor: roles.surface,
-		borderWidth: 1,
-		borderStyle: 'solid',
-		borderColor: roles.border,
-		borderRadius: components.cardBorderRadii,
-		padding: spacing.lg,
+	inner: {
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'center',
 		gap: spacing.md,
-		maxWidth: 280,
 	},
 	avatar: {
 		width: 64,
@@ -47,26 +19,6 @@ export const styles = create({
 		fontSize: 24,
 		fontWeight: 700,
 		color: roles.textBrand,
-	},
-	name: {
-		fontSize: 18,
-		fontWeight: 700,
-		color: roles.text,
-		margin: 0,
-		textAlign: 'center',
-	},
-	role: {
-		fontSize: 13,
-		color: roles.textSecondary,
-		margin: 0,
-		textAlign: 'center',
-	},
-	bio: {
-		fontSize: 13,
-		color: roles.textTertiary,
-		margin: 0,
-		textAlign: 'center',
-		lineHeight: 1.5,
 	},
 	stats: {
 		display: 'flex',
@@ -83,16 +35,5 @@ export const styles = create({
 		flexDirection: 'column',
 		alignItems: 'center',
 		gap: 2,
-	},
-	statValue: {
-		fontSize: 16,
-		fontWeight: 700,
-		color: roles.text,
-	},
-	statLabel: {
-		fontSize: 11,
-		color: roles.textTertiary,
-		textTransform: 'uppercase',
-		letterSpacing: '0.5px',
 	},
 });

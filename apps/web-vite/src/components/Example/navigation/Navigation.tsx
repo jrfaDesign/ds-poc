@@ -1,18 +1,16 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './Navigation.styles';
+import { Section } from '../ui/Section/Section';
+import { Typography } from '../ui/Typography/Typography';
 
 export function Navigation() {
 	return (
-		<div {...stylex.props(styles.section)}>
-			<span {...stylex.props(styles.tag)}>
-				{'roles.surface / text / actionLinkFg / actionLinkFgHover / divider / actionSecondaryBg'}
-			</span>
-			<h3 {...stylex.props(styles.heading)}>Navigation Bar</h3>
+		<Section title="Navigation Bar">
 			<nav {...stylex.props(styles.nav)}>
 				<div {...stylex.props(styles.navInner)}>
 					<div {...stylex.props(styles.brand)}>
 						<div {...stylex.props(styles.brandIcon)}>D</div>
-						<span {...stylex.props(styles.brandName)}>DesignSystem</span>
+						<Typography role="heading4">DesignSystem</Typography>
 					</div>
 					<div {...stylex.props(styles.links)}>
 						<span {...stylex.props(styles.linkItem, styles.linkActive)}>Dashboard</span>
@@ -36,6 +34,6 @@ export function Navigation() {
 					</span>
 				</div>
 			</nav>
-		</div>
+		</Section>
 	);
 }

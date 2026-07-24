@@ -3,12 +3,16 @@ import { TokensSchema, type Tokens } from '../foundations';
 const defaultThemeTokens: Tokens = {
 	spacing: {
 		none: 0,
-		xs: 2,
-		sm: 4,
-		md: 8,
-		lg: 16,
+		'3xs': 1,
+		'2xs': 2,
+		xs: 4,
+		sm: 8,
+		md: 12,
+		lg: 20,
 		xl: 32,
-		'2xl': 64,
+		'2xl': 48,
+		'3xl': 80,
+		'4xl': 120,
 	},
 	radii: {
 		none: 0,
@@ -95,9 +99,92 @@ const defaultThemeTokens: Tokens = {
 		warning_800: '#513817',
 		warning_900: '#372714',
 	},
-	//  typography: {
-	//
-	//  },
+	typography: {
+		fontFamily: '"Google Sans Flex", system-ui, -apple-system, sans-serif',
+		monospaceFont: '"SF Mono", "Cascadia Code", "JetBrains Mono", monospace',
+		fontSize: {
+			'2xs': 12,
+			xs: 14,
+			sm: 16,
+			md: 18,
+			lg: 22,
+			xl: 24,
+			'2xl': 28,
+			'3xl': 32,
+			'4xl': 40,
+			'5xl': 56,
+			'6xl': 72,
+		},
+		fontWeight: {
+			thin: 100,
+			light: 300,
+			regular: 400,
+			medium: 500,
+			semibold: 600,
+			bold: 700,
+			black: 900,
+		},
+		lineHeight: {
+			none: 1,
+			tight: 1.25,
+			normal: 1.5,
+			relaxed: 1.75,
+			loose: 2,
+		},
+		letterSpacing: {
+			tighter: -0.05,
+			tight: -0.025,
+			normal: 0,
+			wide: 0.025,
+			wider: 0.05,
+			widest: 0.1,
+		},
+		roles: {
+			heading1: {
+				fontSize: '6xl',
+				fontWeight: 'bold',
+				lineHeight: 'tight',
+				letterSpacing: 'tight',
+				color: 'text',
+			},
+			heading2: {
+				fontSize: '4xl',
+				fontWeight: 'bold',
+				lineHeight: 'tight',
+				letterSpacing: 'tight',
+				color: 'text',
+			},
+			heading3: { fontSize: '3xl', fontWeight: 'semibold', lineHeight: 'tight', color: 'text' },
+			heading4: { fontSize: '2xl', fontWeight: 'semibold', lineHeight: 'normal', color: 'text' },
+			body: { fontSize: 'md', fontWeight: 'regular', lineHeight: 'normal', color: 'text' },
+			bodySm: {
+				fontSize: 'sm',
+				fontWeight: 'regular',
+				lineHeight: 'normal',
+				color: 'textSecondary',
+			},
+			caption: {
+				fontSize: 'xs',
+				fontWeight: 'regular',
+				lineHeight: 'tight',
+				color: 'textTertiary',
+			},
+			label: {
+				fontSize: 'xs',
+				fontWeight: 'medium',
+				lineHeight: 'tight',
+				letterSpacing: 'wide',
+				color: 'textSecondary',
+			},
+			overline: {
+				fontSize: '2xs',
+				fontWeight: 'semibold',
+				lineHeight: 'none',
+				letterSpacing: 'widest',
+				color: 'textTertiary',
+			},
+		},
+	},
 
 	shadows: {
 		none: {
@@ -289,8 +376,23 @@ const defaultThemeTokens: Tokens = {
 		infoFgInverse: { light: 'info_200', dark: 'info_700' },
 	},
 
+	breakpoints: {
+		mobile: 0,
+		tablet: 600,
+		desktop: 1024,
+		wide: 1440,
+		ultra: 1920,
+	},
+	grid: {
+		mobile: { columns: 4, gutter: 'sm', margin: 'sm', maxWidth: '100%' },
+		tablet: { columns: 8, gutter: 'md', margin: 'md', maxWidth: 720 },
+		desktop: { columns: 12, gutter: 'lg', margin: 'lg', maxWidth: 960 },
+		wide: { columns: 12, gutter: 'lg', margin: 'xl', maxWidth: 1200 },
+		ultra: { columns: 12, gutter: 'xl', margin: 'xl', maxWidth: 1440 },
+	},
+
 	components: {
-		buttonBg: { type: 'roles', value: 'actionGhostBg' },
+		buttonBg: { type: 'roles', value: 'actionPrimaryBg' },
 		buttonBorderRadii: { type: 'radii', value: 'md' },
 
 		cardBorderRadii: { type: 'radii', value: 'lg' },

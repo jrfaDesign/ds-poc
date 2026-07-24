@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { StylexExample } from './components/StylexExample/StylexExample';
 import { AppStyles } from './App.styles';
 
 import * as stylex from '@stylexjs/stylex';
@@ -9,6 +8,7 @@ import cagTheme from './design-system/themes/cag';
 import ThemeVariables from './components/ThemeVariables/ThemeVariables';
 import { Example } from './components/Example/Example';
 import caosTheme from './design-system/themes/caos';
+import { Stack } from './components/Example/ui/Stack/Stack';
 
 function App() {
 	const [darkMode, setDarkMode] = useState(false);
@@ -24,7 +24,10 @@ function App() {
 	};
 
 	return (
-		<div {...stylex.props(AppStyles.container)}>
+		<Stack
+			gap="lg"
+			style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--role-surface)' }}
+		>
 			<div {...stylex.props(AppStyles.toolbar)}>
 				<button onClick={toggleDarkMode}>Toggle {darkMode ? 'Light' : 'Dark'} Mode</button>
 
@@ -35,16 +38,10 @@ function App() {
 				</div>
 			</div>
 
-			{/* <StylexExample />
-			<div style={{ display: 'flex', gap: 20 }}>
-				<StylexExample showError />
-				<StylexExample showSuccess />
-			</div> */}
-
 			<Example />
 
 			<ThemeVariables />
-		</div>
+		</Stack>
 	);
 }
 

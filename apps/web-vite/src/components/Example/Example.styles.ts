@@ -1,5 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import { roles, spacing } from '../../design-system/adapters/stylex/createStylexVars.stylex';
+import { roles, spacing, radii } from '../../design-system/adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
 	page: {
@@ -8,27 +8,40 @@ export const styles = create({
 		padding: spacing.lg,
 		fontFamily: 'system-ui, -apple-system, sans-serif',
 		color: roles.text,
+		overflowX: 'hidden' as const,
 	},
 	header: {
 		marginBottom: spacing.lg,
 	},
-	h1: {
-		fontSize: 28,
-		fontWeight: 700,
-		margin: 0,
-		color: roles.text,
+	layoutSection: {
+		padding: spacing.lg,
+		backgroundColor: roles.surface,
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: roles.border,
+		borderRadius: radii.lg,
 	},
-	p: {
-		fontSize: 14,
-		color: roles.textSecondary,
-		margin: '4px 0 0',
+	tokenTable: {
+		backgroundColor: roles.surfaceAlt,
+		borderRadius: radii.md,
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: roles.border,
+		marginTop: spacing.sm,
+		overflow: 'hidden',
 	},
-	grid: {
-		display: 'grid',
-		gridTemplateColumns: '1fr 1fr',
-		gap: spacing.lg,
+	colDemo: {
+		backgroundColor: roles.actionPrimaryBg,
+		color: roles.white,
+		fontSize: 12,
+		fontWeight: 600,
+		fontFamily: '"SF Mono", "Cascadia Code", monospace',
+		textAlign: 'center',
+		padding: '8px 0',
+		borderRadius: radii.sm,
 	},
-	full: {
-		gridColumn: '1 / -1',
+	colDemoAlt: {
+		backgroundColor: roles.actionSecondaryBg,
+		color: roles.actionSecondaryFg,
 	},
 });

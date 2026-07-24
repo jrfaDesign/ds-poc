@@ -207,7 +207,19 @@ const ComponentColorSchema = z.union([RoleRefSchema, LiteralColorSchema]);
 // ---------------------------------------------
 // NON-COLOR TOKEN
 // ---------------------------------------------
-const spacingKeys = ['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
+const spacingKeys = [
+	'none',
+	'3xs',
+	'2xs',
+	'xs',
+	'sm',
+	'md',
+	'lg',
+	'xl',
+	'2xl',
+	'3xl',
+	'4xl',
+] as const;
 const radiiKeys = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'full'] as const;
 
 export type SpacingToken = (typeof spacingKeys)[number];
@@ -273,6 +285,116 @@ const GradientsSchema = z
 	)
 	.strict();
 
+// ---------------------------------------------
+// TYPOGRAPHY SCALES
+// ---------------------------------------------
+const fontSizeKeys = [
+	'2xs',
+	'xs',
+	'sm',
+	'md',
+	'lg',
+	'xl',
+	'2xl',
+	'3xl',
+	'4xl',
+	'5xl',
+	'6xl',
+] as const;
+const fontWeightKeys = ['thin', 'light', 'regular', 'medium', 'semibold', 'bold', 'black'] as const;
+const lineHeightKeys = ['none', 'tight', 'normal', 'relaxed', 'loose'] as const;
+const letterSpacingKeys = ['tighter', 'tight', 'normal', 'wide', 'wider', 'widest'] as const;
+
+export type FontSizeToken = (typeof fontSizeKeys)[number];
+export type FontWeightToken = (typeof fontWeightKeys)[number];
+export type LineHeightToken = (typeof lineHeightKeys)[number];
+export type LetterSpacingToken = (typeof letterSpacingKeys)[number];
+
+const FontSizeSchema = z
+	.object(
+		fontSizeKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.number() }),
+			{} as Record<FontSizeToken, z.ZodNumber>
+		)
+	)
+	.strict();
+
+const FontWeightSchema = z
+	.object(
+		fontWeightKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.number() }),
+			{} as Record<FontWeightToken, z.ZodNumber>
+		)
+	)
+	.strict();
+
+const LineHeightSchema = z
+	.object(
+		lineHeightKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.number() }),
+			{} as Record<LineHeightToken, z.ZodNumber>
+		)
+	)
+	.strict();
+
+const LetterSpacingSchema = z
+	.object(
+		letterSpacingKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.number() }),
+			{} as Record<LetterSpacingToken, z.ZodNumber>
+		)
+	)
+	.strict();
+
+// ---------------------------------------------
+// TYPOGRAPHY ROLES (semantic compositions)
+// ---------------------------------------------
+const typographyRoleKeys = [
+	'heading1',
+	'heading2',
+	'heading3',
+	'heading4',
+	'body',
+	'bodySm',
+	'caption',
+	'label',
+	'overline',
+] as const;
+
+export type TypographyRoleToken = (typeof typographyRoleKeys)[number];
+
+const FontSizeTokenSchema = z.enum(fontSizeKeys);
+const FontWeightTokenSchema = z.enum(fontWeightKeys);
+const LineHeightTokenSchema = z.enum(lineHeightKeys);
+const LetterSpacingTokenSchema = z.enum(letterSpacingKeys);
+
+const TypographyRoleValueSchema = z.object({
+	fontSize: FontSizeTokenSchema,
+	fontWeight: FontWeightTokenSchema,
+	lineHeight: LineHeightTokenSchema,
+	letterSpacing: LetterSpacingTokenSchema.optional(),
+	color: z.enum(roleKeys).optional().default('text'),
+});
+
+const TypographyRolesSchema = z
+	.object(
+		typographyRoleKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: TypographyRoleValueSchema }),
+			{} as Record<TypographyRoleToken, typeof TypographyRoleValueSchema>
+		)
+	)
+	.strict();
+
+const TypographySchema = z.object({
+	fontFamily: z.string(),
+	monospaceFont: z.string(),
+	fontSize: FontSizeSchema,
+	fontWeight: FontWeightSchema,
+	lineHeight: LineHeightSchema,
+	letterSpacing: LetterSpacingSchema,
+	roles: TypographyRolesSchema,
+});
+
 const SpacingTokenSchema = z.enum(spacingKeys);
 const RadiiTokenSchema = z.enum(radiiKeys);
 
@@ -280,6 +402,59 @@ const NonColorTokenSchema = z.object({
 	type: z.enum(['spacing', 'radii']),
 	value: z.union([SpacingTokenSchema, RadiiTokenSchema]),
 });
+
+// ---------------------------------------------
+// BREAKPOINTS
+// ---------------------------------------------
+
+/** Named viewport thresholds used by the responsive grid system. */
+export const breakpointKeys = ['mobile', 'tablet', 'desktop', 'wide', 'ultra'] as const;
+
+/** A named viewport threshold — one of `'mobile' | 'tablet' | 'desktop' | 'wide' | 'ultra'`. */
+export type BreakpointToken = (typeof breakpointKeys)[number];
+
+const BreakpointsSchema = z
+	.object({
+		mobile: z.number(),
+		tablet: z.number(),
+		desktop: z.number(),
+		wide: z.number(),
+		ultra: z.number(),
+	})
+	.strict();
+
+// ---------------------------------------------
+// GRID
+// ---------------------------------------------
+
+const GridValueSchema = z.union([z.number(), z.string()]);
+
+/**
+ * Per‑breakpoint grid configuration.
+ *
+ * - `columns`: number of explicit grid columns
+ * - `gutter`:   spacing token name used for `gap`
+ * - `margin`:   spacing token name used for `paddingInline`
+ * - `maxWidth`: container max-width (`number` = px, `string` = raw CSS)
+ */
+const GridConfigSchema = z
+	.object({
+		columns: z.number(),
+		gutter: SpacingTokenSchema,
+		margin: SpacingTokenSchema,
+		maxWidth: GridValueSchema,
+	})
+	.strict();
+
+const GridSchema = z
+	.object({
+		mobile: GridConfigSchema,
+		tablet: GridConfigSchema,
+		desktop: GridConfigSchema,
+		wide: GridConfigSchema,
+		ultra: GridConfigSchema,
+	})
+	.strict();
 
 // ---------------------------------------------
 // COMPONENTS
@@ -318,10 +493,12 @@ export const TokensSchema = z
 		spacing: SpacingSchema,
 		radii: RadiiSchema,
 		colors: ColorsSchema,
-		// typography: TypographySchema,
+		typography: TypographySchema,
 		roles: RolesSchema,
 		shadows: ShadowsSchema,
 		gradients: GradientsSchema,
+		breakpoints: BreakpointsSchema,
+		grid: GridSchema,
 		components: ComponentsSchema,
 	})
 	.strict();
@@ -359,5 +536,14 @@ export type TokenNames = {
 	roles: keyof Tokens['roles'];
 	shadows: keyof Tokens['shadows'];
 	gradients: keyof Tokens['gradients'];
+	breakpoints: keyof Tokens['breakpoints'];
+	grid: keyof Tokens['grid'];
+	gridBreakpoint: keyof Tokens['grid']['mobile'];
 	components: keyof Tokens['components'];
+	typography: keyof Tokens['typography'];
+	typographyRole: keyof Tokens['typography']['roles'];
+	fontSize: keyof Tokens['typography']['fontSize'];
+	fontWeight: keyof Tokens['typography']['fontWeight'];
+	lineHeight: keyof Tokens['typography']['lineHeight'];
+	letterSpacing: keyof Tokens['typography']['letterSpacing'];
 };

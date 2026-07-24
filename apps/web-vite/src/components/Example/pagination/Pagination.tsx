@@ -1,18 +1,13 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './Pagination.styles';
+import { Section } from '../ui/Section/Section';
 
 const pages = [1, 2, 3, 4, 5];
 const current = 3;
 
 export function Pagination() {
 	return (
-		<div {...stylex.props(styles.section)}>
-			<span {...stylex.props(styles.tag)}>
-				{
-					'roles.surface / surfaceAlt / actionPrimaryBg / actionPrimaryFg / actionPrimaryBorder / border / borderStrong / text / textSecondary / radii.md'
-				}
-			</span>
-			<h3 {...stylex.props(styles.heading)}>Pagination</h3>
+		<Section title="Pagination">
 			<div {...stylex.props(styles.pagination)}>
 				<button {...stylex.props(styles.navBtn)}>{'\u2039'}</button>
 				{pages.map((p) => (
@@ -27,6 +22,6 @@ export function Pagination() {
 				<button {...stylex.props(styles.pageBtn)}>10</button>
 				<button {...stylex.props(styles.navBtn)}>{'\u203A'}</button>
 			</div>
-		</div>
+		</Section>
 	);
 }

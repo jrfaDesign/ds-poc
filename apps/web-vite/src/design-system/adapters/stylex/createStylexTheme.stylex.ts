@@ -1,4 +1,12 @@
-import type { Tokens } from '../../foundations';
+import type {
+	Tokens,
+	SpacingToken,
+	RadiiToken,
+	FontSizeToken,
+	FontWeightToken,
+	LineHeightToken,
+	LetterSpacingToken,
+} from '../../foundations';
 
 function hexToRgba(hex: string, alpha: number): string {
 	if (hex === 'transparent') return `rgba(0,0,0,0)`;
@@ -19,6 +27,45 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 	// radii
 	Object.entries(theme.radii).forEach(([key, value]) => {
 		root.style.setProperty(`--radii-${key}`, `${value}px`);
+	});
+
+	// typography
+	root.style.setProperty('--typography-fontFamily', theme.typography.fontFamily);
+	root.style.setProperty('--typography-monospaceFont', theme.typography.monospaceFont);
+	Object.entries(theme.typography.fontSize).forEach(([key, value]) => {
+		root.style.setProperty(`--typography-fontSize-${key}`, `${value}px`);
+	});
+	Object.entries(theme.typography.fontWeight).forEach(([key, value]) => {
+		root.style.setProperty(`--typography-fontWeight-${key}`, String(value));
+	});
+	Object.entries(theme.typography.lineHeight).forEach(([key, value]) => {
+		root.style.setProperty(`--typography-lineHeight-${key}`, String(value));
+	});
+	Object.entries(theme.typography.letterSpacing).forEach(([key, value]) => {
+		root.style.setProperty(`--typography-letterSpacing-${key}`, `${value}em`);
+	});
+
+	// typography — roles (resolve each role's composition to CSS variables)
+	Object.entries(theme.typography.roles).forEach(([roleName, roleValue]) => {
+		const fs = theme.typography.fontSize[roleValue.fontSize as FontSizeToken];
+		const fw = theme.typography.fontWeight[roleValue.fontWeight as FontWeightToken];
+		const lh = theme.typography.lineHeight[roleValue.lineHeight as LineHeightToken];
+
+		root.style.setProperty(`--typography-role-${roleName}-fontSize`, `${fs}px`);
+		root.style.setProperty(`--typography-role-${roleName}-fontWeight`, String(fw));
+		root.style.setProperty(`--typography-role-${roleName}-lineHeight`, String(lh));
+
+		if (roleValue.letterSpacing) {
+			const ls = theme.typography.letterSpacing[roleValue.letterSpacing as LetterSpacingToken];
+			root.style.setProperty(`--typography-role-${roleName}-letterSpacing`, `${ls}em`);
+		}
+
+		if (roleValue.color) {
+			root.style.setProperty(
+				`--typography-role-${roleName}-color`,
+				`var(--role-${roleValue.color})`
+			);
+		}
 	});
 
 	// colors
@@ -66,15 +113,37 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 			return;
 		}
 
-		// CASE 3: non-color token { type: 'spacing' | 'radii', value }
-		if (token.type === 'spacing' || token.type === 'radii') {
-			const px = token.type === 'spacing' ? theme.spacing[token.value] : theme.radii[token.value];
+		// CASE 3: non-color token { type: 'spacing', value }
+		if (token.type === 'spacing') {
+			const px = theme.spacing[token.value as SpacingToken];
+			root.style.setProperty(`--component-${comp}`, `${px}px`);
+			return;
+		}
 
+		// CASE 4: non-color token { type: 'radii', value }
+		if (token.type === 'radii') {
+			const px = theme.radii[token.value as RadiiToken];
 			root.style.setProperty(`--component-${comp}`, `${px}px`);
 			return;
 		}
 
 		throw new Error(`Invalid component token for "${comp}"`);
+	});
+
+	// breakpoints
+	Object.entries(theme.breakpoints).forEach(([bp, px]) => {
+		root.style.setProperty(`--breakpoint-${bp}`, `${px}px`);
+	});
+
+	// grid
+	Object.entries(theme.grid).forEach(([bp, config]) => {
+		root.style.setProperty(`--grid-${bp}-columns`, String(config.columns));
+		root.style.setProperty(`--grid-${bp}-gutter`, `${theme.spacing[config.gutter]}px`);
+		root.style.setProperty(`--grid-${bp}-margin`, `${theme.spacing[config.margin]}px`);
+		root.style.setProperty(
+			`--grid-${bp}-maxWidth`,
+			typeof config.maxWidth === 'number' ? `${config.maxWidth}px` : config.maxWidth
+		);
 	});
 
 	// shadows (mode-aware: resolves {light,dark} color references)

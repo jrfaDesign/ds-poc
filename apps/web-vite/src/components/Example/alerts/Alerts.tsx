@@ -1,61 +1,35 @@
-import * as stylex from '@stylexjs/stylex';
-import { styles } from './Alerts.styles';
+import { Section } from '../ui/Section/Section';
+import { Alert } from '../ui/Alert/Alert';
 
-type AlertType = 'error' | 'success' | 'warning' | 'info';
-
-const alerts: { type: AlertType; title: string; msg: string }[] = [
+const alerts = [
 	{
-		type: 'error',
+		type: 'error' as const,
 		title: 'Connection Lost',
-		msg: 'Unable to reach the server. Please check your network and try again.',
+		message: 'Unable to reach the server. Please check your network and try again.',
 	},
-	{ type: 'success', title: 'Changes Saved', msg: 'Your profile has been updated successfully.' },
 	{
-		type: 'warning',
+		type: 'success' as const,
+		title: 'Changes Saved',
+		message: 'Your profile has been updated successfully.',
+	},
+	{
+		type: 'warning' as const,
 		title: 'Storage Almost Full',
-		msg: 'You are using 90% of your allocated storage. Consider freeing up space.',
+		message: 'You are using 90% of your allocated storage. Consider freeing up space.',
 	},
 	{
-		type: 'info',
+		type: 'info' as const,
 		title: 'New Update Available',
-		msg: 'Version 3.2.0 is ready to install. New features include dark mode support.',
+		message: 'Version 3.2.0 is ready to install. New features include dark mode support.',
 	},
 ];
 
-const icons: Record<AlertType, string> = {
-	error: '!',
-	success: '\u2713',
-	warning: '\u26A0',
-	info: 'i',
-};
-
 export function Alerts() {
 	return (
-		<div {...stylex.props(styles.section)}>
-			<span {...stylex.props(styles.tag)}>
-				{
-					'roles.errorBg/Fg/Border  |  successBg/Fg/Border  |  warningBg/Fg/Border  |  infoBg/Fg/Border'
-				}
-			</span>
-			<h3 {...stylex.props(styles.heading)}>Alert Banners</h3>
+		<Section title="Alert Banners">
 			{alerts.map((a) => (
-				<div key={a.type} {...stylex.props(styles.alert, styles[a.type])}>
-					<div
-						{...stylex.props(
-							styles.icon,
-							styles[
-								`icon${a.type.charAt(0).toUpperCase() + a.type.slice(1)}` as keyof typeof styles
-							]
-						)}
-					>
-						{icons[a.type]}
-					</div>
-					<div {...stylex.props(styles.body)}>
-						<p {...stylex.props(styles.title)}>{a.title}</p>
-						<p {...stylex.props(styles.message)}>{a.msg}</p>
-					</div>
-				</div>
+				<Alert key={a.type} type={a.type} title={a.title} message={a.message} />
 			))}
-		</div>
+		</Section>
 	);
 }

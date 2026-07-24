@@ -3,12 +3,19 @@ import defaultTheme from './default';
 
 const caosTheme = mergeTheme(defaultTheme, {
 	spacing: {
-		xs: 4,
-		sm: 8,
-		md: 16,
-		lg: 24,
-		xl: 42,
-		'2xl': 72,
+		'3xs': 2,
+		'2xs': 4,
+		xs: 6,
+		sm: 12,
+		md: 20,
+		lg: 32,
+		xl: 48,
+		'2xl': 80,
+		'3xl': 120,
+		'4xl': 160,
+	},
+	typography: {
+		fontFamily: '"Bitcount Grid Double", monospace',
 	},
 	colors: {
 		primary_100: '#cdf101',
@@ -97,9 +104,10 @@ const caosTheme = mergeTheme(defaultTheme, {
 			],
 		},
 	},
+
 	components: {
-		buttonBg: { type: 'roles', value: 'actionPrimaryBg' },
-		buttonBorderRadii: { type: 'radii', value: 'full' },
+		buttonBg: { type: 'roles', value: 'secondary' },
+		buttonBorderRadii: { type: 'radii', value: '2xl' },
 		cardBorderRadii: { type: 'radii', value: 'none' },
 	},
 });

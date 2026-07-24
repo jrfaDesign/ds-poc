@@ -1,18 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
 import { roles } from './design-system/adapters/stylex/createStylexVars.stylex';
-import { spacing } from './tokens/index.stylex';
+import { spacing } from './design-system/adapters/stylex/createStylexVars.stylex';
 
 export const AppStyles = stylex.create({
-	container: {
-		backgroundColor: roles.surface,
-		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center',
-		width: '100%',
-		minHeight: '100vh',
-		gap: spacing.lg,
-	},
 	toolbar: {
+		overflowX: 'hidden',
 		position: 'sticky',
 		top: 0,
 		zIndex: 10,

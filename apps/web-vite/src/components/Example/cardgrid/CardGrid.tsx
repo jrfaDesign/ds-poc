@@ -1,5 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './CardGrid.styles';
+import { Section } from '../ui/Section/Section';
+import { Card } from '../ui/Card/Card';
+import { Typography } from '../ui/Typography/Typography';
 
 const cards = [
 	{
@@ -11,13 +14,13 @@ const cards = [
 	{
 		variant: 'raised' as const,
 		title: 'Raised Card',
-		desc: 'Uses roles.surfaceRaised — one step above the base surface. Great for modals and elevated panels.',
+		desc: 'Uses roles.surfaceRaised - one step above the base surface. Great for modals and elevated panels.',
 		meta: 'surfaceRaised / borderWeak',
 	},
 	{
 		variant: 'alt' as const,
 		title: 'Alt Card',
-		desc: 'Uses roles.surfaceAlt — the alternate surface. Commonly used for cards and panels on top of the base.',
+		desc: 'Uses roles.surfaceAlt - the alternate surface. Commonly used for cards and panels on top of the base.',
 		meta: 'surfaceAlt / border',
 	},
 	{
@@ -30,29 +33,20 @@ const cards = [
 
 export function CardGrid() {
 	return (
-		<div {...stylex.props(styles.section)}>
-			<span {...stylex.props(styles.tag)}>
-				{
-					'roles.surface / surfaceRaised / surfaceAlt / surfaceBrand / text / textBrand / textSecondary / textTertiary / border / borderWeak'
-				}
-			</span>
-			<h3 {...stylex.props(styles.heading)}>Card Surface Variants</h3>
+		<Section title="Card Surface Variants">
 			<div {...stylex.props(styles.grid)}>
 				{cards.map((c) => (
-					<div key={c.variant} {...stylex.props(styles.card, styles[c.variant])}>
-						<p
-							{...stylex.props(
-								styles.cardTitle,
-								c.variant === 'brand' ? styles.cardTitleBrand : null
-							)}
-						>
+					<Card key={c.variant} variant={c.variant}>
+						<Typography role="heading4" color={c.variant === 'brand' ? 'textBrand' : undefined}>
 							{c.title}
-						</p>
-						<p {...stylex.props(styles.cardDesc)}>{c.desc}</p>
-						<p {...stylex.props(styles.cardMeta)}>{c.meta}</p>
-					</div>
+						</Typography>
+						<Typography role="bodySm">{c.desc}</Typography>
+						<Typography role="caption" color="textTertiary">
+							{c.meta}
+						</Typography>
+					</Card>
 				))}
 			</div>
-		</div>
+		</Section>
 	);
 }

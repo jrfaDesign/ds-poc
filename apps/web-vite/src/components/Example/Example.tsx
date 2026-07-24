@@ -10,55 +10,77 @@ import { StatusDots } from './status/StatusDots';
 import { CardGrid } from './cardgrid/CardGrid';
 import { ModalDialog } from './modal/ModalDialog';
 import { Pagination } from './pagination/Pagination';
+import { Typography } from './ui/Typography/Typography';
+import { TypographyDemo } from './typography/Typography';
+import { Grid } from './ui/Grid/Grid';
+import { Stack } from './ui/Stack/Stack';
+import { Inline } from './ui/Inline/Inline';
+import { Box } from './ui/Box/Box';
+import defaultTheme from '../../design-system/themes/default';
+
+const bpKeys = ['mobile', 'tablet', 'desktop', 'wide', 'ultra'] as const;
+const gridBps = bpKeys.map((bp) => ({
+	name: bp,
+	px: defaultTheme.breakpoints[bp],
+	grid: defaultTheme.grid[bp],
+}));
+
+const columns12 = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export function Example() {
 	return (
 		<div {...stylex.props(styles.page)}>
 			<header {...stylex.props(styles.header)}>
-				<h1 {...stylex.props(styles.h1)}>Design Token Examples</h1>
-				<p {...stylex.props(styles.p)}>
+				<Typography role="heading2">Design Token Examples</Typography>
+				<Typography role="bodySm" color="textSecondary">
 					Real-world UI patterns built with the design system tokens.
-				</p>
+				</Typography>
 			</header>
 
-			<div {...stylex.props(styles.grid)}>
-				<div {...stylex.props(styles.full)}>
+			<Grid>
+				<Grid.Item span={12}>
 					<Navigation />
-				</div>
+				</Grid.Item>
 
-				<div>
+				<Grid.Item span={{ mobile: 4, tablet: 4, desktop: 6 }}>
 					<ProfileCard />
-				</div>
+				</Grid.Item>
 
-				<div>
+				<Grid.Item span={{ mobile: 4, tablet: 4, desktop: 6 }}>
 					<FormElements />
-				</div>
+				</Grid.Item>
 
-				<div {...stylex.props(styles.full)}>
+				<Grid.Item span={12}>
 					<ButtonVariants />
-				</div>
+				</Grid.Item>
 
-				<div {...stylex.props(styles.full)}>
+				<Grid.Item span={12}>
 					<Alerts />
-				</div>
+				</Grid.Item>
 
-				<div {...stylex.props(styles.full)}>
+				<Grid.Item span={12}>
 					<CardGrid />
-				</div>
+				</Grid.Item>
 
-				<div>
-					<Badges />
-					<StatusDots />
-				</div>
+				<Grid.Item span={{ mobile: 4, tablet: 4, desktop: 6 }}>
+					<Stack gap="md">
+						<Badges />
+						<StatusDots />
+					</Stack>
+				</Grid.Item>
 
-				<div>
+				<Grid.Item span={{ mobile: 4, tablet: 4, desktop: 6 }}>
 					<ModalDialog />
-				</div>
+				</Grid.Item>
 
-				<div {...stylex.props(styles.full)}>
+				<Grid.Item span={12}>
 					<Pagination />
-				</div>
-			</div>
+				</Grid.Item>
+
+				<Grid.Item span={12}>
+					<TypographyDemo />
+				</Grid.Item>
+			</Grid>
 		</div>
 	);
 }
