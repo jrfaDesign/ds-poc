@@ -45,25 +45,25 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 		root.style.setProperty(`--typography-letterSpacing-${key}`, `${value}em`);
 	});
 
-	// typography — roles (resolve each role's composition to CSS variables)
-	Object.entries(theme.typography.roles).forEach(([roleName, roleValue]) => {
-		const fs = theme.typography.fontSize[roleValue.fontSize as FontSizeToken];
-		const fw = theme.typography.fontWeight[roleValue.fontWeight as FontWeightToken];
-		const lh = theme.typography.lineHeight[roleValue.lineHeight as LineHeightToken];
+	// typography — contracts (resolve each contract's composition to CSS variables)
+	Object.entries(theme.contracts.typography).forEach(([contractName, contractValue]) => {
+		const fs = theme.typography.fontSize[contractValue.fontSize as FontSizeToken];
+		const fw = theme.typography.fontWeight[contractValue.fontWeight as FontWeightToken];
+		const lh = theme.typography.lineHeight[contractValue.lineHeight as LineHeightToken];
 
-		root.style.setProperty(`--typography-role-${roleName}-fontSize`, `${fs}px`);
-		root.style.setProperty(`--typography-role-${roleName}-fontWeight`, String(fw));
-		root.style.setProperty(`--typography-role-${roleName}-lineHeight`, String(lh));
+		root.style.setProperty(`--typography-contract-${contractName}-fontSize`, `${fs}px`);
+		root.style.setProperty(`--typography-contract-${contractName}-fontWeight`, String(fw));
+		root.style.setProperty(`--typography-contract-${contractName}-lineHeight`, String(lh));
 
-		if (roleValue.letterSpacing) {
-			const ls = theme.typography.letterSpacing[roleValue.letterSpacing as LetterSpacingToken];
-			root.style.setProperty(`--typography-role-${roleName}-letterSpacing`, `${ls}em`);
+		if (contractValue.letterSpacing) {
+			const ls = theme.typography.letterSpacing[contractValue.letterSpacing as LetterSpacingToken];
+			root.style.setProperty(`--typography-contract-${contractName}-letterSpacing`, `${ls}em`);
 		}
 
-		if (roleValue.color) {
+		if (contractValue.color) {
 			root.style.setProperty(
-				`--typography-role-${roleName}-color`,
-				`var(--role-${roleValue.color})`
+				`--typography-contract-${contractName}-color`,
+				`var(--role-${contractValue.color})`
 			);
 		}
 	});
@@ -133,6 +133,42 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 	// breakpoints
 	Object.entries(theme.breakpoints).forEach(([bp, px]) => {
 		root.style.setProperty(`--breakpoint-${bp}`, `${px}px`);
+	});
+
+	// actions (resolve each preset property to CSS vars)
+	Object.entries(theme.contracts.actions).forEach(([variant, preset]) => {
+		Object.entries(preset).forEach(([prop, roleName]) => {
+			const role = theme.roles[roleName as keyof typeof theme.roles];
+			const lightColor = theme.colors[role.light as keyof typeof theme.colors] as string;
+			const darkColor = theme.colors[role.dark as keyof typeof theme.colors] as string;
+			root.style.setProperty(`--action-${variant}-${prop}-default`, lightColor);
+			root.style.setProperty(`--action-${variant}-${prop}-dark`, darkColor);
+			root.style.setProperty(`--action-${variant}-${prop}`, darkMode ? darkColor : lightColor);
+		});
+	});
+
+	// feedback (resolve each preset property to CSS vars)
+	Object.entries(theme.contracts.feedback).forEach(([intent, preset]) => {
+		Object.entries(preset).forEach(([prop, roleName]) => {
+			const role = theme.roles[roleName as keyof typeof theme.roles];
+			const lightColor = theme.colors[role.light as keyof typeof theme.colors] as string;
+			const darkColor = theme.colors[role.dark as keyof typeof theme.colors] as string;
+			root.style.setProperty(`--feedback-${intent}-${prop}-default`, lightColor);
+			root.style.setProperty(`--feedback-${intent}-${prop}-dark`, darkColor);
+			root.style.setProperty(`--feedback-${intent}-${prop}`, darkMode ? darkColor : lightColor);
+		});
+	});
+
+	// surfaces (resolve each preset property to CSS vars)
+	Object.entries(theme.contracts.surfaces).forEach(([surface, preset]) => {
+		Object.entries(preset).forEach(([prop, roleName]) => {
+			const role = theme.roles[roleName as keyof typeof theme.roles];
+			const lightColor = theme.colors[role.light as keyof typeof theme.colors] as string;
+			const darkColor = theme.colors[role.dark as keyof typeof theme.colors] as string;
+			root.style.setProperty(`--surface-${surface}-${prop}-default`, lightColor);
+			root.style.setProperty(`--surface-${surface}-${prop}-dark`, darkColor);
+			root.style.setProperty(`--surface-${surface}-${prop}`, darkMode ? darkColor : lightColor);
+		});
 	});
 
 	// grid

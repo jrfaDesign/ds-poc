@@ -2,18 +2,6 @@ import { mergeTheme } from './mergeTheme';
 import defaultTheme from './default';
 
 const caosTheme = mergeTheme(defaultTheme, {
-	spacing: {
-		'3xs': 2,
-		'2xs': 4,
-		xs: 6,
-		sm: 12,
-		md: 20,
-		lg: 32,
-		xl: 48,
-		'2xl': 80,
-		'3xl': 120,
-		'4xl': 160,
-	},
 	typography: {
 		fontFamily: '"Bitcount Grid Double", monospace',
 	},
@@ -109,6 +97,57 @@ const caosTheme = mergeTheme(defaultTheme, {
 		buttonBg: { type: 'roles', value: 'secondary' },
 		buttonBorderRadii: { type: 'radii', value: '2xl' },
 		cardBorderRadii: { type: 'radii', value: 'none' },
+	},
+
+	contracts: {
+		actions: {
+			primary: {
+				bg: 'actionSecondaryBg',
+				on: 'actionSecondaryFg',
+				border: 'actionSecondaryBorder',
+				bgHover: 'actionSecondaryBgHover',
+				onHover: 'actionSecondaryFg',
+				bgActive: 'actionSecondaryBgActive',
+				onActive: 'actionSecondaryFg',
+				bgFocus: 'actionSecondaryBgFocus',
+				onFocus: 'actionSecondaryFg',
+				borderFocus: 'actionSecondaryBorderFocus',
+				bgDisabled: 'actionSecondaryDisabledBg',
+				onDisabled: 'actionSecondaryDisabledFg',
+				borderDisabled: 'actionSecondaryDisabledBorder',
+			},
+			secondary: {
+				bg: 'actionPrimaryBg',
+				on: 'actionPrimaryFg',
+				border: 'actionPrimaryBorder',
+				bgHover: 'actionPrimaryBgHover',
+				onHover: 'actionPrimaryFg',
+				bgActive: 'actionPrimaryBgActive',
+				onActive: 'actionPrimaryFg',
+				bgFocus: 'actionPrimaryBgFocus',
+				onFocus: 'actionPrimaryFg',
+				borderFocus: 'actionPrimaryBorderFocus',
+				bgDisabled: 'actionPrimaryDisabledBg',
+				onDisabled: 'actionPrimaryDisabledFg',
+				borderDisabled: 'actionPrimaryDisabledBorder',
+			},
+			ghost: defaultTheme.contracts.actions.ghost,
+			link: defaultTheme.contracts.actions.link,
+		},
+		feedback: {
+			error: defaultTheme.contracts.feedback.warning,
+			success: defaultTheme.contracts.feedback.success,
+			warning: defaultTheme.contracts.feedback.error,
+			info: defaultTheme.contracts.feedback.info,
+		},
+		surfaces: {
+			base: defaultTheme.contracts.surfaces.alt,
+			alt: defaultTheme.contracts.surfaces.base,
+			raised: defaultTheme.contracts.surfaces.raised,
+			sunken: defaultTheme.contracts.surfaces.sunken,
+			inverse: defaultTheme.contracts.surfaces.inverse,
+			brand: defaultTheme.contracts.surfaces.brand,
+		},
 	},
 });
 

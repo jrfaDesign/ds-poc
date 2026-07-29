@@ -1,5 +1,7 @@
 import { create } from '@stylexjs/stylex';
 import {
+	feedbackContracts,
+	surfaceContracts,
 	roles,
 	spacing,
 	radii,
@@ -19,12 +21,12 @@ export const styles = create({
 		borderStyle: 'solid',
 	},
 	brand: {
-		backgroundColor: roles.surfaceBrand,
-		color: roles.textBrand,
+		backgroundColor: surfaceContracts.brandBg,
+		color: surfaceContracts.brandOn,
 		borderColor: 'transparent',
 	},
 	alt: {
-		backgroundColor: roles.surfaceAlt,
+		backgroundColor: surfaceContracts.altBg,
 		color: roles.textSecondary,
 		borderColor: 'transparent',
 	},
@@ -34,24 +36,24 @@ export const styles = create({
 		borderColor: roles.borderWeak,
 	},
 	error: {
-		backgroundColor: roles.errorBg,
-		color: roles.errorFg,
-		borderColor: roles.errorBorder,
+		backgroundColor: feedbackContracts.errorBg,
+		color: feedbackContracts.errorOn,
+		borderColor: feedbackContracts.errorBorder,
 	},
 	success: {
-		backgroundColor: roles.successBg,
-		color: roles.successFg,
-		borderColor: roles.successBorder,
+		backgroundColor: feedbackContracts.successBg,
+		color: feedbackContracts.successOn,
+		borderColor: feedbackContracts.successBorder,
 	},
 	warning: {
-		backgroundColor: roles.warningBg,
-		color: roles.warningFg,
-		borderColor: roles.warningBorder,
+		backgroundColor: feedbackContracts.warningBg,
+		color: feedbackContracts.warningOn,
+		borderColor: feedbackContracts.warningBorder,
 	},
 	info: {
-		backgroundColor: roles.infoBg,
-		color: roles.infoFg,
-		borderColor: roles.infoBorder,
+		backgroundColor: feedbackContracts.infoBg,
+		color: feedbackContracts.infoOn,
+		borderColor: feedbackContracts.infoBorder,
 	},
 	dot: {
 		width: 6,
@@ -59,5 +61,6 @@ export const styles = create({
 		borderRadius: '50%',
 		display: 'inline-block',
 		flexShrink: 0,
+		color: 'currentColor',
 	},
 });

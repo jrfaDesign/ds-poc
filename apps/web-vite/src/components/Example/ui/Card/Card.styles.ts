@@ -1,5 +1,6 @@
 import { create } from '@stylexjs/stylex';
 import {
+	surfaceContracts,
 	roles,
 	spacing,
 	components,
@@ -16,19 +17,19 @@ export const styles = create({
 		gap: spacing.sm,
 	},
 	surface: {
-		backgroundColor: roles.surface,
-		borderColor: roles.border,
+		backgroundColor: surfaceContracts.baseBg,
+		borderColor: surfaceContracts.baseBorder,
 	},
 	raised: {
-		backgroundColor: roles.surfaceRaised,
+		backgroundColor: surfaceContracts.raisedBg,
 		borderColor: roles.borderWeak,
 	},
 	alt: {
-		backgroundColor: roles.surfaceAlt,
-		borderColor: roles.border,
+		backgroundColor: surfaceContracts.altBg,
+		borderColor: surfaceContracts.altBorder,
 	},
 	brand: {
-		backgroundColor: roles.surfaceBrand,
+		backgroundColor: surfaceContracts.brandBg,
 		borderColor: roles.borderWeak,
 	},
 });

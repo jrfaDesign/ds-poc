@@ -1,6 +1,6 @@
 import { create } from '@stylexjs/stylex';
 import {
-	roles,
+	feedbackContracts,
 	spacing,
 	components,
 } from '../../../../design-system/adapters/stylex/createStylexVars.stylex';
@@ -17,24 +17,24 @@ export const styles = create({
 		marginBottom: spacing.sm,
 	},
 	error: {
-		backgroundColor: roles.errorBg,
-		color: roles.errorFg,
-		borderColor: roles.errorBorder,
+		backgroundColor: feedbackContracts.errorBg,
+		color: feedbackContracts.errorOn,
+		borderColor: feedbackContracts.errorBorder,
 	},
 	success: {
-		backgroundColor: roles.successBg,
-		color: roles.successFg,
-		borderColor: roles.successBorder,
+		backgroundColor: feedbackContracts.successBg,
+		color: feedbackContracts.successOn,
+		borderColor: feedbackContracts.successBorder,
 	},
 	warning: {
-		backgroundColor: roles.warningBg,
-		color: roles.warningFg,
-		borderColor: roles.warningBorder,
+		backgroundColor: feedbackContracts.warningBg,
+		color: feedbackContracts.warningOn,
+		borderColor: feedbackContracts.warningBorder,
 	},
 	info: {
-		backgroundColor: roles.infoBg,
-		color: roles.infoFg,
-		borderColor: roles.infoBorder,
+		backgroundColor: feedbackContracts.infoBg,
+		color: feedbackContracts.infoOn,
+		borderColor: feedbackContracts.infoBorder,
 	},
 	icon: {
 		flexShrink: 0,
@@ -50,20 +50,20 @@ export const styles = create({
 		marginTop: 1,
 	},
 	iconError: {
-		backgroundColor: roles.errorFg,
-		color: roles.errorBg,
+		backgroundColor: feedbackContracts.errorOn,
+		color: feedbackContracts.errorBg,
 	},
 	iconSuccess: {
-		backgroundColor: roles.successFg,
-		color: roles.successBg,
+		backgroundColor: feedbackContracts.successOn,
+		color: feedbackContracts.successBg,
 	},
 	iconWarning: {
-		backgroundColor: roles.warningFg,
-		color: roles.warningBg,
+		backgroundColor: feedbackContracts.warningOn,
+		color: feedbackContracts.warningBg,
 	},
 	iconInfo: {
-		backgroundColor: roles.infoFg,
-		color: roles.infoBg,
+		backgroundColor: feedbackContracts.infoOn,
+		color: feedbackContracts.infoBg,
 	},
 	body: {
 		flex: 1,

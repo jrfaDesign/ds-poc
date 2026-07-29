@@ -6,6 +6,7 @@ import { Stack } from '../Example/ui/Stack/Stack';
 import { Inline } from '../Example/ui/Inline/Inline';
 import { Box } from '../Example/ui/Box/Box';
 import { Typography } from '../Example/ui/Typography/Typography';
+import ContractsDemo from './ContractsDemo';
 
 const colorFamilies = [
 	'primary',
@@ -70,7 +71,7 @@ function ThemeVariables() {
 				<h2 {...stylex.props(styles.h2)}>Roles</h2>
 				<Grid gap="lg">
 					{Object.entries(theme.roles).map(([name, role]) => (
-						<Grid.Item key={name} span={{ mobile: 12, tablet: 4, desktop: 3 }}>
+						<Grid.Item key={name} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
 							<div {...stylex.props(styles.card)}>
 								<span {...stylex.props(styles.cardTitle)}>{name}</span>
 								<div {...stylex.props(styles.rolePair)}>
@@ -97,6 +98,8 @@ function ThemeVariables() {
 					))}
 				</Grid>
 			</section>
+
+			<ContractsDemo />
 
 			{/* Spacing + Radii */}
 			<section {...stylex.props(styles.section)}>

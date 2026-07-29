@@ -139,51 +139,6 @@ const defaultThemeTokens: Tokens = {
 			wider: 0.05,
 			widest: 0.1,
 		},
-		roles: {
-			heading1: {
-				fontSize: '6xl',
-				fontWeight: 'bold',
-				lineHeight: 'tight',
-				letterSpacing: 'tight',
-				color: 'text',
-			},
-			heading2: {
-				fontSize: '4xl',
-				fontWeight: 'bold',
-				lineHeight: 'tight',
-				letterSpacing: 'tight',
-				color: 'text',
-			},
-			heading3: { fontSize: '3xl', fontWeight: 'semibold', lineHeight: 'tight', color: 'text' },
-			heading4: { fontSize: '2xl', fontWeight: 'semibold', lineHeight: 'normal', color: 'text' },
-			body: { fontSize: 'md', fontWeight: 'regular', lineHeight: 'normal', color: 'text' },
-			bodySm: {
-				fontSize: 'sm',
-				fontWeight: 'regular',
-				lineHeight: 'normal',
-				color: 'textSecondary',
-			},
-			caption: {
-				fontSize: 'xs',
-				fontWeight: 'regular',
-				lineHeight: 'tight',
-				color: 'textTertiary',
-			},
-			label: {
-				fontSize: 'xs',
-				fontWeight: 'medium',
-				lineHeight: 'tight',
-				letterSpacing: 'wide',
-				color: 'textSecondary',
-			},
-			overline: {
-				fontSize: '2xs',
-				fontWeight: 'semibold',
-				lineHeight: 'none',
-				letterSpacing: 'widest',
-				color: 'textTertiary',
-			},
-		},
 	},
 
 	shadows: {
@@ -310,9 +265,11 @@ const defaultThemeTokens: Tokens = {
 		actionPrimaryBg: { light: 'primary_500', dark: 'primary_600' },
 		actionPrimaryBgHover: { light: 'primary_600', dark: 'primary_400' },
 		actionPrimaryBgActive: { light: 'primary_700', dark: 'primary_500' },
+		actionPrimaryBgFocus: { light: 'primary_500', dark: 'primary_400' },
 
 		actionPrimaryFg: { light: 'white', dark: 'white' },
 		actionPrimaryBorder: { light: 'primary_700', dark: 'primary_500' },
+		actionPrimaryBorderFocus: { light: 'primary_500', dark: 'primary_400' },
 
 		actionPrimaryDisabledBg: { light: 'neutral_200', dark: 'neutral_700' },
 		actionPrimaryDisabledFg: { light: 'neutral_500', dark: 'neutral_400' },
@@ -322,9 +279,11 @@ const defaultThemeTokens: Tokens = {
 		actionSecondaryBg: { light: 'neutral_100', dark: 'neutral_800' },
 		actionSecondaryBgHover: { light: 'neutral_200', dark: 'neutral_700' },
 		actionSecondaryBgActive: { light: 'neutral_300', dark: 'neutral_600' },
+		actionSecondaryBgFocus: { light: 'neutral_100', dark: 'neutral_800' },
 
 		actionSecondaryFg: { light: 'neutral_900', dark: 'neutral_100' },
 		actionSecondaryBorder: { light: 'neutral_400', dark: 'neutral_600' },
+		actionSecondaryBorderFocus: { light: 'neutral_400', dark: 'neutral_600' },
 
 		actionSecondaryDisabledBg: { light: 'neutral_100', dark: 'neutral_800' },
 		actionSecondaryDisabledFg: { light: 'neutral_400', dark: 'neutral_600' },
@@ -334,14 +293,22 @@ const defaultThemeTokens: Tokens = {
 		actionGhostBg: { light: 'transparent', dark: 'transparent' },
 		actionGhostBgHover: { light: 'neutral_100', dark: 'neutral_800' },
 		actionGhostBgActive: { light: 'neutral_200', dark: 'neutral_700' },
-
+		actionGhostBgFocus: { light: 'neutral_100', dark: 'neutral_800' },
 		actionGhostFg: { light: 'neutral_900', dark: 'neutral_100' },
 		actionGhostBorder: { light: 'neutral_300', dark: 'neutral_700' },
+		actionGhostBorderFocus: { light: 'neutral_300', dark: 'neutral_700' },
+
+		actionGhostDisabledBg: { light: 'transparent', dark: 'transparent' },
+		actionGhostDisabledFg: { light: 'neutral_400', dark: 'neutral_600' },
+		actionGhostDisabledBorder: { light: 'transparent', dark: 'transparent' },
 
 		// ACTION — LINK
 		actionLinkFg: { light: 'primary_600', dark: 'primary_300' },
 		actionLinkFgHover: { light: 'primary_700', dark: 'primary_200' },
 		actionLinkFgActive: { light: 'primary_800', dark: 'primary_100' },
+		actionLinkFgFocus: { light: 'primary_700', dark: 'primary_200' },
+
+		actionLinkFgDisabled: { light: 'neutral_400', dark: 'neutral_600' },
 
 		// FEEDBACK — ERROR
 		errorBg: { light: 'error_100', dark: 'error_800' },
@@ -396,6 +363,186 @@ const defaultThemeTokens: Tokens = {
 		buttonBorderRadii: { type: 'radii', value: 'md' },
 
 		cardBorderRadii: { type: 'radii', value: 'lg' },
+	},
+
+	contracts: {
+		actions: {
+			primary: {
+				bg: 'actionPrimaryBg',
+				on: 'actionPrimaryFg',
+				border: 'actionPrimaryBorder',
+				bgHover: 'actionPrimaryBgHover',
+				onHover: 'actionPrimaryFg',
+				bgActive: 'actionPrimaryBgActive',
+				onActive: 'actionPrimaryFg',
+				bgFocus: 'actionPrimaryBgFocus',
+				onFocus: 'actionPrimaryFg',
+				borderFocus: 'actionPrimaryBorderFocus',
+				bgDisabled: 'actionPrimaryDisabledBg',
+				onDisabled: 'actionPrimaryDisabledFg',
+				borderDisabled: 'actionPrimaryDisabledBorder',
+			},
+			secondary: {
+				bg: 'actionSecondaryBg',
+				on: 'actionSecondaryFg',
+				border: 'actionSecondaryBorder',
+				bgHover: 'actionSecondaryBgHover',
+				onHover: 'actionSecondaryFg',
+				bgActive: 'actionSecondaryBgActive',
+				onActive: 'actionSecondaryFg',
+				bgFocus: 'actionSecondaryBgFocus',
+				onFocus: 'actionSecondaryFg',
+				borderFocus: 'actionSecondaryBorderFocus',
+				bgDisabled: 'actionSecondaryDisabledBg',
+				onDisabled: 'actionSecondaryDisabledFg',
+				borderDisabled: 'actionSecondaryDisabledBorder',
+			},
+			ghost: {
+				bg: 'actionGhostBg',
+				on: 'actionGhostFg',
+				border: 'actionGhostBorder',
+				bgHover: 'actionGhostBgHover',
+				onHover: 'actionGhostFg',
+				bgActive: 'actionGhostBgActive',
+				onActive: 'actionGhostFg',
+				bgFocus: 'actionGhostBgFocus',
+				onFocus: 'actionGhostFg',
+				borderFocus: 'actionGhostBorderFocus',
+				bgDisabled: 'actionGhostDisabledBg',
+				onDisabled: 'actionGhostDisabledFg',
+				borderDisabled: 'actionGhostDisabledBorder',
+			},
+			link: {
+				on: 'actionLinkFg',
+				onHover: 'actionLinkFgHover',
+				onActive: 'actionLinkFgActive',
+				onFocus: 'actionLinkFgFocus',
+				onDisabled: 'actionLinkFgDisabled',
+			},
+		},
+
+		feedback: {
+			error: {
+				bg: 'errorBg',
+				on: 'errorFg',
+				border: 'errorBorder',
+				bgInverse: 'errorBgInverse',
+				onInverse: 'errorFgInverse',
+			},
+			success: {
+				bg: 'successBg',
+				on: 'successFg',
+				border: 'successBorder',
+				bgInverse: 'successBgInverse',
+				onInverse: 'successFgInverse',
+			},
+			warning: {
+				bg: 'warningBg',
+				on: 'warningFg',
+				border: 'warningBorder',
+				bgInverse: 'warningBgInverse',
+				onInverse: 'warningFgInverse',
+			},
+			info: {
+				bg: 'infoBg',
+				on: 'infoFg',
+				border: 'infoBorder',
+				bgInverse: 'infoBgInverse',
+				onInverse: 'infoFgInverse',
+			},
+		},
+
+		surfaces: {
+			base: {
+				bg: 'surface',
+				on: 'text',
+				border: 'border',
+			},
+			alt: {
+				bg: 'surfaceAlt',
+				on: 'text',
+				border: 'border',
+			},
+			raised: {
+				bg: 'surfaceRaised',
+				on: 'text',
+				border: 'border',
+			},
+			sunken: {
+				bg: 'surfaceSunken',
+				on: 'text',
+				border: 'border',
+			},
+			inverse: {
+				bg: 'surfaceInverse',
+				on: 'textInverse',
+				border: 'borderInverse',
+			},
+			brand: {
+				bg: 'surfaceBrand',
+				on: 'textBrand',
+				border: 'border',
+			},
+		},
+
+		typography: {
+			heading1: {
+				fontSize: '4xl',
+				fontWeight: 'bold',
+				lineHeight: 'tight',
+				letterSpacing: 'tight',
+				color: 'text',
+			},
+			heading2: {
+				fontSize: '3xl',
+				fontWeight: 'semibold',
+				lineHeight: 'tight',
+				color: 'text',
+			},
+			heading3: {
+				fontSize: '2xl',
+				fontWeight: 'semibold',
+				lineHeight: 'tight',
+				color: 'text',
+			},
+			heading4: {
+				fontSize: 'xl',
+				fontWeight: 'medium',
+				lineHeight: 'tight',
+				color: 'text',
+			},
+			body: {
+				fontSize: 'md',
+				fontWeight: 'regular',
+				lineHeight: 'normal',
+				color: 'text',
+			},
+			bodySm: {
+				fontSize: 'sm',
+				fontWeight: 'regular',
+				lineHeight: 'normal',
+				color: 'text',
+			},
+			caption: {
+				fontSize: 'xs',
+				fontWeight: 'regular',
+				lineHeight: 'normal',
+				color: 'text',
+			},
+			label: {
+				fontSize: 'sm',
+				fontWeight: 'medium',
+				lineHeight: 'tight',
+				color: 'text',
+			},
+			overline: {
+				fontSize: 'xs',
+				fontWeight: 'semibold',
+				lineHeight: 'tight',
+				letterSpacing: 'wider',
+				color: 'text',
+			},
+		},
 	},
 };
 
