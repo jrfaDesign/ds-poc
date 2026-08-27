@@ -1,5 +1,4 @@
-import { Section } from '../ui/Section/Section';
-import { Alert } from '../ui/Alert/Alert';
+import { Section, Alert } from '@repo/ui-web-stylex';
 
 const alerts = [
 	{

@@ -1,0 +1,25 @@
+{
+	"name": "@repo/themes",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./default": "./src/default.ts",
+		"./cag": "./src/cag.ts",
+		"./caos": "./src/caos.ts",
+		"./mergeTheme": "./src/mergeTheme.ts"
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings 0",
+		"check-types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@repo/foundations": "workspace:*"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "5.9.2"
+	}
+}

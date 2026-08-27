@@ -6,7 +6,7 @@ import {
 	roles,
 	spacing,
 	radii,
-} from '../../design-system/adapters/stylex/createStylexVars.stylex';
+} from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
 	page: {

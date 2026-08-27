@@ -10,22 +10,8 @@ import { StatusDots } from './status/StatusDots';
 import { CardGrid } from './cardgrid/CardGrid';
 import { ModalDialog } from './modal/ModalDialog';
 import { Pagination } from './pagination/Pagination';
-import { Typography } from './ui/Typography/Typography';
+import { Typography, Grid, Stack } from '@repo/ui-web-stylex';
 import { TypographyDemo } from './typography/Typography';
-import { Grid } from './ui/Grid/Grid';
-import { Stack } from './ui/Stack/Stack';
-import { Inline } from './ui/Inline/Inline';
-import { Box } from './ui/Box/Box';
-import defaultTheme from '../../design-system/themes/default';
-
-const bpKeys = ['mobile', 'tablet', 'desktop', 'wide', 'ultra'] as const;
-const gridBps = bpKeys.map((bp) => ({
-	name: bp,
-	px: defaultTheme.breakpoints[bp],
-	grid: defaultTheme.grid[bp],
-}));
-
-const columns12 = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export function Example() {
 	return (

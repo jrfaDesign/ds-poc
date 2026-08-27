@@ -1,9 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './FormElements.styles';
-import { Section } from '../ui/Section/Section';
-import { Input } from '../ui/Input/Input';
-import { Textarea } from '../ui/Textarea/Textarea';
-import { Select } from '../ui/Select/Select';
+import { Section, Input, Textarea, Select } from '@repo/ui-web-stylex';
 
 export function FormElements() {
 	return (

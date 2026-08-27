@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import * as stylex from '@stylexjs/stylex';
-import type { TypographyRole, TypographyColor } from '../ui/Typography/Typography';
-import { Typography as TypographyComponent } from '../ui/Typography/Typography';
-import { Section } from '../ui/Section/Section';
-import { Select } from '../ui/Select/Select';
-import { Textarea } from '../ui/Textarea/Textarea';
+import {
+	Typography as TypographyComponent,
+	Section,
+	Select,
+	Textarea,
+	type TypographyRole,
+	type TypographyColor,
+} from '@repo/ui-web-stylex';
 import { styles as s } from './Typography.styles';
 
 const roleOptions: TypographyRole[] = [

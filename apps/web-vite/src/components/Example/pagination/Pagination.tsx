@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './Pagination.styles';
-import { Section } from '../ui/Section/Section';
+import { Section } from '@repo/ui-web-stylex';
 
 const pages = [1, 2, 3, 4, 5];
 const current = 3;

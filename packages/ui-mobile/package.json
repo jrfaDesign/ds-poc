@@ -1,0 +1,30 @@
+{
+	"name": "@repo/ui-mobile",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./AppProvider": "./src/AppProvider.tsx"
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings 0",
+		"check-types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@repo/foundations": "workspace:*",
+		"@repo/globals": "workspace:*",
+		"@repo/themes": "workspace:*",
+		"react": "^19.2.7"
+	},
+	"peerDependencies": {
+		"react-native": ">=0.76.0"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "^19.2.17",
+		"react-native": "^0.76.0",
+		"typescript": "5.9.2"
+	}
+}

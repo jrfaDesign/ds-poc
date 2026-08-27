@@ -1,10 +1,6 @@
 import { create } from '@stylexjs/stylex';
 
-import {
-	roles,
-	spacing,
-	components,
-} from '../../design-system/adapters/stylex/createStylexVars.stylex';
+import { roles, spacing, components } from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
 	page: {

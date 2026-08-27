@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './ContractsDemo.styles';
-import { Grid } from '../Example/ui/Grid/Grid';
-import defaultTheme from '../../design-system/themes/default';
+import { Grid } from '@repo/ui-web-stylex';
+import { defaultTheme } from '@repo/themes';
 
 const actionVariants = ['primary', 'secondary', 'ghost', 'link'] as const;
 const feedbackIntents = ['error', 'success', 'warning', 'info'] as const;

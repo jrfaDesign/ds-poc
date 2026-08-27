@@ -1,7 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './Navigation.styles';
-import { Section } from '../ui/Section/Section';
-import { Typography } from '../ui/Typography/Typography';
+import { Section, Typography } from '@repo/ui-web-stylex';
 
 export function Navigation() {
 	return (

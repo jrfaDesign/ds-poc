@@ -2,13 +2,10 @@ import { useEffect, useState } from 'react';
 import { AppStyles } from './App.styles';
 
 import * as stylex from '@stylexjs/stylex';
-import { applyTheme } from './design-system/adapters/stylex/createStylexTheme.stylex';
-import defaultTheme from './design-system/themes/default';
-import cagTheme from './design-system/themes/cag';
+import { applyTheme, Stack } from '@repo/ui-web-stylex';
+import { defaultTheme, cagTheme, caosTheme } from '@repo/themes';
 import ThemeVariables from './components/ThemeVariables/ThemeVariables';
 import { Example } from './components/Example/Example';
-import caosTheme from './design-system/themes/caos';
-import { Stack } from './components/Example/ui/Stack/Stack';
 
 function App() {
 	const [darkMode, setDarkMode] = useState(false);

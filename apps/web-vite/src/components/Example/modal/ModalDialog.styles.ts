@@ -1,10 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import {
-	roles,
-	spacing,
-	components,
-	shadows,
-} from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+import { roles, spacing, components, shadows } from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
 	wrapper: {

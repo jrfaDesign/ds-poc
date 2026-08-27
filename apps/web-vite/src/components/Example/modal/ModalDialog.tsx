@@ -1,8 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './ModalDialog.styles';
-import { Section } from '../ui/Section/Section';
-import { Button } from '../ui/Button/Button';
-import { Typography } from '../ui/Typography/Typography';
+import { Section, Button, Typography } from '@repo/ui-web-stylex';
 
 export function ModalDialog() {
 	return (

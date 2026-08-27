@@ -1,5 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import { spacing } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
+import { spacing } from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
 	grid: {

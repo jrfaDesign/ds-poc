@@ -1,11 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './ThemeVariables.styles';
-import defaultTheme from '../../design-system/themes/default';
-import { Grid } from '../Example/ui/Grid/Grid';
-import { Stack } from '../Example/ui/Stack/Stack';
-import { Inline } from '../Example/ui/Inline/Inline';
-import { Box } from '../Example/ui/Box/Box';
-import { Typography } from '../Example/ui/Typography/Typography';
+import { defaultTheme } from '@repo/themes';
+import { Grid, Stack, Inline, Box, Typography } from '@repo/ui-web-stylex';
 import ContractsDemo from './ContractsDemo';
 
 const colorFamilies = [

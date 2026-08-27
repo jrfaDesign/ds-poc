@@ -1,8 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './ProfileCard.styles';
-import { Section } from '../ui/Section/Section';
-import { Card } from '../ui/Card/Card';
-import { Typography } from '../ui/Typography/Typography';
+import { Section, Card, Typography } from '@repo/ui-web-stylex';
 
 export function ProfileCard() {
 	return (

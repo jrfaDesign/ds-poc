@@ -1,9 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { create } from '@stylexjs/stylex';
-import { spacing } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
-import { Section } from '../ui/Section/Section';
-import { Button } from '../ui/Button/Button';
-import { Typography } from '../ui/Typography/Typography';
+import { spacing } from '@repo/ui-web-stylex/vars.stylex';
+import { Section, Button, Typography } from '@repo/ui-web-stylex';
 
 const btnStyles = create({
 	row: {

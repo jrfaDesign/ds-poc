@@ -1,8 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { create } from '@stylexjs/stylex';
-import { spacing } from '../../../design-system/adapters/stylex/createStylexVars.stylex';
-import { Section } from '../ui/Section/Section';
-import { Badge } from '../ui/Badge/Badge';
+import { spacing } from '@repo/ui-web-stylex/vars.stylex';
+import { Section, Badge } from '@repo/ui-web-stylex';
 
 const localStyles = create({
 	row: {

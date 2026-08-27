@@ -1,6 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { roles } from './design-system/adapters/stylex/createStylexVars.stylex';
-import { spacing } from './design-system/adapters/stylex/createStylexVars.stylex';
+import { roles, spacing } from '@repo/ui-web-stylex/vars.stylex';
 
 export const AppStyles = stylex.create({
 	toolbar: {
