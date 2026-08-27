@@ -1,5 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import { roles, spacing, radii } from '@repo/ui-web-stylex/vars.stylex';
+import { spacing, radii, shadows, surfaceContracts } from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
 	page: {
@@ -7,48 +7,30 @@ export const styles = create({
 		maxWidth: 960,
 		margin: '0 auto',
 		fontFamily: 'system-ui, -apple-system, sans-serif',
-		color: roles.text,
 		overflowX: 'hidden' as const,
 	},
 	header: {
 		marginBottom: spacing.lg,
 		paddingBottom: spacing.md,
-		borderBottomWidth: 1,
-		borderBottomStyle: 'solid',
-		borderBottomColor: roles.divider,
 	},
 	h1: {
 		fontSize: 28,
 		fontWeight: 700,
 		margin: 0,
-		color: roles.text,
 	},
 	p: {
 		fontSize: 14,
-		color: roles.textSecondary,
 		margin: '4px 0 0',
-	},
-	section: {
-		marginBottom: spacing.lg,
-		padding: spacing.lg,
-		backgroundColor: roles.surface,
-		borderWidth: 1,
-		borderStyle: 'solid',
-		borderColor: roles.border,
-		borderRadius: radii.lg,
-		overflow: 'hidden' as const,
 	},
 	h2: {
 		fontSize: 18,
 		fontWeight: 600,
 		margin: '0 0 16px',
-		color: roles.text,
 	},
 	h3: {
 		fontSize: 14,
 		fontWeight: 600,
 		margin: '0 0 12px',
-		color: roles.textSecondary,
 		textTransform: 'uppercase',
 		letterSpacing: '0.5px',
 	},
@@ -66,7 +48,6 @@ export const styles = create({
 		fontWeight: 600,
 		textTransform: 'uppercase',
 		letterSpacing: '0.5px',
-		color: roles.textSecondary,
 		flexShrink: 0,
 	},
 	swatchGroup: {
@@ -88,28 +69,24 @@ export const styles = create({
 		// borderRadius: radii.sm,
 		borderWidth: 0,
 		borderStyle: 'solid',
-		borderColor: roles.border,
 	},
 	swatchLabel: {
 		fontSize: 10,
-		color: roles.textSecondary,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
 	},
 
 	// -- Roles -----------------------------------------------------------------
 	card: {
 		padding: spacing.md,
-		backgroundColor: roles.surfaceAlt,
 		borderRadius: radii.md,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
+		borderColor: surfaceContracts.baseBorder,
 	},
 	cardTitle: {
 		fontSize: 12,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.text,
 		marginBottom: spacing.lg,
 		display: 'block',
 		whiteSpace: 'nowrap',
@@ -132,19 +109,15 @@ export const styles = create({
 		width: '100%',
 		height: 70,
 		borderRadius: radii.sm,
-		borderWidth: 1,
-		borderStyle: 'solid',
-		borderColor: roles.border,
+		boxShadow: shadows.md,
 	},
 	roleLabel: {
 		fontSize: 9,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
 		textAlign: 'center',
 		wordBreak: 'break-all',
 	},
 	arrow: {
-		color: roles.textSecondary,
 		fontSize: 14,
 		flexShrink: 0,
 	},
@@ -164,21 +137,18 @@ export const styles = create({
 		fontSize: 13,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.text,
 	},
 	spacingTrack: {
 		flex: 1,
 		height: 12,
-		backgroundColor: roles.surfaceAlt,
 		borderRadius: radii.sm,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
+		borderColor: surfaceContracts.baseBorder,
 		overflow: 'hidden',
 	},
 	spacingFill: {
 		height: '100%',
-		backgroundColor: roles.actionPrimaryBg,
 		borderRadius: radii.sm,
 		minWidth: 4,
 		transition: 'width 0.2s',
@@ -187,7 +157,6 @@ export const styles = create({
 		minWidth: 36,
 		fontSize: 12,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
 		textAlign: 'right' as const,
 	},
 
@@ -206,21 +175,18 @@ export const styles = create({
 	radiiBox: {
 		width: 56,
 		height: 56,
-		backgroundColor: roles.actionPrimaryBg,
 		borderWidth: 2,
 		borderStyle: 'solid',
-		borderColor: roles.actionPrimaryBorder,
+		borderColor: surfaceContracts.baseBorder,
 	},
 	radiiLabel: {
 		fontSize: 13,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.text,
 	},
 	radiiVal: {
 		fontSize: 11,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
 	},
 
 	// -- Component tokens ------------------------------------------------------
@@ -230,7 +196,6 @@ export const styles = create({
 		gap: spacing.sm,
 		fontSize: 12,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
 		flexWrap: 'wrap',
 	},
 	compSwatch: {
@@ -239,8 +204,8 @@ export const styles = create({
 		borderRadius: radii.sm,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
 		flexShrink: 0,
+		borderColor: surfaceContracts.baseBorder,
 	},
 
 	// -- Shadows ---------------------------------------------------------------
@@ -248,7 +213,7 @@ export const styles = create({
 		fontSize: 13,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.text,
+		color: surfaceContracts.baseOn,
 	},
 	// -- Gradients -------------------------------------------------------------
 	gradientCard: {
@@ -263,27 +228,24 @@ export const styles = create({
 		borderRadius: radii.md,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
+		borderColor: surfaceContracts.baseBorder,
 	},
 	gradientLabel: {
 		fontSize: 13,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.text,
+		color: surfaceContracts.baseOn,
 	},
 	// -- Layout ----------------------------------------------------------------
 	tokenTable: {
-		backgroundColor: roles.surfaceAlt,
 		borderRadius: radii.md,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
 		marginTop: spacing.sm,
 		overflow: 'hidden',
+		borderColor: surfaceContracts.baseBorder,
 	},
 	colDemo: {
-		backgroundColor: roles.actionPrimaryBg,
-		color: roles.white,
 		fontSize: 12,
 		fontWeight: 600,
 		fontFamily: '"SF Mono", "Cascadia Code", monospace',

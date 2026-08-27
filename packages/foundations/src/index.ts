@@ -3,8 +3,15 @@ import { z } from 'zod';
 // ---------------------------------------------
 // BASE TYPES
 // ---------------------------------------------
-type ColorScale = '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
-type ColorFamily = 'primary' | 'secondary' | 'neutral' | 'error' | 'success' | 'warning' | 'info';
+type ColorScale =
+	'50' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | '950';
+type CoreColorFamily =
+	'primary' | 'secondary' | 'neutral' | 'error' | 'success' | 'warning' | 'info';
+type AccentColorFamily = 'primary_accent' | 'secondary_accent';
+type ColorFamily = CoreColorFamily | AccentColorFamily;
+
+/** Families a theme MUST explicitly provide when calling `createTheme`. */
+export type ThemeMandatoryFamily = 'primary' | 'secondary' | 'neutral';
 
 export type ColorToken = `${ColorFamily}_${ColorScale}` | 'white' | 'black' | 'transparent';
 
@@ -13,32 +20,7 @@ export type ColorToken = `${ColorFamily}_${ColorScale}` | 'white' | 'black' | 't
 // ---------------------------------------------
 const ColorValueSchema = z.union([z.string().regex(/^#/), z.literal('transparent')]);
 
-/** Raw color palette - hex values organized by family (primary, secondary, neutral, etc.) and scale (100–900). These are the primitive values that roles and contracts reference. */
-const ColorsSchema = z
-	.object(
-		(() => {
-			const obj: Partial<Record<ColorToken, z.ZodTypeAny>> = {
-				white: ColorValueSchema,
-				black: ColorValueSchema,
-				transparent: ColorValueSchema,
-			};
-
-			(['primary', 'secondary', 'neutral', 'error', 'info', 'success', 'warning'] as const).forEach(
-				(family) => {
-					(['100', '200', '300', '400', '500', '600', '700', '800', '900'] as const).forEach(
-						(scale) => {
-							obj[`${family}_${scale}`] = ColorValueSchema;
-						}
-					);
-				}
-			);
-
-			return obj as Record<ColorToken, z.ZodTypeAny>;
-		})()
-	)
-	.strict();
-
-const colorFamilies = [
+const coreColorFamilies = [
 	'primary',
 	'secondary',
 	'neutral',
@@ -46,9 +28,15 @@ const colorFamilies = [
 	'success',
 	'warning',
 	'info',
-] as const satisfies readonly ColorFamily[];
+] as const satisfies readonly CoreColorFamily[];
+
+const optionalColorFamilies = [
+	'primary_accent',
+	'secondary_accent',
+] as const satisfies readonly AccentColorFamily[];
 
 const colorScales = [
+	'50',
 	'100',
 	'200',
 	'300',
@@ -58,168 +46,302 @@ const colorScales = [
 	'700',
 	'800',
 	'900',
+	'950',
 ] as const satisfies readonly ColorScale[];
 
-const colorTokenKeys = [
+/** Raw color palette - hex values organized by family and scale (50-950). The 7 core families are mandatory; the *_accent families are optional. */
+const ColorsSchema = z
+	.object(
+		(() => {
+			const obj: Record<string, z.ZodTypeAny> = {
+				white: ColorValueSchema,
+				black: ColorValueSchema,
+				transparent: ColorValueSchema,
+			};
+			coreColorFamilies.forEach((family) => {
+				colorScales.forEach((scale) => {
+					obj[`${family}_${scale}`] = ColorValueSchema;
+				});
+			});
+			optionalColorFamilies.forEach((family) => {
+				colorScales.forEach((scale) => {
+					obj[`${family}_${scale}`] = ColorValueSchema.optional();
+				});
+			});
+			return obj as Record<ColorToken, z.ZodTypeAny>;
+		})()
+	)
+	.strict();
+
+const colorTokenKeysRaw = [
 	'white',
 	'black',
 	'transparent',
-	...colorFamilies.flatMap((family) =>
+	...coreColorFamilies.flatMap((family) =>
+		colorScales.map((scale) => `${family}_${scale}` as ColorToken)
+	),
+	...optionalColorFamilies.flatMap((family) =>
 		colorScales.map((scale) => `${family}_${scale}` as ColorToken)
 	),
 ] as const satisfies readonly ColorToken[];
 
 export const ColorTokenSchema = z.custom<ColorToken>(
 	(val): val is ColorToken =>
-		typeof val === 'string' && (colorTokenKeys as readonly string[]).includes(val)
+		typeof val === 'string' && (colorTokenKeysRaw as readonly string[]).includes(val)
 );
 
 // ---------------------------------------------
-// ROLES
+// COLOR TOKENS (formerly "Roles")
 // ---------------------------------------------
-const roleKeys = [
-	// ABSOLUTE - rarely used directly, but essential for contrast logic
-	'white', // absolute white - used for text-on-dark, icons, inverse surfaces
-	'black', // absolute black - used for text-on-light, icons, high-contrast states
+// A leaf can be a raw color token, or a raw color token with an alpha opacity
+// (e.g. { base: 'black', alpha: 0.1 } -> "black at 10% opacity").
+const ColorTokenLeafSchema = z.union([
+	ColorTokenSchema,
+	z.object({ base: ColorTokenSchema, alpha: z.number().min(0).max(1) }),
+]);
 
-	// BRAND - primary brand identity colors
-	'primary', // main brand color - CTAs, highlights, brand accents
-	'secondary', // secondary brand color - supporting accents, less dominant than primary
+export type ColorTokenLeaf = z.infer<typeof ColorTokenLeafSchema>;
 
-	// SURFACE - backgrounds and layers
-	'surface', // base background - app/page background
-	'surfaceAlt', // alternate background - cards, panels, sheets
-	'surfaceRaised', // elevated surfaces - modals, popovers, floating cards
-	'surfaceSunken', // inset surfaces - input fields, sunken panels
-	'surfaceInverse', // inverted surface - dark-on-light or light-on-dark contexts
-	'surfaceBrand', // brand-tinted surface - marketing sections, branded panels
+const ColorTokenPairSchema = z.object({
+	light: ColorTokenLeafSchema,
+	dark: ColorTokenLeafSchema,
+});
 
-	// TEXT - foreground roles
-	'text', // primary text - body, headings, essential content
-	'textSecondary', // secondary text - labels, metadata, helper text
-	'textTertiary', // tertiary text - captions, timestamps, low-emphasis text
-	'textPlaceholder', // placeholder text - input placeholders
-	'textInverse', // text on inverted surfaces - dark-on-light or light-on-dark
-	'textBrand', // brand-colored text - links, highlights, brand accents
-
-	// STRUCTURE - borders and separators
-	'border', // standard border - inputs, cards, containers
-	'borderStrong', // strong border - high-contrast outlines, emphasized containers
-	'borderWeak', // subtle border - muted outlines, low-emphasis containers
-	'borderInverse', // border on inverted surfaces - dark-on-light or light-on-dark
-	'divider', // subtle separators - list dividers, section separators
-	'focusRing', // focus outline - accessibility focus indicator
-
-	// ACTION - primary CTA
-	'actionPrimaryBg', // primary action background - default
-	'actionPrimaryBgHover', // hover background
-	'actionPrimaryBgActive', // active/pressed background
-	'actionPrimaryBgFocus', // focus background
-
-	'actionPrimaryFg', // primary action text/icon
-	'actionPrimaryBorder', // primary action border
-	'actionPrimaryBorderFocus', // focus border
-
-	'actionPrimaryDisabledBg', // disabled background
-	'actionPrimaryDisabledFg', // disabled text/icon
-	'actionPrimaryDisabledBorder', // disabled border
-
-	// ACTION - secondary CTA
-	'actionSecondaryBg', // secondary action background - default
-	'actionSecondaryBgHover', // hover background
-	'actionSecondaryBgActive', // active/pressed background
-	'actionSecondaryBgFocus', // focus background
-
-	'actionSecondaryFg', // secondary action text/icon
-	'actionSecondaryBorder', // secondary action border
-	'actionSecondaryBorderFocus', // focus border
-
-	'actionSecondaryDisabledBg', // disabled background
-	'actionSecondaryDisabledFg', // disabled text/icon
-	'actionSecondaryDisabledBorder', // disabled border
-
-	// ACTION - ghost CTA (transparent)
-	'actionGhostBg', // ghost background - usually transparent
-	'actionGhostBgHover', // hover background - subtle tint
-	'actionGhostBgActive', // active background - stronger tint
-	'actionGhostBgFocus', // focus background
-	'actionGhostFg', // ghost text/icon
-	'actionGhostBorder', // ghost border - optional
-	'actionGhostBorderFocus', // focus border
-
-	'actionGhostDisabledBg', // disabled background
-	'actionGhostDisabledFg', // disabled text/icon
-	'actionGhostDisabledBorder', // disabled border
-
-	// ACTION - link
-	'actionLinkFg', // link text - brand or accent color
-	'actionLinkFgHover', // link hover - brighter or darker variant
-	'actionLinkFgActive', // link active - pressed state
-	'actionLinkFgFocus', // link focus state
-
-	'actionLinkFgDisabled', // disabled link text
-
-	// FEEDBACK - ERROR
-	'errorBg', // error background - alerts, banners
-	'errorFg', // error text/icon
-	'errorBorder', // error border
-	'errorBgInverse', // error background on inverted surfaces
-	'errorFgInverse', // error text/icon on inverted surfaces
-
-	// FEEDBACK - SUCCESS
-	'successBg',
-	'successFg',
-	'successBorder',
-	'successBgInverse',
-	'successFgInverse',
-
-	// FEEDBACK - WARNING
-	'warningBg',
-	'warningFg',
-	'warningBorder',
-	'warningBgInverse',
-	'warningFgInverse',
-
-	// FEEDBACK - INFO
-	'infoBg',
-	'infoFg',
-	'infoBorder',
-	'infoBgInverse',
-	'infoFgInverse',
+// TEXT color tokens
+const textColorTokenKeys = [
+	'text-primary',
+	'text-primary_on-brand',
+	'text-secondary',
+	'text-secondary_hover',
+	'text-secondary_on-brand',
+	'text-tertiary',
+	'text-tertiary_hover',
+	'text-tertiary_on-brand',
+	'text-quaternary',
+	'text-quaternary_on-brand',
+	'text-white',
+	'text-placeholder',
+	'text-brand-primary',
+	'text-brand-secondary',
+	'text-brand-secondary_hover',
+	'text-brand-tertiary',
+	'text-brand-tertiary_alt',
+	'text-error-primary',
+	'text-warning-primary',
+	'text-success-primary',
+	'text-info-primary',
 ] as const;
 
-export type RoleName = (typeof roleKeys)[number];
+// BORDER color tokens
+const borderColorTokenKeys = [
+	'border-primary',
+	'border-secondary',
+	'border-secondary_alt',
+	'border-tertiary',
+	'border-brand',
+	'border-brand_alt',
+	'border-error',
+	'border-error_subtle',
+] as const;
 
-/** Semantic color tokens - each role maps to a light/dark color pair, providing the bridge between raw colors and component usage. Roles are the atomic layer; use contracts for grouped presets. */
-const RolesSchema = z
-	.object(
-		roleKeys.reduce(
-			(acc, role) => {
-				acc[role] = z.object({
-					light: ColorTokenSchema,
-					dark: ColorTokenSchema,
-				});
-				return acc;
-			},
-			{} as Record<RoleName, z.ZodType<{ light: ColorToken; dark: ColorToken }>>
+// FOREGROUND (fg) color tokens
+const fgColorTokenKeys = [
+	'fg-primary',
+	'fg-secondary',
+	'fg-secondary_hover',
+	'fg-tertiary',
+	'fg-tertiary_hover',
+	'fg-quaternary',
+	'fg-quaternary_hover',
+	'fg-white',
+	'fg-brand-primary',
+	'fg-brand-primary_alt',
+	'fg-brand-secondary',
+	'fg-brand-secondary_alt',
+	'fg-error-primary',
+	'fg-error-secondary',
+	'fg-warning-primary',
+	'fg-warning-secondary',
+	'fg-success-primary',
+	'fg-success-secondary',
+	'fg-info-primary',
+	'fg-info-secondary',
+] as const;
+
+// BACKGROUND (bg) color tokens
+const bgColorTokenKeys = [
+	'bg-primary',
+	'bg-primary_alt',
+	'bg-primary_hover',
+	'bg-primary-solid',
+	'bg-secondary',
+	'bg-secondary_alt',
+	'bg-secondary_hover',
+	'bg-secondary-solid',
+	'bg-tertiary',
+	'bg-quaternary',
+	'bg-overlay',
+	'bg-brand-primary',
+	'bg-brand-primary_alt',
+	'bg-brand-secondary',
+	'bg-brand-solid',
+	'bg-brand-solid_hover',
+	'bg-brand-section',
+	'bg-brand-section_subtle',
+	'bg-error-primary',
+	'bg-error-secondary',
+	'bg-error-solid',
+	'bg-error-solid_hover',
+	'bg-warning-primary',
+	'bg-warning-secondary',
+	'bg-warning-solid',
+	'bg-warning-solid_hover',
+	'bg-success-primary',
+	'bg-success-secondary',
+	'bg-success-solid',
+	'bg-success-solid_hover',
+	'bg-info-primary',
+	'bg-info-secondary',
+	'bg-info-solid',
+	'bg-info-solid_hover',
+] as const;
+
+// UTILITY color tokens
+const utilityColorTokenKeys = [
+	// neutral
+	'utility-neutral-50',
+	'utility-neutral-100',
+	'utility-neutral-200',
+	'utility-neutral-300',
+	'utility-neutral-400',
+	'utility-neutral-500',
+	'utility-neutral-600',
+	'utility-neutral-700',
+	'utility-neutral-800',
+	'utility-neutral-900',
+	// primary (brand -> primary)
+	'utility-primary-50',
+	'utility-primary-50_alt',
+	'utility-primary-100',
+	'utility-primary-100_alt',
+	'utility-primary-200',
+	'utility-primary-200_alt',
+	'utility-primary-300',
+	'utility-primary-300_alt',
+	'utility-primary-400',
+	'utility-primary-400_alt',
+	'utility-primary-500',
+	'utility-primary-500_alt',
+	'utility-primary-600',
+	'utility-primary-600_alt',
+	'utility-primary-700',
+	'utility-primary-700_alt',
+	'utility-primary-800',
+	'utility-primary-800_alt',
+	'utility-primary-900',
+	'utility-primary-900_alt',
+	// error
+	'utility-error-50',
+	'utility-error-100',
+	'utility-error-200',
+	'utility-error-300',
+	'utility-error-400',
+	'utility-error-500',
+	'utility-error-600',
+	'utility-error-700',
+	// warning
+	'utility-warning-50',
+	'utility-warning-100',
+	'utility-warning-200',
+	'utility-warning-300',
+	'utility-warning-400',
+	'utility-warning-500',
+	'utility-warning-600',
+	'utility-warning-700',
+	// success
+	'utility-success-50',
+	'utility-success-100',
+	'utility-success-200',
+	'utility-success-300',
+	'utility-success-400',
+	'utility-success-500',
+	'utility-success-600',
+	'utility-success-700',
+	// info (maps to primary per spec)
+	'utility-info-50',
+	'utility-info-100',
+	'utility-info-200',
+	'utility-info-300',
+	'utility-info-400',
+	'utility-info-500',
+	'utility-info-600',
+	'utility-info-700',
+] as const;
+
+const colorTokenKeysArray: readonly string[] = [
+	...textColorTokenKeys,
+	...borderColorTokenKeys,
+	...fgColorTokenKeys,
+	...bgColorTokenKeys,
+	...utilityColorTokenKeys,
+];
+
+export type ColorTokenName =
+	| (typeof textColorTokenKeys)[number]
+	| (typeof borderColorTokenKeys)[number]
+	| (typeof fgColorTokenKeys)[number]
+	| (typeof bgColorTokenKeys)[number]
+	| (typeof utilityColorTokenKeys)[number];
+
+export const ColorTokenNameSchema = z.custom<ColorTokenName>(
+	(val): val is ColorTokenName => typeof val === 'string' && colorTokenKeysArray.includes(val)
+);
+
+const ColorTokenRefSchema = z.union([ColorTokenNameSchema, ColorTokenSchema]);
+
+function buildColorTokenObject<T extends string>(
+	keys: readonly T[]
+): z.ZodType<Record<T, z.infer<typeof ColorTokenPairSchema>>> {
+	return z
+		.object(
+			keys.reduce(
+				(acc, key) => {
+					acc[key] = ColorTokenPairSchema;
+					return acc;
+				},
+				{} as Record<T, typeof ColorTokenPairSchema>
+			)
 		)
-	)
+		.strict();
+}
+
+/** Semantic color tokens - each maps to a light/dark pair of raw color tokens. Organized by category (text, border, fg, bg, utility). */
+const ColorTokensSchema = z
+	.object({
+		text: buildColorTokenObject(textColorTokenKeys),
+		border: buildColorTokenObject(borderColorTokenKeys),
+		fg: buildColorTokenObject(fgColorTokenKeys),
+		bg: buildColorTokenObject(bgColorTokenKeys),
+		utility: buildColorTokenObject(utilityColorTokenKeys),
+	})
 	.strict();
+
+export type ColorTokenCategory = keyof typeof ColorTokensSchema.shape;
 
 // ---------------------------------------------
 // COMPONENT COLOR TOKEN
 // ---------------------------------------------
-const RoleRefSchema = z.object({
-	type: z.literal('roles'),
-	value: z.enum(roleKeys),
+const ColorTokenRefComponentSchema = z.object({
+	type: z.literal('colorTokens'),
+	value: ColorTokenRefSchema,
 });
 
 const LiteralColorSchema = z.object({
-	light: ColorTokenSchema,
-	dark: ColorTokenSchema,
+	light: ColorTokenLeafSchema,
+	dark: ColorTokenLeafSchema,
 });
 
-const ComponentColorSchema = z.union([RoleRefSchema, LiteralColorSchema]);
+const ComponentColorSchema = z.union([ColorTokenRefComponentSchema, LiteralColorSchema]);
 
 // ---------------------------------------------
 // NON-COLOR TOKEN
@@ -242,10 +364,18 @@ const radiiKeys = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'full'] as const;
 export type SpacingToken = (typeof spacingKeys)[number];
 export type RadiiToken = (typeof radiiKeys)[number];
 
+const SpacingTokenSchema = z.enum(spacingKeys);
+const RadiiTokenSchema = z.enum(radiiKeys);
+
+const NonColorTokenSchema = z.object({
+	type: z.enum(['spacing', 'radii']),
+	value: z.union([SpacingTokenSchema, RadiiTokenSchema]),
+});
+
 // ---------------------------------------------
 // SHADOWS
 // ---------------------------------------------
-const shadowKeys = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
+const shadowKeys = ['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
 export type ShadowToken = (typeof shadowKeys)[number];
 
@@ -274,9 +404,61 @@ const ShadowsSchema = z
 	.strict();
 
 // ---------------------------------------------
+// FOCUS RING TOKENS
+// ---------------------------------------------
+const focusRingKeys = [
+	'focus-ring',
+	'focus-ring-error',
+	'focus-ring-shadow-xs',
+	'focus-ring-shadow-sm',
+	'focus-ring-error-shadow-xs',
+] as const;
+
+export type FocusRingToken = (typeof focusRingKeys)[number];
+
+const FocusRingValueSchema = z.object({
+	color: ColorTokenPairSchema,
+	shadow: z.enum(shadowKeys).optional(),
+});
+
+/** Focus ring tokens - each defines a mode-aware color and an optional shadow reference for accessible focus indicators. */
+const FocusRingSchema = z
+	.object(
+		focusRingKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: FocusRingValueSchema }),
+			{} as Record<FocusRingToken, typeof FocusRingValueSchema>
+		)
+	)
+	.strict();
+
+// ---------------------------------------------
 // GRADIENTS
 // ---------------------------------------------
-const gradientKeys = ['none', 'primary', 'secondary', 'neutral', 'brand'] as const;
+const gradientKeys = [
+	// neutral (dark)
+	'neutral_600_500_90',
+	'neutral_700_600_45',
+	'neutral_800_600_45',
+	'neutral_800_600_90',
+	'neutral_800_700_26_5',
+	'neutral_900_600_45',
+	'neutral_900_700_45',
+	// neutral (light)
+	'neutral_50_white_180',
+	'neutral_100_white_180',
+	'neutral_100_50_180',
+	'neutral_200_50_180',
+	'neutral_200_100_180',
+	'white_neutral_50_180',
+	// primary
+	'primary_600_500_90',
+	'primary_700_600_45',
+	'primary_800_600_45',
+	'primary_800_600_90',
+	'primary_800_700_26_5',
+	'primary_900_600_45',
+	'primary_900_700_45',
+] as const;
 
 export type GradientToken = (typeof gradientKeys)[number];
 
@@ -294,7 +476,7 @@ const GradientValueSchema = z.union([
 	}),
 ]);
 
-/** Linear gradient definitions - each gradient has an angle and color stops referencing raw color tokens. Resolved to CSS `linear-gradient()` at runtime. */
+/** Linear gradient definitions keyed by compound `from_to_angle` identifiers. Each references raw color tokens. Resolved to CSS `linear-gradient()` at runtime. */
 const GradientsSchema = z
 	.object(
 		gradientKeys.reduce(
@@ -392,10 +574,10 @@ const TypographyContractValueSchema = z.object({
 	fontWeight: FontWeightTokenSchema,
 	lineHeight: LineHeightTokenSchema,
 	letterSpacing: LetterSpacingTokenSchema.optional(),
-	color: z.enum(roleKeys).optional().default('text'),
+	color: ColorTokenRefSchema.optional().default('text-primary'),
 });
 
-/** Typography contracts - semantic compositions of font size, weight, line height, and color. Each contract (heading1, body, caption, etc.) defines a complete typographic style. */
+/** Typography contracts - semantic compositions of font size, weight, line height, and a color-token reference. */
 const TypographyContractsSchema = z
 	.object(
 		typographyContractKeys.reduce(
@@ -414,13 +596,105 @@ const TypographySchema = z.object({
 	letterSpacing: LetterSpacingSchema,
 });
 
-const SpacingTokenSchema = z.enum(spacingKeys);
-const RadiiTokenSchema = z.enum(radiiKeys);
+// ---------------------------------------------
+// CONTRACTS - Action presets
+// ---------------------------------------------
+const FullActionPresetSchema = z
+	.object({
+		bg: ColorTokenRefSchema,
+		on: ColorTokenRefSchema,
+		border: ColorTokenRefSchema,
+		bgHover: ColorTokenRefSchema,
+		onHover: ColorTokenRefSchema,
+		bgActive: ColorTokenRefSchema,
+		onActive: ColorTokenRefSchema,
+		bgFocus: ColorTokenRefSchema,
+		onFocus: ColorTokenRefSchema,
+		borderFocus: ColorTokenRefSchema,
+		bgDisabled: ColorTokenRefSchema,
+		onDisabled: ColorTokenRefSchema,
+		borderDisabled: ColorTokenRefSchema,
+	})
+	.strict();
 
-const NonColorTokenSchema = z.object({
-	type: z.enum(['spacing', 'radii']),
-	value: z.union([SpacingTokenSchema, RadiiTokenSchema]),
-});
+const LinkActionPresetSchema = z
+	.object({
+		on: ColorTokenRefSchema,
+		onHover: ColorTokenRefSchema,
+		onActive: ColorTokenRefSchema,
+		onFocus: ColorTokenRefSchema,
+		onDisabled: ColorTokenRefSchema,
+	})
+	.strict();
+
+/** Action contracts - bundles related color tokens (bg, on, border, hover, active, focus, disabled) for each action variant (primary, secondary, ghost, link). */
+const ActionsSchema = z
+	.object({
+		primary: FullActionPresetSchema,
+		secondary: FullActionPresetSchema,
+		ghost: FullActionPresetSchema,
+		link: LinkActionPresetSchema,
+	})
+	.strict();
+
+// ---------------------------------------------
+// CONTRACTS - Feedback presets
+// ---------------------------------------------
+const FeedbackPresetSchema = z
+	.object({
+		bg: ColorTokenRefSchema,
+		on: ColorTokenRefSchema,
+		border: ColorTokenRefSchema,
+		bgInverse: ColorTokenRefSchema,
+		onInverse: ColorTokenRefSchema,
+	})
+	.strict();
+
+/** Feedback contracts - bundles related color tokens (bg, on, border, inverse) for each intent (error, success, warning, info). */
+const FeedbackSchema = z
+	.object({
+		error: FeedbackPresetSchema,
+		success: FeedbackPresetSchema,
+		warning: FeedbackPresetSchema,
+		info: FeedbackPresetSchema,
+	})
+	.strict();
+
+// ---------------------------------------------
+// CONTRACTS - Surface presets
+// ---------------------------------------------
+const SurfacePresetSchema = z
+	.object({
+		bg: ColorTokenRefSchema,
+		on: ColorTokenRefSchema,
+		border: ColorTokenRefSchema,
+	})
+	.strict();
+
+/** Surface contracts - bundles bg, on (text color), and border for each surface type (base, alt, raised, sunken, inverse, brand). */
+const SurfacesSchema = z
+	.object({
+		base: SurfacePresetSchema,
+		alt: SurfacePresetSchema,
+		raised: SurfacePresetSchema,
+		sunken: SurfacePresetSchema,
+		inverse: SurfacePresetSchema,
+		brand: SurfacePresetSchema,
+	})
+	.strict();
+
+// ---------------------------------------------
+// CONTRACTS - Unified schema
+// ---------------------------------------------
+/** Structured contracts that group related color tokens into cohesive semantic units. Contracts are the primary API for component styling; use color tokens directly only for atomic overrides not covered by a contract. */
+const ContractsSchema = z
+	.object({
+		actions: ActionsSchema,
+		feedback: FeedbackSchema,
+		surfaces: SurfacesSchema,
+		typography: TypographyContractsSchema,
+	})
+	.strict();
 
 // ---------------------------------------------
 // BREAKPOINTS
@@ -479,112 +753,12 @@ const GridSchema = z
 // ---------------------------------------------
 // COMPONENTS
 // ---------------------------------------------
-/** Component-level token overrides - allows themes to customize specific component properties (e.g., buttonBg, buttonBorderRadii) independently of roles or contracts. */
+/** Component-level token overrides - allows themes to customize specific component properties (e.g., buttonBg, buttonBorderRadii) independently of color tokens or contracts. */
 const ComponentsSchema = z
 	.object({
 		buttonBg: ComponentColorSchema,
 		buttonBorderRadii: NonColorTokenSchema,
 		cardBorderRadii: NonColorTokenSchema,
-	})
-	.strict();
-
-// ---------------------------------------------
-// CONTRACTS - Action presets
-// ---------------------------------------------
-const FullActionPresetSchema = z
-	.object({
-		bg: z.enum(roleKeys),
-		on: z.enum(roleKeys),
-		border: z.enum(roleKeys),
-		bgHover: z.enum(roleKeys),
-		onHover: z.enum(roleKeys),
-		bgActive: z.enum(roleKeys),
-		onActive: z.enum(roleKeys),
-		bgFocus: z.enum(roleKeys),
-		onFocus: z.enum(roleKeys),
-		borderFocus: z.enum(roleKeys),
-		bgDisabled: z.enum(roleKeys),
-		onDisabled: z.enum(roleKeys),
-		borderDisabled: z.enum(roleKeys),
-	})
-	.strict();
-
-const LinkActionPresetSchema = z
-	.object({
-		on: z.enum(roleKeys),
-		onHover: z.enum(roleKeys),
-		onActive: z.enum(roleKeys),
-		onFocus: z.enum(roleKeys),
-		onDisabled: z.enum(roleKeys),
-	})
-	.strict();
-
-/** Action contracts - bundles all related roles (bg, on, border, hover, active, focus, disabled) for each action variant (primary, secondary, ghost, link). Use these instead of individual action role tokens. */
-const ActionsSchema = z
-	.object({
-		primary: FullActionPresetSchema,
-		secondary: FullActionPresetSchema,
-		ghost: FullActionPresetSchema,
-		link: LinkActionPresetSchema,
-	})
-	.strict();
-
-// ---------------------------------------------
-// CONTRACTS - Feedback presets
-// ---------------------------------------------
-const FeedbackPresetSchema = z
-	.object({
-		bg: z.enum(roleKeys),
-		on: z.enum(roleKeys),
-		border: z.enum(roleKeys),
-		bgInverse: z.enum(roleKeys),
-		onInverse: z.enum(roleKeys),
-	})
-	.strict();
-
-/** Feedback contracts - bundles all related roles (bg, on, border, inverse) for each intent (error, success, warning, info). Use these instead of individual feedback role tokens. */
-const FeedbackSchema = z
-	.object({
-		error: FeedbackPresetSchema,
-		success: FeedbackPresetSchema,
-		warning: FeedbackPresetSchema,
-		info: FeedbackPresetSchema,
-	})
-	.strict();
-
-// ---------------------------------------------
-// CONTRACTS - Surface presets
-// ---------------------------------------------
-const SurfacePresetSchema = z
-	.object({
-		bg: z.enum(roleKeys),
-		on: z.enum(roleKeys),
-		border: z.enum(roleKeys),
-	})
-	.strict();
-
-/** Surface contracts - bundles bg, on (text color), and border for each surface type (base, alt, raised, sunken, inverse, brand). Use these to ensure consistent text-on-surface combinations. */
-const SurfacesSchema = z
-	.object({
-		base: SurfacePresetSchema,
-		alt: SurfacePresetSchema,
-		raised: SurfacePresetSchema,
-		sunken: SurfacePresetSchema,
-		inverse: SurfacePresetSchema,
-		brand: SurfacePresetSchema,
-	})
-	.strict();
-
-// ---------------------------------------------
-// CONTRACTS - Unified schema
-// ---------------------------------------------
-/** Structured contracts that group related roles into cohesive semantic units. Contracts are the primary API for component styling; use roles directly only for atomic overrides not covered by a contract. */
-const ContractsSchema = z
-	.object({
-		actions: ActionsSchema,
-		feedback: FeedbackSchema,
-		surfaces: SurfacesSchema,
-		typography: TypographyContractsSchema,
 	})
 	.strict();
 
@@ -613,33 +787,23 @@ const RadiiSchema = z
  * The fully-validated shape of your design system theme.
  *
  * This type represents the *canonical* structure of all tokens
- * (spacing, radii, colors, roles, contracts, components) after being parsed
+ * (spacing, radii, colors, colorTokens, contracts, components) after being parsed
  * and runtime-validated by Zod. Every theme variant (default, dark,
  * brand A, brand B) must conform to this type.
  */
 export const TokensSchema = z
 	.object({
-		/** Spacing scale - numeric values in pixels used for padding, margin, and gap. */
 		spacing: SpacingSchema,
-		/** Border radius scale - numeric values in pixels for rounded corners. */
 		radii: RadiiSchema,
-		/** Raw color palette - hex values organized by family and scale. */
 		colors: ColorsSchema,
-		/** Typography configuration - font families, size/weight/line-height scales. */
 		typography: TypographySchema,
-		/** Semantic color tokens - light/dark pairs bridging raw colors to component usage. */
-		roles: RolesSchema,
-		/** Structured contracts grouping related roles into cohesive semantic units (actions, feedback, surfaces, typography). */
+		colorTokens: ColorTokensSchema,
 		contracts: ContractsSchema,
-		/** Box shadow definitions - mode-aware shadows resolved to CSS at runtime. */
 		shadows: ShadowsSchema,
-		/** Linear gradient definitions - color stops referencing raw color tokens. */
+		focusRing: FocusRingSchema,
 		gradients: GradientsSchema,
-		/** Viewport width thresholds for responsive layouts. */
 		breakpoints: BreakpointsSchema,
-		/** Per-breakpoint grid configuration - columns, gutter, margin, max-width. */
 		grid: GridSchema,
-		/** Component-level token overrides for theme-specific customizations. */
 		components: ComponentsSchema,
 	})
 	.strict();
@@ -652,7 +816,7 @@ export const TokensSchema = z
  * The fully-validated shape of your design system theme.
  *
  * This type represents the *canonical* structure of all tokens
- * (spacing, radii, colors, roles, contracts, components) after being parsed
+ * (spacing, radii, colors, colorTokens, contracts, components) after being parsed
  * and runtime-validated by Zod. Every theme variant (default, dark,
  * brand A, brand B) must conform to this type.
  */
@@ -674,13 +838,17 @@ export type TokenNames = {
 	spacing: keyof Tokens['spacing'];
 	radii: keyof Tokens['radii'];
 	colors: keyof Tokens['colors'];
-	roles: keyof Tokens['roles'];
+	colorTokens: {
+		[K in keyof Tokens['colorTokens']]: keyof Tokens['colorTokens'][K];
+	}[keyof Tokens['colorTokens']];
+	colorTokenCategory: keyof Tokens['colorTokens'];
 	contracts: keyof Tokens['contracts'];
 	actions: keyof Tokens['contracts']['actions'];
 	feedback: keyof Tokens['contracts']['feedback'];
 	surfaces: keyof Tokens['contracts']['surfaces'];
 	typographyContract: keyof Tokens['contracts']['typography'];
 	shadows: keyof Tokens['shadows'];
+	focusRing: keyof Tokens['focusRing'];
 	gradients: keyof Tokens['gradients'];
 	breakpoints: keyof Tokens['breakpoints'];
 	grid: keyof Tokens['grid'];
@@ -692,3 +860,32 @@ export type TokenNames = {
 	lineHeight: keyof Tokens['typography']['lineHeight'];
 	letterSpacing: keyof Tokens['typography']['letterSpacing'];
 };
+
+// ---------------------------------------------
+// ALPHA UTILITY
+// ---------------------------------------------
+
+/**
+ * Resolve a raw color token to an rgba() string at a given opacity.
+ *
+ * @param theme    the validated theme (provides the hex palette)
+ * @param colorToken a raw color token (e.g. 'primary_500', 'white', 'transparent')
+ * @param alpha    opacity between 0 and 1
+ */
+export function resolveAlpha(theme: Tokens, colorToken: ColorToken, alpha: number): string {
+	const hex = theme.colors[colorToken];
+	if (hex === 'transparent') return 'rgba(0,0,0,0)';
+	const r = parseInt(hex.slice(1, 3), 16);
+	const g = parseInt(hex.slice(3, 5), 16);
+	const b = parseInt(hex.slice(5, 7), 16);
+	return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ---------------------------------------------
+// THEME CREATION HELPERS
+// ---------------------------------------------
+export const themeMandatoryFamilies: readonly ThemeMandatoryFamily[] = [
+	'primary',
+	'secondary',
+	'neutral',
+];

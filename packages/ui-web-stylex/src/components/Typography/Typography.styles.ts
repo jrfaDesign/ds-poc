@@ -1,9 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import {
-	fontFamily,
-	typographyContracts,
-	roles,
-} from '../../adapters/stylex/createStylexVars.stylex';
+import { fontFamily, typographyContracts } from '../../adapters/stylex/createStylexVars.stylex';
 
 export const roleStyles = create({
 	heading1: {
@@ -91,16 +87,18 @@ export const roleStyles = create({
 });
 
 export const colorStyles = create({
-	text: { color: roles.text },
-	textSecondary: { color: roles.textSecondary },
-	textTertiary: { color: roles.textTertiary },
-	textInverse: { color: roles.textInverse },
-	textBrand: { color: roles.textBrand },
-	primary: { color: roles.primary },
-	secondary: { color: roles.secondary },
-	errorFg: { color: roles.errorFg },
-	successFg: { color: roles.successFg },
-	warningFg: { color: roles.warningFg },
-	infoFg: { color: roles.infoFg },
+	'text-primary': { color: 'var(--ct-text-primary)' },
+	'text-secondary': { color: 'var(--ct-text-secondary)' },
+	'text-tertiary': { color: 'var(--ct-text-tertiary)' },
+	'text-quaternary': { color: 'var(--ct-text-quaternary)' },
+	'text-white': { color: 'var(--ct-text-white)' },
+	'text-placeholder': { color: 'var(--ct-text-placeholder)' },
+	'text-brand-primary': { color: 'var(--ct-text-brand-primary)' },
+	'text-brand-secondary': { color: 'var(--ct-text-brand-secondary)' },
+	'text-brand-tertiary': { color: 'var(--ct-text-brand-tertiary)' },
+	'text-error-primary': { color: 'var(--ct-text-error-primary)' },
+	'text-warning-primary': { color: 'var(--ct-text-warning-primary)' },
+	'text-success-primary': { color: 'var(--ct-text-success-primary)' },
+	'text-info-primary': { color: 'var(--ct-text-info-primary)' },
 	inherit: { color: 'inherit' },
 });

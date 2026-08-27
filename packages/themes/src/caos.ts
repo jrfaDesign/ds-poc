@@ -6,6 +6,7 @@ const caosTheme = mergeTheme(defaultTheme, {
 		fontFamily: '"Bitcount Grid Double", monospace',
 	},
 	colors: {
+		primary_50: '#E8F5C8',
 		primary_100: '#cdf101',
 		primary_200: '#b0e000',
 		primary_300: '#8cd000',
@@ -15,6 +16,8 @@ const caosTheme = mergeTheme(defaultTheme, {
 		primary_700: '#2b5c00',
 		primary_800: '#1e3f00',
 		primary_900: '#0f2100',
+		primary_950: '#081200',
+		secondary_50: '#F6F7E5',
 		secondary_100: '#f0f1cd',
 		secondary_200: '#e0e0b0',
 		secondary_300: '#d0d08c',
@@ -24,6 +27,7 @@ const caosTheme = mergeTheme(defaultTheme, {
 		secondary_700: '#5c5c2b',
 		secondary_800: '#3f3f1e',
 		secondary_900: '#21210f',
+		secondary_950: '#101007',
 	},
 	shadows: {
 		none: {
@@ -79,58 +83,36 @@ const caosTheme = mergeTheme(defaultTheme, {
 			color: { light: 'black', dark: 'white' },
 			opacity: 0.3,
 		},
-	},
-	gradients: {
-		secondary: {
-			type: 'linear',
-			angle: 135,
-			stops: [
-				{ color: 'secondary_100', position: 0 },
-				{ color: 'secondary_300', position: 30 },
-				{ color: 'primary_300', position: 60 },
-				{ color: 'secondary_600', position: 100 },
-			],
+
+		'2xl': {
+			offsetX: 0,
+			offsetY: 14,
+			blurRadius: 20,
+			spreadRadius: 4,
+			color: { light: 'black', dark: 'white' },
+			opacity: 0.34,
+		},
+
+		'3xl': {
+			offsetX: 0,
+			offsetY: 18,
+			blurRadius: 28,
+			spreadRadius: 5,
+			color: { light: 'black', dark: 'white' },
+			opacity: 0.38,
 		},
 	},
 
 	components: {
-		buttonBg: { type: 'roles', value: 'secondary' },
+		buttonBg: { light: 'secondary_600', dark: 'secondary_300' },
 		buttonBorderRadii: { type: 'radii', value: '2xl' },
 		cardBorderRadii: { type: 'radii', value: 'none' },
 	},
 
 	contracts: {
 		actions: {
-			primary: {
-				bg: 'actionSecondaryBg',
-				on: 'actionSecondaryFg',
-				border: 'actionSecondaryBorder',
-				bgHover: 'actionSecondaryBgHover',
-				onHover: 'actionSecondaryFg',
-				bgActive: 'actionSecondaryBgActive',
-				onActive: 'actionSecondaryFg',
-				bgFocus: 'actionSecondaryBgFocus',
-				onFocus: 'actionSecondaryFg',
-				borderFocus: 'actionSecondaryBorderFocus',
-				bgDisabled: 'actionSecondaryDisabledBg',
-				onDisabled: 'actionSecondaryDisabledFg',
-				borderDisabled: 'actionSecondaryDisabledBorder',
-			},
-			secondary: {
-				bg: 'actionPrimaryBg',
-				on: 'actionPrimaryFg',
-				border: 'actionPrimaryBorder',
-				bgHover: 'actionPrimaryBgHover',
-				onHover: 'actionPrimaryFg',
-				bgActive: 'actionPrimaryBgActive',
-				onActive: 'actionPrimaryFg',
-				bgFocus: 'actionPrimaryBgFocus',
-				onFocus: 'actionPrimaryFg',
-				borderFocus: 'actionPrimaryBorderFocus',
-				bgDisabled: 'actionPrimaryDisabledBg',
-				onDisabled: 'actionPrimaryDisabledFg',
-				borderDisabled: 'actionPrimaryDisabledBorder',
-			},
+			primary: defaultTheme.contracts.actions.secondary,
+			secondary: defaultTheme.contracts.actions.primary,
 			ghost: defaultTheme.contracts.actions.ghost,
 			link: defaultTheme.contracts.actions.link,
 		},

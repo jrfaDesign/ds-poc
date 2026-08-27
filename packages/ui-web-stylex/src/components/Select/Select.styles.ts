@@ -1,5 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import { roles, spacing, radii } from '../../adapters/stylex/createStylexVars.stylex';
+import { spacing, radii } from '../../adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
 	field: {
@@ -19,17 +19,17 @@ export const styles = create({
 		borderRadius: radii.sm,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
-		backgroundColor: roles.surface,
-		color: roles.text,
+		borderColor: 'var(--ct-border-primary)',
+		backgroundColor: 'var(--ct-bg-primary)',
+		color: 'var(--ct-text-primary)',
 		outline: 'none',
 		cursor: 'pointer',
 		width: '100%',
 		transitionProperty: 'border-color, box-shadow',
 		transitionDuration: '150ms',
 		':focus': {
-			borderColor: roles.focusRing,
-			boxShadow: `0 0 0 2px ${roles.focusRing}`,
+			borderColor: 'var(--ct-border-brand)',
+			boxShadow: 'var(--focusring-focus-ring)',
 		},
 	},
 	select: {},

@@ -1,5 +1,5 @@
 import { create } from '@stylexjs/stylex';
-import { spacing, roles } from '../../adapters/stylex/createStylexVars.stylex';
+import { spacing } from '../../adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
 	section: {
@@ -9,7 +9,7 @@ export const styles = create({
 		padding: spacing.md,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.divider,
+		borderColor: 'var(--ct-border-secondary)',
 		borderRadius: 8,
 	},
 });

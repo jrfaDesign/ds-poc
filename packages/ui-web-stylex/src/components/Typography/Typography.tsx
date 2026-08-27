@@ -15,12 +15,13 @@ const tagMap: Record<TypographyRole, 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span'> =
 	overline: 'span',
 };
 
-export function Typography({ role = 'body', color, weight, children }: TypographyProps) {
+export function Typography({ role = 'body', color, weight, children, ...props }: TypographyProps) {
 	const Tag = tagMap[role];
 	return (
 		<Tag
 			{...stylex.props(roleStyles[role], color && colorStyles[color])}
 			style={weight ? { fontWeight: weight } : undefined}
+			{...props}
 		>
 			{children}
 		</Tag>

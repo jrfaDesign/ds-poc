@@ -37,7 +37,7 @@ export const styles = create({
 	},
 	links: {
 		display: 'flex',
-		gap: 0,
+		gap: spacing.sm,
 		minWidth: 0,
 		flexShrink: 1,
 		flexWrap: 'wrap' as const,

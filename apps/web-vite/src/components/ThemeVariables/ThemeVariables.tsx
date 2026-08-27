@@ -1,7 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './ThemeVariables.styles';
 import { defaultTheme } from '@repo/themes';
-import { Grid, Stack, Inline, Box, Typography } from '@repo/ui-web-stylex';
+import type { ColorTokenLeaf } from '@repo/foundations';
+import { Grid, Stack, Inline, Box, Typography, Card } from '@repo/ui-web-stylex';
 import ContractsDemo from './ContractsDemo';
 
 const colorFamilies = [
@@ -13,13 +14,37 @@ const colorFamilies = [
 	'success',
 	'warning',
 ] as const;
-const scales = ['100', '200', '300', '400', '500', '600', '700', '800', '900'] as const;
+const scales = [
+	'50',
+	'100',
+	'200',
+	'300',
+	'400',
+	'500',
+	'600',
+	'700',
+	'800',
+	'900',
+	'950',
+] as const;
+
+/** Extract the raw color-token name from a leaf (string or { base, alpha }). */
+function leafBase(leaf: ColorTokenLeaf): string {
+	return typeof leaf === 'string' ? leaf : leaf.base;
+}
+
+/** Human-readable label for a leaf. */
+function leafLabel(leaf: ColorTokenLeaf): string {
+	return typeof leaf === 'string' ? leaf : `${leaf.base} @ ${Math.round(leaf.alpha * 100)}%`;
+}
 
 function Swatch({ token, label }: { token: string; label: string }) {
 	return (
 		<div {...stylex.props(styles.swatch)}>
 			<div {...stylex.props(styles.swatchColor)} style={{ backgroundColor: `var(--${token})` }} />
-			<span {...stylex.props(styles.swatchLabel)}>{label}</span>
+			<Typography role="bodySm" {...stylex.props(styles.swatchLabel)}>
+				{label}
+			</Typography>
 		</div>
 	);
 }
@@ -27,7 +52,7 @@ function Swatch({ token, label }: { token: string; label: string }) {
 function FamilyRow({ family }: { family: string }) {
 	return (
 		<div {...stylex.props(styles.familyRow)}>
-			<span {...stylex.props(styles.familyLabel)}>{family}</span>
+			<Typography role="bodySm">{family}</Typography>
 			<div {...stylex.props(styles.swatchGroup)}>
 				{scales.map((s) => (
 					<Swatch key={s} token={`${family}_${s}`} label={s} />
@@ -42,99 +67,110 @@ function ThemeVariables() {
 
 	return (
 		<div {...stylex.props(styles.page)}>
-			<header {...stylex.props(styles.header)}>
-				<h1 {...stylex.props(styles.h1)}>Design Tokens</h1>
-				<p {...stylex.props(styles.p)}>A visual reference of every theme variable.</p>
-			</header>
+			<Card>
+				<Typography role="heading3">Design Tokens</Typography>
+				<Typography role="body">A visual reference of every theme variable.</Typography>
+			</Card>
 
 			{/* Colors */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Colors</h2>
+			<Card>
+				<Typography role="heading4">Colors</Typography>
 				{colorFamilies.map((f) => (
 					<FamilyRow key={f} family={f} />
 				))}
 				<div {...stylex.props(styles.familyRow)}>
-					<span {...stylex.props(styles.familyLabel)}>base</span>
+					<Typography role="bodySm">base</Typography>
 					<div {...stylex.props(styles.swatchGroup)}>
 						<Swatch token="white" label="white" />
 						<Swatch token="black" label="black" />
 					</div>
 				</div>
-			</section>
+			</Card>
 
-			{/* Roles */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Roles</h2>
-				<Grid gap="lg">
-					{Object.entries(theme.roles).map(([name, role]) => (
-						<Grid.Item key={name} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
-							<div {...stylex.props(styles.card)}>
-								<span {...stylex.props(styles.cardTitle)}>{name}</span>
-								<div {...stylex.props(styles.rolePair)}>
-									<div {...stylex.props(styles.roleSide)}>
-										<span {...stylex.props(styles.roleLabel)}>on light</span>
-										<div
-											{...stylex.props(styles.roleColor)}
-											style={{ backgroundColor: `var(--${role.light})` }}
-										/>
-										<span {...stylex.props(styles.roleLabel)}>{role.light}</span>
-									</div>
-									<span {...stylex.props(styles.arrow)}>→</span>
-									<div {...stylex.props(styles.roleSide)}>
-										<span {...stylex.props(styles.roleLabel)}>on dark</span>
-										<div
-											{...stylex.props(styles.roleColor)}
-											style={{ backgroundColor: `var(--${role.dark})` }}
-										/>
-										<span {...stylex.props(styles.roleLabel)}>{role.dark}</span>
-									</div>
-								</div>
-							</div>
-						</Grid.Item>
+			{/* Color Tokens */}
+			<Card>
+				<Typography role="heading4">Color Tokens</Typography>
+				<Stack gap="lg" padding="none">
+					{Object.entries(theme.colorTokens).map(([category, tokens]) => (
+						<div key={category}>
+							<Typography role="overline" color="text-secondary">
+								{category}
+							</Typography>
+							<Grid gap="lg">
+								{Object.entries(
+									tokens as Record<string, { light: ColorTokenLeaf; dark: ColorTokenLeaf }>
+								).map(([name, pair]) => (
+									<Grid.Item key={name} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
+										<Card>
+											<Typography>{name}</Typography>
+											<div {...stylex.props(styles.rolePair)}>
+												<div {...stylex.props(styles.roleSide)}>
+													<Typography role="caption">on light</Typography>
+													<div
+														{...stylex.props(styles.roleColor)}
+														style={{ backgroundColor: `var(--${leafBase(pair.light)})` }}
+													/>
+													<Typography role="caption">{leafLabel(pair.light)}</Typography>
+												</div>
+												<span {...stylex.props(styles.arrow)}>→</span>
+												<div {...stylex.props(styles.roleSide)}>
+													<Typography role="caption">on dark</Typography>
+													<div
+														{...stylex.props(styles.roleColor)}
+														style={{ backgroundColor: `var(--${leafBase(pair.dark)})` }}
+													/>
+													<Typography role="caption">{leafLabel(pair.dark)}</Typography>
+												</div>
+											</div>
+										</Card>
+									</Grid.Item>
+								))}
+							</Grid>
+						</div>
 					))}
-				</Grid>
-			</section>
+				</Stack>
+			</Card>
 
 			<ContractsDemo />
 
 			{/* Spacing + Radii */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Spacing &amp; Radii</h2>
+			<Card>
+				<Typography role="heading4">Spacing &amp; Radii</Typography>
 				<Grid columns={2} gap="lg">
 					<Grid.Item span={1}>
-						<Typography role="overline" color="textSecondary">
+						<Typography role="overline" color="text-secondary">
 							Spacing
 						</Typography>
 						{Object.entries(theme.spacing).map(([k, v]) => (
 							<div key={k} {...stylex.props(styles.spacingRow)}>
-								<span {...stylex.props(styles.spacingLabel)}>{k}</span>
+								<Typography role="body">{k}</Typography>
 								<div {...stylex.props(styles.spacingTrack)}>
 									<div {...stylex.props(styles.spacingFill)} style={{ width: v > 0 ? v * 8 : 4 }} />
 								</div>
-								<span {...stylex.props(styles.spacingVal)}>{v}px</span>
+								<Typography role="caption">{v}px</Typography>
 							</div>
 						))}
 					</Grid.Item>
 					<Grid.Item span={1}>
-						<Typography role="overline" color="textSecondary">
+						<Typography role="overline" color="text-secondary">
 							Radii
 						</Typography>
 						<div {...stylex.props(styles.radiiGrid)}>
 							{Object.entries(theme.radii).map(([k, v]) => (
 								<div key={k} {...stylex.props(styles.radiiCell)}>
 									<div {...stylex.props(styles.radiiBox)} style={{ borderRadius: v }} />
-									<span {...stylex.props(styles.radiiLabel)}>{k}</span>
-									<span {...stylex.props(styles.radiiVal)}>{v}px</span>
+									<Typography role="body">{k}</Typography>
+									<Typography role="caption">{v}px</Typography>
 								</div>
 							))}
 						</div>
 					</Grid.Item>
 				</Grid>
-			</section>
+			</Card>
 
 			{/* Shadows */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Shadows</h2>
+			<Card>
+				<Typography role="heading4">Shadows</Typography>
 				<Grid gap="md">
 					{Object.keys(theme.shadows).map((k) => (
 						<Grid.Item key={k} span={{ mobile: 12, tablet: 6, desktop: 4 }}>
@@ -146,11 +182,11 @@ function ThemeVariables() {
 						</Grid.Item>
 					))}
 				</Grid>
-			</section>
+			</Card>
 
 			{/* Gradients */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Gradients</h2>
+			<Card>
+				<Typography role="heading4">Gradients</Typography>
 				<Grid gap="md">
 					{Object.entries(theme.gradients).map(([k, v]) => (
 						<Grid.Item key={k} span={{ mobile: 12, tablet: 6, desktop: 4 }}>
@@ -167,14 +203,14 @@ function ThemeVariables() {
 						</Grid.Item>
 					))}
 				</Grid>
-			</section>
+			</Card>
 
 			{/* Layout */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Layout</h2>
+			<Card>
+				<Typography role="heading4">Layout</Typography>
 				<Stack gap="lg" padding="none">
 					<div>
-						<Typography role="overline" color="textSecondary">
+						<Typography role="overline" color="text-secondary">
 							Breakpoints &amp; Container Widths
 						</Typography>
 						<div {...stylex.props(styles.tokenTable)}>
@@ -203,7 +239,7 @@ function ThemeVariables() {
 
 					<Inline gap="lg" wrap={false} align="stretch">
 						<Box flex={1}>
-							<Typography role="overline" color="textSecondary">
+							<Typography role="overline" color="text-secondary">
 								Gutter
 							</Typography>
 							<div {...stylex.props(styles.tokenTable)}>
@@ -224,7 +260,7 @@ function ThemeVariables() {
 							</div>
 						</Box>
 						<Box flex={1}>
-							<Typography role="overline" color="textSecondary">
+							<Typography role="overline" color="text-secondary">
 								Margin
 							</Typography>
 							<div {...stylex.props(styles.tokenTable)}>
@@ -247,7 +283,7 @@ function ThemeVariables() {
 					</Inline>
 
 					<div>
-						<Typography role="overline" color="textSecondary">
+						<Typography role="overline" color="text-secondary">
 							12-Column Grid ({theme.grid.desktop.columns} columns)
 						</Typography>
 						<Grid gap="sm" margin="sm" style={{ marginTop: 8 }}>
@@ -259,10 +295,10 @@ function ThemeVariables() {
 						</Grid>
 					</div>
 				</Stack>
-			</section>
+			</Card>
 
 			{/* Component Tokens */}
-			<section {...stylex.props(styles.section)}>
+			<Card>
 				<h2 {...stylex.props(styles.h2)}>Component Tokens</h2>
 				<Grid columns={3} gap="sm">
 					{Object.entries(theme.components).map(([name, token]) => (
@@ -270,21 +306,25 @@ function ThemeVariables() {
 							<div {...stylex.props(styles.card)}>
 								<span {...stylex.props(styles.cardTitle)}>{name}</span>
 								<div {...stylex.props(styles.compBody)}>
-									{'light' in token ? (
+									{'light' in token && 'dark' in token ? (
 										<>
 											<div
 												{...stylex.props(styles.compSwatch)}
-												style={{ backgroundColor: `var(--${token.light})` }}
+												style={{
+													backgroundColor: `var(--${leafBase(token.light as ColorTokenLeaf)}`,
+												}}
 											/>
-											<span>{token.light}</span>
+											<span>{leafLabel(token.light as ColorTokenLeaf)}</span>
 											<div
 												{...stylex.props(styles.compSwatch)}
-												style={{ backgroundColor: `var(--${token.dark})` }}
+												style={{
+													backgroundColor: `var(--${leafBase(token.dark as ColorTokenLeaf)}`,
+												}}
 											/>
-											<span>{token.dark}</span>
+											<span>{leafLabel(token.dark as ColorTokenLeaf)}</span>
 										</>
-									) : token.type === 'roles' ? (
-										<span>→ roles.{token.value}</span>
+									) : token.type === 'colorTokens' ? (
+										<span>→ colorTokens.{token.value}</span>
 									) : (
 										<span>
 											→ {token.type}.{token.value}
@@ -295,7 +335,7 @@ function ThemeVariables() {
 						</Grid.Item>
 					))}
 				</Grid>
-			</section>
+			</Card>
 		</div>
 	);
 }

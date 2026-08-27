@@ -1,5 +1,6 @@
 import { create } from '@stylexjs/stylex';
-import { roles, spacing } from '@repo/ui-web-stylex/vars.stylex';
+import { colors, roles, spacing, surfaceContracts } from '@repo/ui-web-stylex/vars.stylex';
+import { colorStyles } from '../../../../../../packages/ui-web-stylex/src/components/Typography/Typography.styles';
 
 export const styles = create({
 	inner: {
@@ -26,7 +27,7 @@ export const styles = create({
 		paddingTop: spacing.md,
 		borderTopWidth: 1,
 		borderTopStyle: 'solid',
-		borderTopColor: roles.divider,
+		borderTopColor: surfaceContracts.baseOn,
 		width: '100%',
 		justifyContent: 'center',
 	},

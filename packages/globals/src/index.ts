@@ -23,17 +23,19 @@ export const typographyRoleKeys = [
 export type TypographyRole = (typeof typographyRoleKeys)[number];
 
 export const typographyColorKeys = [
-	'text',
-	'textSecondary',
-	'textTertiary',
-	'textInverse',
-	'textBrand',
-	'primary',
-	'secondary',
-	'errorFg',
-	'successFg',
-	'warningFg',
-	'infoFg',
+	'text-primary',
+	'text-secondary',
+	'text-tertiary',
+	'text-quaternary',
+	'text-white',
+	'text-placeholder',
+	'text-brand-primary',
+	'text-brand-secondary',
+	'text-brand-tertiary',
+	'text-error-primary',
+	'text-warning-primary',
+	'text-success-primary',
+	'text-info-primary',
 	'inherit',
 ] as const;
 

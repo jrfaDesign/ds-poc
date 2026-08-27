@@ -6,6 +6,7 @@ import type {
 	FontWeightToken,
 	LineHeightToken,
 	LetterSpacingToken,
+	ColorTokenLeaf,
 } from '@repo/foundations';
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -14,6 +15,20 @@ function hexToRgba(hex: string, alpha: number): string {
 	const g = parseInt(hex.slice(3, 5), 16);
 	const b = parseInt(hex.slice(5, 7), 16);
 	return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/** Resolve a color-token leaf (raw token string OR { base, alpha }) to a CSS color string. */
+function resolveLeaf(leaf: ColorTokenLeaf, theme: Tokens): string {
+	const token = typeof leaf === 'string' ? leaf : leaf.base;
+	const hex = theme.colors[token as keyof Tokens['colors']];
+	if (hex === 'transparent') return 'rgba(0,0,0,0)';
+	if (typeof leaf === 'string') return hex as string;
+	return hexToRgba(hex as string, leaf.alpha);
+}
+
+/** Reference a color-token name OR a raw palette token as a CSS var() string. */
+function colorRefVar(color: string, ctMap: Record<string, unknown>): string {
+	return ctMap[color] ? `var(--ct-${color})` : `var(--${color})`;
 }
 
 export function applyTheme(theme: Tokens, darkMode?: boolean) {
@@ -45,7 +60,27 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 		root.style.setProperty(`--typography-letterSpacing-${key}`, `${value}em`);
 	});
 
-	// typography — contracts (resolve each contract's composition to CSS variables)
+	// colors (raw palette)
+	Object.entries(theme.colors).forEach(([key, value]) => {
+		root.style.setProperty(`--${key}`, value as string);
+	});
+
+	// color tokens (semantic light/dark pairs -> --ct-<name>{-default,-dark})
+	const ctMap: Record<string, { light: ColorTokenLeaf; dark: ColorTokenLeaf }> = {};
+	Object.entries(theme.colorTokens).forEach(([, tokens]) => {
+		Object.entries(
+			tokens as Record<string, { light: ColorTokenLeaf; dark: ColorTokenLeaf }>
+		).forEach(([name, pair]) => {
+			ctMap[name] = pair;
+			const lightColor = resolveLeaf(pair.light, theme);
+			const darkColor = resolveLeaf(pair.dark, theme);
+			root.style.setProperty(`--ct-${name}-default`, lightColor);
+			root.style.setProperty(`--ct-${name}-dark`, darkColor);
+			root.style.setProperty(`--ct-${name}`, darkMode ? darkColor : lightColor);
+		});
+	});
+
+	// typography — contracts
 	Object.entries(theme.contracts.typography).forEach(([contractName, contractValue]) => {
 		const fs = theme.typography.fontSize[contractValue.fontSize as FontSizeToken];
 		const fw = theme.typography.fontWeight[contractValue.fontWeight as FontWeightToken];
@@ -63,53 +98,38 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 		if (contractValue.color) {
 			root.style.setProperty(
 				`--typography-contract-${contractName}-color`,
-				`var(--role-${contractValue.color})`
+				colorRefVar(contractValue.color as string, ctMap)
 			);
 		}
 	});
 
-	// colors
-	Object.entries(theme.colors).forEach(([key, value]) => {
-		root.style.setProperty(`--${key}`, value as string);
-	});
-
-	// roles (always color mode tokens)
-	Object.entries(theme.roles).forEach(([role, { light, dark }]) => {
-		const lightColor = theme.colors[light as keyof Tokens['colors']] as string;
-		const darkColor = theme.colors[dark as keyof Tokens['colors']] as string;
-
-		root.style.setProperty(`--role-${role}-default`, lightColor);
-		root.style.setProperty(`--role-${role}-dark`, darkColor);
-
-		root.style.setProperty(`--role-${role}`, darkMode ? darkColor : lightColor);
-	});
-
-	// components (can be color OR non-color OR role-ref)
+	// components (literal color OR colorToken-ref OR non-color)
 	Object.entries(theme.components).forEach(([comp, token]) => {
 		// CASE 1: literal color override { light, dark }
 		if ('light' in token && 'dark' in token) {
-			const lightColor = theme.colors[token.light as keyof Tokens['colors']] as string;
-			const darkColor = theme.colors[token.dark as keyof Tokens['colors']] as string;
-
+			const lightColor = resolveLeaf(token.light as ColorTokenLeaf, theme);
+			const darkColor = resolveLeaf(token.dark as ColorTokenLeaf, theme);
 			root.style.setProperty(`--component-${comp}-default`, lightColor);
 			root.style.setProperty(`--component-${comp}-dark`, darkColor);
-
 			root.style.setProperty(`--component-${comp}`, darkMode ? darkColor : lightColor);
 			return;
 		}
 
-		// CASE 2: role reference { type: 'roles', value: RoleName }
-		if (token.type === 'roles') {
-			const roleName = token.value;
-			const role = theme.roles[roleName];
-
-			const lightColor = theme.colors[role.light as keyof Tokens['colors']] as string;
-			const darkColor = theme.colors[role.dark as keyof Tokens['colors']] as string;
-
-			root.style.setProperty(`--component-${comp}-default`, lightColor);
-			root.style.setProperty(`--component-${comp}-dark`, darkColor);
-
-			root.style.setProperty(`--component-${comp}`, darkMode ? darkColor : lightColor);
+		// CASE 2: color-token reference { type: 'colorTokens', value }
+		if (token.type === 'colorTokens') {
+			const ref = token.value as string;
+			const pair = ctMap[ref];
+			if (pair) {
+				const lightColor = resolveLeaf(pair.light, theme);
+				const darkColor = resolveLeaf(pair.dark, theme);
+				root.style.setProperty(`--component-${comp}-default`, lightColor);
+				root.style.setProperty(`--component-${comp}-dark`, darkColor);
+				root.style.setProperty(`--component-${comp}`, darkMode ? darkColor : lightColor);
+			} else {
+				const hex = theme.colors[ref as keyof Tokens['colors']];
+				const color = hex === 'transparent' ? 'rgba(0,0,0,0)' : (hex as string);
+				root.style.setProperty(`--component-${comp}`, color);
+			}
 			return;
 		}
 
@@ -130,6 +150,16 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 		throw new Error(`Invalid component token for "${comp}"`);
 	});
 
+	// helper: resolve a contract field value (color-token name OR raw palette token) to a CSS color
+	const resolveContractValue = (value: string, dm: boolean): string => {
+		const pair = ctMap[value];
+		if (pair) {
+			return resolveLeaf(dm ? pair.dark : pair.light, theme);
+		}
+		const hex = theme.colors[value as keyof Tokens['colors']];
+		return hex === 'transparent' ? 'rgba(0,0,0,0)' : (hex as string);
+	};
+
 	// breakpoints
 	Object.entries(theme.breakpoints).forEach(([bp, px]) => {
 		root.style.setProperty(`--breakpoint-${bp}`, `${px}px`);
@@ -137,10 +167,9 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 
 	// actions (resolve each preset property to CSS vars)
 	Object.entries(theme.contracts.actions).forEach(([variant, preset]) => {
-		Object.entries(preset).forEach(([prop, roleName]) => {
-			const role = theme.roles[roleName as keyof typeof theme.roles];
-			const lightColor = theme.colors[role.light as keyof typeof theme.colors] as string;
-			const darkColor = theme.colors[role.dark as keyof typeof theme.colors] as string;
+		Object.entries(preset as Record<string, string>).forEach(([prop, value]) => {
+			const lightColor = resolveContractValue(value, false);
+			const darkColor = resolveContractValue(value, true);
 			root.style.setProperty(`--action-${variant}-${prop}-default`, lightColor);
 			root.style.setProperty(`--action-${variant}-${prop}-dark`, darkColor);
 			root.style.setProperty(`--action-${variant}-${prop}`, darkMode ? darkColor : lightColor);
@@ -149,10 +178,9 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 
 	// feedback (resolve each preset property to CSS vars)
 	Object.entries(theme.contracts.feedback).forEach(([intent, preset]) => {
-		Object.entries(preset).forEach(([prop, roleName]) => {
-			const role = theme.roles[roleName as keyof typeof theme.roles];
-			const lightColor = theme.colors[role.light as keyof typeof theme.colors] as string;
-			const darkColor = theme.colors[role.dark as keyof typeof theme.colors] as string;
+		Object.entries(preset as Record<string, string>).forEach(([prop, value]) => {
+			const lightColor = resolveContractValue(value, false);
+			const darkColor = resolveContractValue(value, true);
 			root.style.setProperty(`--feedback-${intent}-${prop}-default`, lightColor);
 			root.style.setProperty(`--feedback-${intent}-${prop}-dark`, darkColor);
 			root.style.setProperty(`--feedback-${intent}-${prop}`, darkMode ? darkColor : lightColor);
@@ -161,10 +189,9 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 
 	// surfaces (resolve each preset property to CSS vars)
 	Object.entries(theme.contracts.surfaces).forEach(([surface, preset]) => {
-		Object.entries(preset).forEach(([prop, roleName]) => {
-			const role = theme.roles[roleName as keyof typeof theme.roles];
-			const lightColor = theme.colors[role.light as keyof typeof theme.colors] as string;
-			const darkColor = theme.colors[role.dark as keyof typeof theme.colors] as string;
+		Object.entries(preset as Record<string, string>).forEach(([prop, value]) => {
+			const lightColor = resolveContractValue(value, false);
+			const darkColor = resolveContractValue(value, true);
 			root.style.setProperty(`--surface-${surface}-${prop}-default`, lightColor);
 			root.style.setProperty(`--surface-${surface}-${prop}-dark`, darkColor);
 			root.style.setProperty(`--surface-${surface}-${prop}`, darkMode ? darkColor : lightColor);
@@ -182,7 +209,7 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 		);
 	});
 
-	// shadows (mode-aware: resolves {light,dark} color references)
+	// shadows (mode-aware)
 	Object.entries(theme.shadows).forEach(([key, value]) => {
 		const lightHex = theme.colors[value.color.light as keyof Tokens['colors']] as string;
 		const darkHex = theme.colors[value.color.dark as keyof Tokens['colors']] as string;
@@ -196,6 +223,24 @@ export function applyTheme(theme: Tokens, darkMode?: boolean) {
 			`--shadow-${key}`,
 			darkMode ? `${base} ${darkRgba}` : `${base} ${lightRgba}`
 		);
+	});
+
+	// focus rings (resolve color + optional shadow -> box-shadow string)
+	Object.entries(theme.focusRing).forEach(([key, fr]) => {
+		const color = resolveLeaf(darkMode ? fr.color.dark : fr.color.light, theme);
+		let boxShadow: string;
+		if (fr.shadow) {
+			const shadowVal = theme.shadows[fr.shadow];
+			const shadowHex = theme.colors[
+				(darkMode ? shadowVal.color.dark : shadowVal.color.light) as keyof Tokens['colors']
+			] as string;
+			const shadowRgba = hexToRgba(shadowHex, shadowVal.opacity);
+			const shadowBase = `${shadowVal.offsetX}px ${shadowVal.offsetY}px ${shadowVal.blurRadius}px ${shadowVal.spreadRadius}px`;
+			boxShadow = `${shadowBase} ${shadowRgba}, 0 0 0 3px ${color}`;
+		} else {
+			boxShadow = `0 0 0 3px ${color}`;
+		}
+		root.style.setProperty(`--focusring-${key}`, boxShadow);
 	});
 
 	// gradients (resolves color token references)

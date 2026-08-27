@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './Pagination.styles';
-import { Section } from '@repo/ui-web-stylex';
+import { Button, Section, Typography } from '@repo/ui-web-stylex';
 
 const pages = [1, 2, 3, 4, 5];
 const current = 3;
@@ -9,18 +9,25 @@ export function Pagination() {
 	return (
 		<Section title="Pagination">
 			<div {...stylex.props(styles.pagination)}>
-				<button {...stylex.props(styles.navBtn)}>{'\u2039'}</button>
+				<Button variant="ghost" {...stylex.props(styles.navBtn)}>
+					{'<'}
+				</Button>
 				{pages.map((p) => (
-					<button
+					<Button
 						key={p}
+						variant="ghost"
 						{...stylex.props(styles.pageBtn, p === current ? styles.pageBtnActive : null)}
 					>
 						{p}
-					</button>
+					</Button>
 				))}
-				<span {...stylex.props(styles.ellipsis)}>...</span>
-				<button {...stylex.props(styles.pageBtn)}>10</button>
-				<button {...stylex.props(styles.navBtn)}>{'\u203A'}</button>
+				<Typography {...stylex.props(styles.ellipsis)}>...</Typography>
+				<Button variant="ghost" {...stylex.props(styles.pageBtn)}>
+					10
+				</Button>
+				<Button variant="ghost" {...stylex.props(styles.navBtn)}>
+					{'>'}
+				</Button>
 			</div>
 		</Section>
 	);

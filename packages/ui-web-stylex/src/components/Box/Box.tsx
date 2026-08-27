@@ -34,7 +34,7 @@ export function Box({
 				paddingInline: paddingX ? `var(--spacing-${paddingX})` : undefined,
 				paddingBlock: paddingY ? `var(--spacing-${paddingY})` : undefined,
 				margin: margin ? `var(--spacing-${margin})` : undefined,
-				backgroundColor: background ? `var(--role-${background})` : undefined,
+				backgroundColor: background ? `var(--ct-${background})` : undefined,
 				borderRadius: borderRadius ? `var(--radii-${borderRadius})` : undefined,
 				boxShadow: shadow ? `var(--shadow-${shadow})` : undefined,
 				display,

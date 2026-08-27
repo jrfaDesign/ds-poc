@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { styles } from './ContractsDemo.styles';
-import { Grid } from '@repo/ui-web-stylex';
+import { Card, Grid, Typography } from '@repo/ui-web-stylex';
 import { defaultTheme } from '@repo/themes';
 
 const actionVariants = ['primary', 'secondary', 'ghost', 'link'] as const;
@@ -12,8 +12,8 @@ function ActionCard({ variant }: { variant: (typeof actionVariants)[number] }) {
 	const label = variant.charAt(0).toUpperCase() + variant.slice(1);
 
 	return (
-		<div {...stylex.props(styles.card)}>
-			<span {...stylex.props(styles.cardTitle)}>{variant}</span>
+		<Card>
+			<Typography>{variant}</Typography>
 			<button {...stylex.props(styles.btnBase, styles[`btn${label}` as keyof typeof styles])}>
 				{label}
 			</button>
@@ -24,11 +24,13 @@ function ActionCard({ variant }: { variant: (typeof actionVariants)[number] }) {
 							{...stylex.props(styles.chipSwatch)}
 							style={{ backgroundColor: `var(--action-${variant}-${prop})` }}
 						/>
-						{prop}
+						<Typography key={prop} role="caption">
+							{prop}
+						</Typography>
 					</span>
 				))}
 			</div>
-		</div>
+		</Card>
 	);
 }
 
@@ -37,7 +39,7 @@ function FeedbackCard({ intent }: { intent: (typeof feedbackIntents)[number] }) 
 	const label = intent.charAt(0).toUpperCase() + intent.slice(1);
 
 	return (
-		<div {...stylex.props(styles.card)}>
+		<Card>
 			<span {...stylex.props(styles.cardTitle)}>{intent}</span>
 			<div {...stylex.props(styles.fbBanner, styles[`fb${label}` as keyof typeof styles])}>
 				{label}
@@ -53,7 +55,7 @@ function FeedbackCard({ intent }: { intent: (typeof feedbackIntents)[number] }) 
 					</span>
 				))}
 			</div>
-		</div>
+		</Card>
 	);
 }
 
@@ -62,7 +64,7 @@ function SurfaceCard({ type }: { type: (typeof surfaceTypes)[number] }) {
 	const label = type.charAt(0).toUpperCase() + type.slice(1);
 
 	return (
-		<div {...stylex.props(styles.card)}>
+		<Card>
 			<span {...stylex.props(styles.cardTitle)}>{type}</span>
 			<div {...stylex.props(styles.surfaceBlock, styles[`surf${label}` as keyof typeof styles])}>
 				{label}
@@ -78,7 +80,7 @@ function SurfaceCard({ type }: { type: (typeof surfaceTypes)[number] }) {
 					</span>
 				))}
 			</div>
-		</div>
+		</Card>
 	);
 }
 
@@ -86,9 +88,9 @@ function ContractsDemo() {
 	return (
 		<>
 			{/* Action Contracts */}
-			<h1>Contracts</h1>
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Actions</h2>
+			<Typography role="heading2">Contracts</Typography>
+			<Card>
+				<Typography role="heading3">Actions</Typography>
 				<Grid gap="md">
 					{actionVariants.map((v) => (
 						<Grid.Item key={v} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
@@ -96,11 +98,11 @@ function ContractsDemo() {
 						</Grid.Item>
 					))}
 				</Grid>
-			</section>
+			</Card>
 
 			{/* Feedback Contracts */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Feedback</h2>
+			<Card>
+				<Typography role="heading3">Feedback</Typography>
 				<Grid gap="md">
 					{feedbackIntents.map((i) => (
 						<Grid.Item key={i} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
@@ -108,11 +110,11 @@ function ContractsDemo() {
 						</Grid.Item>
 					))}
 				</Grid>
-			</section>
+			</Card>
 
 			{/* Surface Contracts */}
-			<section {...stylex.props(styles.section)}>
-				<h2 {...stylex.props(styles.h2)}>Surfaces</h2>
+			<Card>
+				<Typography role="heading3">Surfaces</Typography>
 				<Grid gap="md">
 					{surfaceTypes.map((t) => (
 						<Grid.Item key={t} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
@@ -120,7 +122,7 @@ function ContractsDemo() {
 						</Grid.Item>
 					))}
 				</Grid>
-			</section>
+			</Card>
 		</>
 	);
 }

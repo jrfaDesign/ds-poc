@@ -1,7 +1,6 @@
 import { create } from '@stylexjs/stylex';
 import {
 	surfaceContracts,
-	roles,
 	spacing,
 	components,
 } from '../../adapters/stylex/createStylexVars.stylex';
@@ -15,6 +14,7 @@ export const styles = create({
 		display: 'flex',
 		flexDirection: 'column',
 		gap: spacing.sm,
+		marginBottom: spacing.lg,
 	},
 	surface: {
 		backgroundColor: surfaceContracts.baseBg,
@@ -22,7 +22,7 @@ export const styles = create({
 	},
 	raised: {
 		backgroundColor: surfaceContracts.raisedBg,
-		borderColor: roles.borderWeak,
+		borderColor: 'var(--ct-border-tertiary)',
 	},
 	alt: {
 		backgroundColor: surfaceContracts.altBg,
@@ -30,6 +30,6 @@ export const styles = create({
 	},
 	brand: {
 		backgroundColor: surfaceContracts.brandBg,
-		borderColor: roles.borderWeak,
+		borderColor: 'var(--ct-border-tertiary)',
 	},
 });

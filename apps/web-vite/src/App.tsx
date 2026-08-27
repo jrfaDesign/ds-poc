@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AppStyles } from './App.styles';
 
 import * as stylex from '@stylexjs/stylex';
-import { applyTheme, Stack } from '@repo/ui-web-stylex';
+import { applyTheme, Button, Stack } from '@repo/ui-web-stylex';
 import { defaultTheme, cagTheme, caosTheme } from '@repo/themes';
 import ThemeVariables from './components/ThemeVariables/ThemeVariables';
 import { Example } from './components/Example/Example';
@@ -23,15 +23,23 @@ function App() {
 	return (
 		<Stack
 			gap="lg"
-			style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--role-surface)' }}
+			style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--ct-bg-primary)' }}
 		>
 			<div {...stylex.props(AppStyles.toolbar)}>
-				<button onClick={toggleDarkMode}>Toggle {darkMode ? 'Light' : 'Dark'} Mode</button>
+				<Button variant="secondary" onClick={toggleDarkMode}>
+					Toggle {darkMode ? 'Light' : 'Dark'} Mode
+				</Button>
 
 				<div {...stylex.props(AppStyles.controls)}>
-					<button onClick={() => setTheme(defaultTheme)}>BCA theme</button>
-					<button onClick={() => setTheme(cagTheme)}>CAG theme</button>
-					<button onClick={() => setTheme(caosTheme)}>CAOS theme</button>
+					<Button variant="primary" onClick={() => setTheme(defaultTheme)}>
+						BCA theme
+					</Button>
+					<Button variant="primary" onClick={() => setTheme(cagTheme)}>
+						CAG theme
+					</Button>
+					<Button variant="primary" onClick={() => setTheme(caosTheme)}>
+						CAOS theme
+					</Button>
 				</div>
 			</div>
 

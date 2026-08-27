@@ -6,6 +6,7 @@ import {
 	roles,
 	spacing,
 	radii,
+	shadows,
 } from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
@@ -163,10 +164,12 @@ export const styles = create({
 		borderRadius: radii.xs,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.borderWeak,
+		borderColor: surfaceContracts.baseBorder,
 		fontSize: 9,
 		fontFamily: '"SF Mono", "Cascadia Code", "Fira Code", monospace',
-		color: roles.textSecondary,
+		color: surfaceContracts.baseOn,
+		backgroundColor: surfaceContracts.baseBg,
+		boxShadow: shadows.xs,
 	},
 	chipSwatch: {
 		width: 10,

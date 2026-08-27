@@ -2,7 +2,6 @@ import { create } from '@stylexjs/stylex';
 import {
 	feedbackContracts,
 	surfaceContracts,
-	roles,
 	spacing,
 	radii,
 } from '../../adapters/stylex/createStylexVars.stylex';
@@ -27,13 +26,13 @@ export const styles = create({
 	},
 	alt: {
 		backgroundColor: surfaceContracts.altBg,
-		color: roles.textSecondary,
+		color: 'var(--ct-text-secondary)',
 		borderColor: 'transparent',
 	},
 	outline: {
 		backgroundColor: 'transparent',
-		color: roles.textSecondary,
-		borderColor: roles.borderWeak,
+		color: 'var(--ct-text-secondary)',
+		borderColor: 'var(--ct-border-tertiary)',
 	},
 	error: {
 		backgroundColor: feedbackContracts.errorBg,

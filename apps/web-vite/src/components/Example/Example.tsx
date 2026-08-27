@@ -18,7 +18,7 @@ export function Example() {
 		<div {...stylex.props(styles.page)}>
 			<header {...stylex.props(styles.header)}>
 				<Typography role="heading2">Design Token Examples</Typography>
-				<Typography role="bodySm" color="textSecondary">
+				<Typography role="bodySm" color="text-secondary">
 					Real-world UI patterns built with the design system tokens.
 				</Typography>
 			</header>

@@ -7,6 +7,8 @@ import {
 	Textarea,
 	type TypographyRole,
 	type TypographyColor,
+	Typography,
+	Card,
 } from '@repo/ui-web-stylex';
 import { styles as s } from './Typography.styles';
 
@@ -24,17 +26,19 @@ const roleOptions: TypographyRole[] = [
 
 const colorOptions = [
 	{ value: '', label: 'none (role default)' },
-	{ value: 'text', label: 'text' },
-	{ value: 'textSecondary', label: 'textSecondary' },
-	{ value: 'textTertiary', label: 'textTertiary' },
-	{ value: 'textInverse', label: 'textInverse' },
-	{ value: 'textBrand', label: 'textBrand' },
-	{ value: 'primary', label: 'primary' },
-	{ value: 'secondary', label: 'secondary' },
-	{ value: 'errorFg', label: 'errorFg' },
-	{ value: 'successFg', label: 'successFg' },
-	{ value: 'warningFg', label: 'warningFg' },
-	{ value: 'infoFg', label: 'infoFg' },
+	{ value: 'text-primary', label: 'text-primary' },
+	{ value: 'text-secondary', label: 'text-secondary' },
+	{ value: 'text-tertiary', label: 'text-tertiary' },
+	{ value: 'text-quaternary', label: 'text-quaternary' },
+	{ value: 'text-white', label: 'text-white' },
+	{ value: 'text-placeholder', label: 'text-placeholder' },
+	{ value: 'text-brand-primary', label: 'text-brand-primary' },
+	{ value: 'text-brand-secondary', label: 'text-brand-secondary' },
+	{ value: 'text-brand-tertiary', label: 'text-brand-tertiary' },
+	{ value: 'text-error-primary', label: 'text-error-primary' },
+	{ value: 'text-success-primary', label: 'text-success-primary' },
+	{ value: 'text-warning-primary', label: 'text-warning-primary' },
+	{ value: 'text-info-primary', label: 'text-info-primary' },
 	{ value: 'inherit', label: 'inherit' },
 ] as const;
 
@@ -118,63 +122,63 @@ const roleConfigs: Record<TypographyRole, RoleConfig> = {
 		fontWeight: 'bold',
 		lineHeight: 'tight',
 		letterSpacing: 'tight',
-		color: 'text',
+		color: 'text-primary',
 	},
 	heading2: {
 		fontSize: '4xl',
 		fontWeight: 'bold',
 		lineHeight: 'tight',
 		letterSpacing: 'tight',
-		color: 'text',
+		color: 'text-primary',
 	},
 	heading3: {
 		fontSize: '3xl',
 		fontWeight: 'semibold',
 		lineHeight: 'tight',
 		letterSpacing: null,
-		color: 'text',
+		color: 'text-primary',
 	},
 	heading4: {
 		fontSize: '2xl',
 		fontWeight: 'semibold',
 		lineHeight: 'normal',
 		letterSpacing: null,
-		color: 'text',
+		color: 'text-primary',
 	},
 	body: {
 		fontSize: 'md',
 		fontWeight: 'regular',
 		lineHeight: 'normal',
 		letterSpacing: null,
-		color: 'text',
+		color: 'text-primary',
 	},
 	bodySm: {
 		fontSize: 'sm',
 		fontWeight: 'regular',
 		lineHeight: 'normal',
 		letterSpacing: null,
-		color: 'textSecondary',
+		color: 'text-secondary',
 	},
 	caption: {
 		fontSize: 'xs',
 		fontWeight: 'regular',
 		lineHeight: 'tight',
 		letterSpacing: null,
-		color: 'textTertiary',
+		color: 'text-tertiary',
 	},
 	label: {
 		fontSize: 'xs',
 		fontWeight: 'medium',
 		lineHeight: 'tight',
 		letterSpacing: 'wide',
-		color: 'textSecondary',
+		color: 'text-secondary',
 	},
 	overline: {
 		fontSize: '2xs',
 		fontWeight: 'semibold',
 		lineHeight: 'none',
 		letterSpacing: 'widest',
-		color: 'textTertiary',
+		color: 'text-tertiary',
 	},
 };
 
@@ -221,7 +225,12 @@ function getResolvedRows(
 
 	rows.push(
 		{ property: 'font-family', token: 'fontFamily.body', value: fontFamilyLabel },
-		{ property: 'color', token: `roles.${actualColor}`, value: actualColor, colorRef: actualColor }
+		{
+			property: 'color',
+			token: `colorTokens.${actualColor}`,
+			value: actualColor,
+			colorRef: actualColor,
+		}
 	);
 
 	return rows;
@@ -291,8 +300,8 @@ export function TypographyDemo() {
 					placeholder="Type your text here…"
 				/>
 
-				<div {...stylex.props(s.preview)}>
-					<div {...stylex.props(s.previewLabel)}>Preview</div>
+				<Card>
+					<Typography>Preview</Typography>
 					<TypographyComponent
 						role={role}
 						color={color ? (color as TypographyColor) : undefined}
@@ -300,38 +309,52 @@ export function TypographyDemo() {
 					>
 						{text}
 					</TypographyComponent>
-				</div>
+				</Card>
 
 				<div>
-					<div {...stylex.props(s.previewLabel)}>Resolved Properties</div>
+					<div {...stylex.props(s.previewLabel)}>
+						<Typography>Resolved Properties</Typography>
+					</div>
 					<table {...stylex.props(s.table)}>
 						<thead>
 							<tr>
-								<th {...stylex.props(s.th)}>Property</th>
-								<th {...stylex.props(s.th)}>Token</th>
-								<th {...stylex.props(s.th)}>Value</th>
+								<th {...stylex.props(s.th)}>
+									<Typography>Property</Typography>
+								</th>
+								<th {...stylex.props(s.th)}>
+									<Typography>Token</Typography>
+								</th>
+								<th {...stylex.props(s.th)}>
+									<Typography>Value</Typography>
+								</th>
 							</tr>
 						</thead>
 						<tbody>
 							{resolvedRows.map((row) => (
 								<tr key={row.property}>
-									<td {...stylex.props(s.td)}>{row.property}</td>
-									<td {...stylex.props(s.td, s.tdMuted)}>{row.token}</td>
+									<td {...stylex.props(s.td)}>
+										<Typography role="caption">{row.property}</Typography>
+									</td>
+									<td {...stylex.props(s.td, s.tdMuted)}>
+										<Typography role="caption">{row.token}</Typography>
+									</td>
 									<td {...stylex.props(s.td, s.tdValue)}>
-										{(() => {
-											const cr = row.colorRef;
-											return cr ? (
-												<>
-													<span
-														{...stylex.props(s.colorSwatch)}
-														style={{ backgroundColor: `var(--role-${cr})` }}
-													/>
-													{row.value}
-												</>
-											) : (
-												row.value
-											);
-										})()}
+										<Typography role="caption">
+											{(() => {
+												const cr = row.colorRef;
+												return cr ? (
+													<>
+														<span
+															{...stylex.props(s.colorSwatch)}
+															style={{ backgroundColor: `var(--ct-${cr})` }}
+														/>
+														{row.value}
+													</>
+												) : (
+													row.value
+												);
+											})()}
+										</Typography>
 									</td>
 								</tr>
 							))}

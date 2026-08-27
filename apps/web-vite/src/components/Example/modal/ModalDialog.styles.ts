@@ -1,5 +1,12 @@
 import { create } from '@stylexjs/stylex';
-import { roles, spacing, components, shadows } from '@repo/ui-web-stylex/vars.stylex';
+import {
+	roles,
+	spacing,
+	components,
+	shadows,
+	feedbackContracts,
+	surfaceContracts,
+} from '@repo/ui-web-stylex/vars.stylex';
 
 export const styles = create({
 	wrapper: {
@@ -7,10 +14,10 @@ export const styles = create({
 	},
 	dialog: {
 		position: 'relative',
-		backgroundColor: roles.surfaceRaised,
+		backgroundColor: surfaceContracts.baseBg,
 		borderWidth: 1,
 		borderStyle: 'solid',
-		borderColor: roles.border,
+		borderColor: surfaceContracts.baseBorder,
 		borderRadius: components.cardBorderRadii,
 		padding: spacing.lg,
 		maxWidth: 380,
@@ -38,10 +45,6 @@ export const styles = create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		fontSize: 16,
-		':hover': {
-			backgroundColor: roles.actionGhostBgHover,
-			color: roles.text,
-		},
 	},
 	footer: {
 		display: 'flex',
@@ -50,6 +53,6 @@ export const styles = create({
 		paddingTop: spacing.md,
 		borderTopWidth: 1,
 		borderTopStyle: 'solid',
-		borderTopColor: roles.divider,
+		borderTopColor: surfaceContracts.baseBorder,
 	},
 });
