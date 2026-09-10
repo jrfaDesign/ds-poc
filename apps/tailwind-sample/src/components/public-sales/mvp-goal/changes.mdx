@@ -1,0 +1,451 @@
+---
+title: 'Public Sales — Changes to Match MVP Target'
+description: 'Gap analysis and implementation steps to match full.png (BCA theme) and byd_premium.png (BYD Premium theme).'
+---
+
+# Public Sales — Changes to Match MVP Target
+
+## Reference Images
+
+| Image             | Theme                          | Purpose                                            |
+| ----------------- | ------------------------------ | -------------------------------------------------- |
+| `full.png`        | BCA (`bca.ts`)                 | Primary target — blue accent, pill buttons         |
+| `byd_premium.png` | BYD Premium (`byd_premium.ts`) | Override proof — dark accent, less rounded buttons |
+
+## Current State
+
+~60-70% match. Core layout, routing, theme system, and component architecture are solid.
+Remaining gaps are in: badge positioning, footer content, theme overrides, and minor icon details.
+
+---
+
+## Change 1: SaleCard — Remove Duplicate Access Badge
+
+**File**: `apps/tailwind-sample/src/components/SaleCard.tsx`
+
+### Problem
+
+Access badge (Public / Members Only / Exclusive) renders **twice**:
+
+1. In the image overlay (top-left) — **should NOT be here**
+2. In the content area below the image — **correct location**
+
+Target (`full.png`) shows:
+
+- Overlay: only the **status badge** (xBid Live, Fixed Price, etc.) at top-left and **brand logo** at bottom-right
+- Content area: flag + colored circle dot + access label text
+
+### Changes
+
+#### 1a. Replace `accessConfig` type and values
+
+```tsx
+// BEFORE
+const accessConfig: Record<Sale['access'], { label: string; bgClass: string; textClass: string }> =
+	{
+		exclusive: { label: 'Exclusive', bgClass: 'bg-black', textClass: 'text-white' },
+		public: {
+			label: 'Public',
+			bgClass: 'bg-surface-sunken-bg',
+			textClass: 'text-surface-brand-on',
+		},
+		membersOnly: {
+			label: 'Members Only',
+			bgClass: 'bg-surface-brand-bg',
+			textClass: 'text-surface-brand-on',
+		},
+	};
+
+// AFTER
+const accessConfig: Record<
+	Sale['access'],
+	{ label: string; dotClass: string; textClass: string; icon?: 'lock' | 'star' }
+> = {
+	exclusive: {
+		label: 'Exclusive',
+		dotClass: 'bg-amber-400',
+		textClass: 'text-surface-brand-on',
+		icon: 'star',
+	},
+	public: {
+		label: 'Public',
+		dotClass: 'bg-emerald-500',
+		textClass: 'text-surface-brand-on',
+	},
+	membersOnly: {
+		label: 'Members Only',
+		dotClass: 'bg-neutral-700',
+		textClass: 'text-surface-brand-on',
+		icon: 'lock',
+	},
+};
+```
+
+#### 1b. Remove access badge from image overlay
+
+```tsx
+// BEFORE (inside overlay div)
+<div className="flex items-start justify-between">
+  <span
+    className={`inline-flex items-center px-sm py-xxs rounded-full text-xs font-medium ${access.bgClass} ${access.textClass}`}
+  >
+    {access.label}
+  </span>
+  <span
+    className={`inline-flex items-center px-sm py-xxs rounded-full text-xs font-medium ${status.bgClass} ${status.textClass}`}
+  >
+    {status.label}
+  </span>
+</div>
+
+// AFTER — only status badge remains in overlay
+<div className="flex items-start justify-end">
+  <span
+    className={`inline-flex items-center px-sm py-xxs rounded-full text-xs font-medium ${status.bgClass} ${status.textClass}`}
+  >
+    {status.label}
+  </span>
+</div>
+```
+
+#### 1c. Update content area flag + access row with colored dot
+
+```tsx
+// BEFORE
+<div className="flex items-center gap-xs">
+  <CountryFlag code={sale.countryCode} />
+  <span
+    className={`inline-flex items-center px-sm py-xxs rounded-full text-xs font-medium ${access.bgClass} ${access.textClass}`}
+  >
+    {access.label}
+  </span>
+</div>
+
+// AFTER
+<div className="flex items-center gap-xs">
+  <CountryFlag code={sale.countryCode} />
+  <span
+    className={`inline-flex items-center gap-xxs text-xs font-medium ${access.textClass}`}
+  >
+    <span className={`w-2 h-2 rounded-full shrink-0 ${access.dotClass}`} />
+    {access.icon === 'lock' && <LockIcon />}
+    {access.icon === 'star' && <StarIcon />}
+    {access.label}
+  </span>
+</div>
+```
+
+#### 1d. Add LockIcon and StarIcon helper components
+
+```tsx
+function LockIcon() {
+	return (
+		<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+			<path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v3H9V7c0-1.66 1.34-3 3-3z" />
+		</svg>
+	);
+}
+
+function StarIcon() {
+	return (
+		<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+			<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+		</svg>
+	);
+}
+```
+
+---
+
+## Change 2: AppFooter — Update Section Content
+
+**File**: `apps/tailwind-sample/src/components/AppFooter.tsx`
+
+### Problem
+
+Footer section titles and links don't match target:
+
+- **Current**: "Company / Services / Support" (3 columns)
+- **Target**: "About BYD / Useful links / Ownership / Help" (4 columns)
+
+### Changes
+
+#### 2a. Replace `footerSections` array
+
+```tsx
+// BEFORE
+const footerSections = [
+	{
+		title: 'Company',
+		links: [
+			{ label: 'About Us', href: '#' },
+			{ label: 'Careers', href: '#' },
+			{ label: 'Press', href: '#' },
+			{ label: 'Investors', href: '#' },
+		],
+	},
+	{
+		title: 'Services',
+		links: [
+			{ label: 'Leasing', href: '#' },
+			{ label: 'Sales', href: '#' },
+			{ label: 'Financing', href: '#' },
+			{ label: 'Insurance', href: '#' },
+		],
+	},
+	{
+		title: 'Support',
+		links: [
+			{ label: 'Contact', href: '#' },
+			{ label: 'FAQ', href: '#' },
+			{ label: 'Service Centers', href: '#' },
+			{ label: 'Roadside Assist', href: '#' },
+		],
+	},
+];
+
+// AFTER
+const footerSections = [
+	{
+		title: 'About BYD',
+		links: [
+			{ label: 'About Us', href: '#' },
+			{ label: 'Careers', href: '#' },
+			{ label: 'News', href: '#' },
+			{ label: 'BYD Global', href: '#' },
+		],
+	},
+	{
+		title: 'Useful links',
+		links: [
+			{ label: 'Buy With Us', href: '#' },
+			{ label: 'Sell With Us', href: '#' },
+			{ label: 'Services', href: '#' },
+			{ label: 'Locations', href: '#' },
+		],
+	},
+	{
+		title: 'Ownership',
+		links: [
+			{ label: 'Service Maintenance', href: '#' },
+			{ label: 'BYD Assistance', href: '#' },
+			{ label: 'How BYD Protects Your Privacy and Data', href: '#' },
+		],
+	},
+	{
+		title: 'Help',
+		links: [
+			{ label: 'Contact Us', href: '#' },
+			{ label: 'Customer Claims', href: '#' },
+			{ label: 'FAQs', href: '#' },
+			{ label: 'Glossary of Terms', href: '#' },
+		],
+	},
+];
+```
+
+#### 2b. Update grid to 4 columns
+
+```tsx
+// BEFORE
+<div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+
+// AFTER
+<div className="grid grid-cols-1 md:grid-cols-4 gap-lg">
+```
+
+---
+
+## Change 3: FiltersPanel — Add Trash Icon to "Clear All"
+
+**File**: `apps/tailwind-sample/src/components/FiltersPanel.tsx`
+
+### Changes
+
+```tsx
+// Add TrashIcon component at the top of the file
+function TrashIcon() {
+	return (
+		<svg
+			width="14"
+			height="14"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<polyline points="3 6 5 6 21 6" />
+			<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+		</svg>
+	);
+}
+
+// Update the button
+<Button variant="secondary" onClick={onClearAll} className="flex-1">
+	<TrashIcon /> Clear All
+</Button>;
+```
+
+---
+
+## Change 4: byd_premium.ts — Add Theme Overrides
+
+**File**: `packages/themes/src/byd_premium.ts`
+
+### Problem
+
+Current file: `mergeTheme(bcaTheme, {})` — empty override means switching to BYD Premium produces **identical** output to BCA. The entire purpose of this demo is to prove theme switching works with minimal overrides.
+
+### Changes
+
+```tsx
+import { mergeTheme } from './mergeTheme';
+import bcaTheme from './bca';
+
+const bydPremiumTheme = mergeTheme(bcaTheme, {
+	// Override primary accent palette to dark/black
+	colors: {
+		primary_accent_50: '#F2F2F2',
+		primary_accent_100: '#E0E0E0',
+		primary_accent_200: '#BDBDBD',
+		primary_accent_300: '#9E9E9E',
+		primary_accent_400: '#757575',
+		primary_accent_500: '#424242',
+		primary_accent_600: '#1A1A1A',
+		primary_accent_700: '#111111',
+		primary_accent_800: '#0A0A0A',
+		primary_accent_900: '#050505',
+		primary_accent_950: '#000000',
+	},
+
+	contracts: {
+		// Less rounded buttons than BCA's 4xl
+		components: {
+			buttonBorderRadii: { type: 'radii', value: 'xl' },
+		},
+
+		// Primary actions use the new dark accent
+		actions: {
+			primary: {
+				bg: 'primary_accent_600',
+				on: 'text-white',
+				border: 'primary_accent_600',
+				bgHover: 'primary_accent_700',
+				onHover: 'text-white',
+				bgActive: 'primary_accent_700',
+				onActive: 'text-white',
+				bgFocus: 'primary_accent_600',
+				onFocus: 'text-white',
+				borderFocus: 'primary_accent_600',
+				bgDisabled: 'bg-quaternary',
+				onDisabled: 'text-quaternary',
+				borderDisabled: 'border-primary',
+			},
+		},
+	},
+});
+
+export default bydPremiumTheme;
+```
+
+### Visual Impact When Switching Themes
+
+| Element               | BCA (`full.png`)          | BYD Premium (`byd_premium.png`) |
+| --------------------- | ------------------------- | ------------------------------- |
+| Primary button bg     | `#0074DE` (blue)          | `#1A1A1A` (near-black)          |
+| Button corners        | `4xl` (very rounded/pill) | `xl` (less rounded)             |
+| Active tab underline  | Blue accent               | Dark/black accent               |
+| Checked checkboxes    | Blue                      | Dark/black                      |
+| "Apply Filter" button | Blue                      | Black                           |
+| Links / brand text    | Blue accent               | Dark accent                     |
+
+---
+
+## Change 5: Tag — Add Dot Indicator
+
+**File**: `packages/ui-web-tailwind/src/components/Tag/Tag.types.ts`
+
+```tsx
+// ADD to TagProps type
+/** Show a small dot indicator before the label. */
+dot?: boolean;
+```
+
+**File**: `packages/ui-web-tailwind/src/components/Tag/Tag.tsx`
+
+```tsx
+// UPDATE function signature to accept dot prop
+export function Tag({
+	label,
+	toneToken,
+	variant = 'solid',
+	dot = false,
+	className,
+	style,
+}: TagProps) {
+	const tone = colorTokenVar(toneToken);
+
+	const variantStyle =
+		variant === 'solid'
+			? { backgroundColor: tone, color: 'var(--ct-text-white)' }
+			: { borderColor: tone, color: tone };
+
+	return (
+		<span
+			className={[
+				'inline-flex items-center shrink-0 font-medium rounded-full',
+				'text-xs leading-none whitespace-nowrap',
+				variant === 'solid' ? 'ps-2 pe-2 py-1' : 'border ps-2 pe-2 py-1',
+				className,
+			]
+				.filter(Boolean)
+				.join(' ')}
+			style={{ ...variantStyle, ...style }}
+		>
+			{dot && <span className="w-1.5 h-1.5 rounded-full bg-current me-1.5 shrink-0" />}
+			{label}
+		</span>
+	);
+}
+```
+
+**File**: `apps/tailwind-sample/src/components/AppHeader.tsx`
+
+```tsx
+// UPDATE navItems badge to include dot: true
+const navItems = [
+	{ id: 'search', label: 'Vehicle search' },
+	{
+		id: 'sales',
+		label: 'Sales',
+		badge: { label: 'Live', toneToken: 'bg-success-solid' as const, dot: true },
+	},
+	{ id: 'dashboard', label: 'Dashboard' },
+	{ id: 'support', label: 'Support' },
+];
+```
+
+---
+
+## Implementation Order
+
+| Step | File(s)                                    | Complexity | Dependency |
+| ---- | ------------------------------------------ | ---------- | ---------- |
+| 1    | `SaleCard.tsx`                             | Medium     | None       |
+| 2    | `AppFooter.tsx`                            | Low        | None       |
+| 3    | `FiltersPanel.tsx`                         | Low        | None       |
+| 4    | `byd_premium.ts`                           | Low        | None       |
+| 5    | `Tag.types.ts`, `Tag.tsx`, `AppHeader.tsx` | Low        | None       |
+
+All steps are independent — can be done in any order.
+
+## Verification
+
+After all changes:
+
+1. `npm run build` in `apps/tailwind-sample/` — must pass TypeScript compilation
+2. Visual check at `/public-sales` — compare against `full.png`
+3. Theme switch to "BYD Premium" — verify black buttons, less rounded corners
+4. Navigate to `/` — DS showcase still works with both themes

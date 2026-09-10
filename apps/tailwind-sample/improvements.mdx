@@ -1,0 +1,267 @@
+---
+title: 'Public Sales — Full Implementation Specification'
+description: 'Complete improvement plan for MVP → /public-sales, filter redesign, theme fixes, vehicle card corrections, and footer layout.'
+---
+
+import { Callout } from '@repo/ui-web-tailwind';
+
+# Public Sales — Implementation Specification
+
+This document defines **all required improvements** for the MVP → `/public-sales` page, filter system, theme contracts, component spacing, vehicle card layout, and footer redesign.  
+It is written for **AI agent implementation** — explicit, structured, and actionable.
+
+---
+
+## 1. Routing & Page Structure
+
+### Problem
+
+The MVP view is currently rendered conditionally:
+
+```tsx
+if (activeTab === 'mvp') {
+  return <MvpView ... />;
+}
+Required Change
+Convert MVP into a real page at route: /public-sales.
+
+Remove tab‑based conditional rendering.
+
+Tabs in the header must navigate using router navigation.
+
+Acceptance Criteria
+Visiting /public-sales loads the MVP page.
+
+MVP page renders independently of activeTab.
+
+2. Filter Section Redesign
+2.1 Web Filter — Accordion System
+Requirements
+Filter panel width: 310px.
+
+Each filter category is an accordion item:
+
+Country
+
+Location
+
+Format
+
+Profile
+
+Collapsed State
+Show only selected values.
+
+Selected values appear as chips using surface.brand colors.
+
+Expanded State
+Show:
+
+Selected chip(s) with label.
+
+All available chips for selection.
+
+Chips use DS chip component with “selected” state styling.
+
+Country Filter
+Use Portugal + other European countries.
+
+Selected chip:
+
+background: surface.brand.bg
+
+color: surface.brand.on
+
+Rounded chip container.
+
+Interaction
+Clicking a chip toggles selection.
+
+Multiple selections allowed.
+
+2.2 Mobile Filter — Redesign
+Requirements
+Mobile filter must follow the same accordion logic.
+
+Chips must wrap correctly.
+
+Spacing must follow DS spacing tokens.
+
+Avoid cramped layout — use vertical stacking.
+
+3. Foundation Contracts — Header & Footer Background Colors
+Required Change
+Add new tokens:
+
+ts
+foundation.contracts.components.header.bg
+foundation.contracts.components.footer.bg
+Default Theme
+Light mode: primary_950
+
+BCA Theme Exception
+Light mode: primary_accent_950
+
+Acceptance Criteria
+Header/footer background colors change correctly when switching themes.
+
+Only BCA theme overrides default logic.
+
+4. Button Theme Bug
+Problem
+Switching to BCA theme causes all primary buttons to adopt BCA colors.
+
+Required Fix
+Ensure BCA overrides apply only when themeKey === 'bca'.
+
+Validate that button tokens are isolated per theme.
+
+5. Input & Select Components — Padding & Size Alignment
+Required Change
+Apply the same spacing logic used in buttons to:
+
+Input fields
+
+Select components
+
+Acceptance Criteria
+Inputs and selects visually align with button height.
+
+Use DS spacing tokens (same vertical padding as buttons).
+
+6. Vehicle Card List — Full Redesign
+6.1 Card Container
+Border radius: 4xl
+
+Padding: xl
+
+Background: white
+
+6.2 Image
+Full width
+
+Rounded corners matching card radius
+
+6.3 Top Badges
+Top Left Badge (only)
+Badge types:
+
+Type	Background	Text Color
+Exclusive	black	white
+Public	quaternary	primary_900
+Members Only	brand-secondary #E8F4FE	brand-primary-900 #002B52
+
+
+Top Right
+Remove all badges.
+Replace with status indicators:
+
+xBid Live → success.dark colors
+
+Open Auction Not Started → white bg, primary_900 text
+
+Fixed Price → same as existing fixed price badge
+
+6.4 Content Below Image
+Row 1
+Flag
+
+Badge (Exclusive / Public / Members Only)
+
+Row 2 — Title
+Color: primary_900 (#002B52)
+
+Typography: DS heading
+
+Row 3 — Description
+Color: closest neutral to #475569 (use neutral-600)
+
+Typography: DS body text
+
+Row 4 — Link
+Text: “See full description”
+
+Color: contracts.actions.bg
+
+Underline: same color
+
+Row 5 — Divider
+Color: #002B52
+
+Row 6 — Starts / Ends
+Already correct
+
+Row 7 — Divider
+Color: #002B52
+
+Row 8 — Location & Lots
+Already correct
+
+7. Footer Redesign
+Required Change
+“Back to top” must be centered.
+
+Legal links must be wrapped inside a card container.
+
+Footer Card Container
+Background:
+
+BCA theme: #1D2948
+
+Default theme: equivalent token
+
+Padding:
+
+paddingY: 48px
+
+paddingX: 36px
+
+Border radius: 36px
+
+8. Summary of Required Tasks
+Routing
+Convert MVP tab into /public-sales.
+
+Filters
+Redesign mobile.
+
+Implement accordion system on web.
+
+Add chip selection logic.
+
+Theme
+Add header/footer bg tokens.
+
+Fix BCA button override bug.
+
+Components
+Align input/select padding with button spacing.
+
+Vehicle Cards
+Fix badge logic.
+
+Fix colors.
+
+Fix dividers.
+
+Fix description.
+
+Fix link styling.
+
+Fix footer layout.
+
+Footer
+Center “Back to top”.
+
+Wrap legal links in themed card.
+
+9. Developer Notes
+Guidelines
+Follow DS tokens strictly.
+
+Use theme contracts for all colors.
+
+Avoid hardcoded values except where specified.
+
+Ensure mobile and web layouts differ appropriately.
+```

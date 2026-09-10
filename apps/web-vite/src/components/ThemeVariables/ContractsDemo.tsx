@@ -88,9 +88,9 @@ function ContractsDemo() {
 	return (
 		<>
 			{/* Action Contracts */}
-			<Typography role="heading2">Contracts</Typography>
+			<Typography role="h2">Contracts</Typography>
 			<Card>
-				<Typography role="heading3">Actions</Typography>
+				<Typography role="h3">Actions</Typography>
 				<Grid gap="md">
 					{actionVariants.map((v) => (
 						<Grid.Item key={v} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
@@ -102,7 +102,7 @@ function ContractsDemo() {
 
 			{/* Feedback Contracts */}
 			<Card>
-				<Typography role="heading3">Feedback</Typography>
+				<Typography role="h3">Feedback</Typography>
 				<Grid gap="md">
 					{feedbackIntents.map((i) => (
 						<Grid.Item key={i} span={{ mobile: 2, tablet: 4, desktop: 3 }}>
@@ -114,7 +114,7 @@ function ContractsDemo() {
 
 			{/* Surface Contracts */}
 			<Card>
-				<Typography role="heading3">Surfaces</Typography>
+				<Typography role="h3">Surfaces</Typography>
 				<Grid gap="md">
 					{surfaceTypes.map((t) => (
 						<Grid.Item key={t} span={{ mobile: 2, tablet: 4, desktop: 3 }}>

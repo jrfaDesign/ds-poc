@@ -1,4 +1,4 @@
-# Design System Contracts — Implementation Plan
+# Design System Contracts - Implementation Plan
 
 ## Overview
 
@@ -21,22 +21,22 @@ Add structured "contracts" (presets) that group related roles into cohesive sema
 
 ---
 
-## Step 1: `foundations/index.ts` — Add New Roles
+## Step 1: `foundations/index.ts` - Add New Roles
 
 Add to `roleKeys` array (after existing action roles):
 
 ```typescript
-// ACTION — PRIMARY (add focus states)
+// ACTION - PRIMARY (add focus states)
 'actionPrimaryBgFocus',
 'actionPrimaryOnFocus',
 'actionPrimaryBorderFocus',
 
-// ACTION — SECONDARY (add focus states)
+// ACTION - SECONDARY (add focus states)
 'actionSecondaryBgFocus',
 'actionSecondaryOnFocus',
 'actionSecondaryBorderFocus',
 
-// ACTION — GHOST (add focus + disabled)
+// ACTION - GHOST (add focus + disabled)
 'actionGhostBgFocus',
 'actionGhostOnFocus',
 'actionGhostBorderFocus',
@@ -44,12 +44,12 @@ Add to `roleKeys` array (after existing action roles):
 'actionGhostDisabledOn',
 'actionGhostDisabledBorder',
 
-// ACTION — LINK (add focus + disabled)
+// ACTION - LINK (add focus + disabled)
 'actionLinkOnFocus',
 'actionLinkOnDisabled',
 ```
 
-## Step 2: `foundations/index.ts` — Add Action Preset Schema
+## Step 2: `foundations/index.ts` - Add Action Preset Schema
 
 ```typescript
 const FullActionPresetSchema = z.object({
@@ -86,7 +86,7 @@ const ActionsSchema = z
 	.strict();
 ```
 
-## Step 3: `foundations/index.ts` — Add Feedback Preset Schema
+## Step 3: `foundations/index.ts` - Add Feedback Preset Schema
 
 ```typescript
 const FeedbackPresetSchema = z.object({
@@ -107,7 +107,7 @@ const FeedbackSchema = z
 	.strict();
 ```
 
-## Step 4: `foundations/index.ts` — Add Surfaces Preset Schema
+## Step 4: `foundations/index.ts` - Add Surfaces Preset Schema
 
 ```typescript
 const SurfacePresetSchema = z.object({
@@ -128,7 +128,7 @@ const SurfacesSchema = z
 	.strict();
 ```
 
-## Step 5: `foundations/index.ts` — Rename typography.roles → typography.contracts
+## Step 5: `foundations/index.ts` - Rename typography.roles → typography.contracts
 
 Change `TypographyRolesSchema` to `TypographyContractsSchema`:
 
@@ -137,7 +137,7 @@ Change `TypographyRolesSchema` to `TypographyContractsSchema`:
 - Rename schema property: `roles` → `contracts`
 - Update `TypographySchema` to use `contracts` instead of `roles`
 
-## Step 6: `foundations/index.ts` — Add Contracts to TokensSchema
+## Step 6: `foundations/index.ts` - Add Contracts to TokensSchema
 
 ```typescript
 export const TokensSchema = z
@@ -159,7 +159,7 @@ export const TokensSchema = z
 	.strict();
 ```
 
-## Step 7: `foundations/index.ts` — Update TokenNames
+## Step 7: `foundations/index.ts` - Update TokenNames
 
 ```typescript
 export type TokenNames = {
@@ -190,22 +190,22 @@ export type TokenNames = {
 
 ---
 
-## Step 8: `themes/default.ts` — Add New Focus/Disabled Role Values
+## Step 8: `themes/default.ts` - Add New Focus/Disabled Role Values
 
 Add to `roles`:
 
 ```typescript
-// ACTION — PRIMARY (focus)
+// ACTION - PRIMARY (focus)
 actionPrimaryBgFocus: { light: 'primary_500', dark: 'primary_400' },
 actionPrimaryOnFocus: { light: 'white', dark: 'white' },
 actionPrimaryBorderFocus: { light: 'primary_500', dark: 'primary_400' },
 
-// ACTION — SECONDARY (focus)
+// ACTION - SECONDARY (focus)
 actionSecondaryBgFocus: { light: 'neutral_100', dark: 'neutral_800' },
 actionSecondaryOnFocus: { light: 'neutral_900', dark: 'neutral_100' },
 actionSecondaryBorderFocus: { light: 'neutral_400', dark: 'neutral_600' },
 
-// ACTION — GHOST (focus + disabled)
+// ACTION - GHOST (focus + disabled)
 actionGhostBgFocus: { light: 'neutral_100', dark: 'neutral_800' },
 actionGhostOnFocus: { light: 'neutral_900', dark: 'neutral_100' },
 actionGhostBorderFocus: { light: 'neutral_300', dark: 'neutral_700' },
@@ -213,12 +213,12 @@ actionGhostDisabledBg: { light: 'transparent', dark: 'transparent' },
 actionGhostDisabledOn: { light: 'neutral_400', dark: 'neutral_600' },
 actionGhostDisabledBorder: { light: 'transparent', dark: 'transparent' },
 
-// ACTION — LINK (focus + disabled)
+// ACTION - LINK (focus + disabled)
 actionLinkOnFocus: { light: 'primary_700', dark: 'primary_200' },
 actionLinkOnDisabled: { light: 'neutral_400', dark: 'neutral_600' },
 ```
 
-## Step 9: `themes/default.ts` — Add Action Contract Mappings
+## Step 9: `themes/default.ts` - Add Action Contract Mappings
 
 ```typescript
 actions: {
@@ -277,7 +277,7 @@ actions: {
 },
 ```
 
-## Step 10: `themes/default.ts` — Add Feedback Contract Mappings
+## Step 10: `themes/default.ts` - Add Feedback Contract Mappings
 
 ```typescript
 feedback: {
@@ -312,7 +312,7 @@ feedback: {
 },
 ```
 
-## Step 11: `themes/default.ts` — Add Surfaces Contract Mappings
+## Step 11: `themes/default.ts` - Add Surfaces Contract Mappings
 
 ```typescript
 surfaces: {
@@ -349,13 +349,13 @@ surfaces: {
 },
 ```
 
-## Step 12: `themes/default.ts` — Rename typography.roles → typography.contracts
+## Step 12: `themes/default.ts` - Rename typography.roles → typography.contracts
 
 Change all references from `roles` to `contracts` in the typography section.
 
 ---
 
-## Step 13: `adapters/stylex/createStylexTheme.stylex.ts` — Resolve Contracts
+## Step 13: `adapters/stylex/createStylexTheme.stylex.ts` - Resolve Contracts
 
 Add after the roles resolution block:
 
@@ -399,7 +399,7 @@ Object.entries(theme.surfaces).forEach(([surface, preset]) => {
 
 Also update typography roles → contracts references (rename `--typography-role-` to `--typography-contract-`).
 
-## Step 14: `adapters/stylex/createStylexVars.stylex.ts` — Export Contract Vars
+## Step 14: `adapters/stylex/createStylexVars.stylex.ts` - Export Contract Vars
 
 ```typescript
 // actions

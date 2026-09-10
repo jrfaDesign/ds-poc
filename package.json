@@ -2,6 +2,8 @@
 	"name": "ds-poc2",
 	"private": true,
 	"scripts": {
+		"clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
+		"fresh": "yarn install",
 		"build": "turbo run build",
 		"dev": "turbo run dev",
 		"lint": "turbo run lint",
@@ -15,12 +17,6 @@
 	},
 	"engines": {
 		"node": ">=18"
-	},
-	"devEngines": {
-		"packageManager": {
-			"name": "yarn",
-			"version": "4.14.1"
-		}
 	},
 	"workspaces": [
 		"apps/*",

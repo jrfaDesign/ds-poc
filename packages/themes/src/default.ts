@@ -3,25 +3,58 @@ import { TokensSchema, type Tokens } from '@repo/foundations';
 const defaultThemeTokens: Tokens = {
 	spacing: {
 		none: 0,
-		'3xs': 1,
-		'2xs': 2,
+		xxs: 2,
 		xs: 4,
-		sm: 8,
-		md: 12,
-		lg: 20,
-		xl: 32,
-		'2xl': 48,
-		'3xl': 80,
-		'4xl': 120,
+		sm: 6,
+		md: 8,
+		lg: 12,
+		xl: 16,
+		'2xl': 20,
+		'3xl': 24,
+		'4xl': 32,
+		'5xl': 40,
+		'6xl': 48,
+		'7xl': 64,
+		'8xl': 80,
+		'9xl': 96,
+		'10xl': 128,
+		'11xl': 160,
 	},
 	radii: {
 		none: 0,
-		xs: 1,
-		sm: 2,
-		md: 4,
-		lg: 8,
-		xl: 16,
+		xxs: 2,
+		xs: 4,
+		sm: 6,
+		md: 8,
+		lg: 10,
+		xl: 12,
+		'2xl': 16,
+		'3xl': 20,
+		'4xl': 24,
+		'5xl': 32,
+		'6xl': 40,
+		'7xl': 48,
 		full: 9999,
+	},
+	widths: {
+		xxs: 320,
+		xs: 384,
+		sm: 480,
+		md: 560,
+		lg: 640,
+		xl: 768,
+		'2xl': 1024,
+		'3xl': 1280,
+		'4xl': 1440,
+		'5xl': 1600,
+		'6xl': 1920,
+	},
+	layout: {
+		none: 0,
+		sm: 16,
+		md: 32,
+		lg: 48,
+		xl: 64,
 	},
 
 	colors: {
@@ -114,20 +147,35 @@ const defaultThemeTokens: Tokens = {
 		warning_950: '#1E160A',
 	},
 	typography: {
-		fontFamily: '"Google Sans Flex", system-ui, -apple-system, sans-serif',
-		monospaceFont: '"SF Mono", "Cascadia Code", "JetBrains Mono", monospace',
+		fontFamilies: {
+			body: '"Inter", system-ui, -apple-system, sans-serif',
+			heading: '"Inter", system-ui, -apple-system, sans-serif',
+			mono: '"SF Mono", "Cascadia Code", "JetBrains Mono", monospace',
+		},
 		fontSize: {
-			'2xs': 12,
-			xs: 14,
-			sm: 16,
-			md: 18,
-			lg: 22,
-			xl: 24,
-			'2xl': 28,
-			'3xl': 32,
-			'4xl': 40,
-			'5xl': 56,
-			'6xl': 72,
+			xxs: { fontSizePx: 12, fontSizeRem: 0.75 },
+			xs: { fontSizePx: 14, fontSizeRem: 0.875 },
+			sm: { fontSizePx: 16, fontSizeRem: 1 },
+			md: { fontSizePx: 18, fontSizeRem: 1.125 },
+			lg: { fontSizePx: 20, fontSizeRem: 1.25 },
+			xl: { fontSizePx: 24, fontSizeRem: 1.5 },
+			'2xl': { fontSizePx: 30, fontSizeRem: 1.875 },
+			'3xl': { fontSizePx: 36, fontSizeRem: 2.25 },
+			'4xl': {
+				fontSizePx: 48,
+				fontSizeRem: 3,
+				letterSpacing: -0.02,
+			},
+			'5xl': {
+				fontSizePx: 60,
+				fontSizeRem: 3.75,
+				letterSpacing: -0.02,
+			},
+			'6xl': {
+				fontSizePx: 72,
+				fontSizeRem: 4.5,
+				letterSpacing: -0.02,
+			},
 		},
 		fontWeight: {
 			thin: 100,
@@ -187,6 +235,7 @@ const defaultThemeTokens: Tokens = {
 				dark: 'neutral_800',
 			},
 			'border-tertiary': { light: 'neutral_100', dark: 'neutral_800' },
+			'border-quaternary': { light: 'neutral_500', dark: 'neutral_400' },
 			'border-brand': { light: 'primary_500', dark: 'primary_400' },
 			'border-brand_alt': { light: 'primary_600', dark: 'neutral_700' },
 			'border-error': { light: 'error_500', dark: 'error_400' },
@@ -310,84 +359,78 @@ const defaultThemeTokens: Tokens = {
 			'utility-success-600': { light: 'success_600', dark: 'success_400' },
 			'utility-success-700': { light: 'success_700', dark: 'success_300' },
 
-			'utility-info-50': { light: 'primary_50', dark: 'primary_950' },
-			'utility-info-100': { light: 'primary_100', dark: 'primary_900' },
-			'utility-info-200': { light: 'primary_200', dark: 'primary_800' },
-			'utility-info-300': { light: 'primary_300', dark: 'primary_700' },
-			'utility-info-400': { light: 'primary_400', dark: 'primary_600' },
-			'utility-info-500': { light: 'primary_500', dark: 'primary_500' },
-			'utility-info-600': { light: 'primary_600', dark: 'primary_400' },
-			'utility-info-700': { light: 'primary_700', dark: 'primary_300' },
+			'utility-info-50': { light: 'info_50', dark: 'info_950' },
+			'utility-info-100': { light: 'info_100', dark: 'info_900' },
+			'utility-info-200': { light: 'info_200', dark: 'info_800' },
+			'utility-info-300': { light: 'info_300', dark: 'info_700' },
+			'utility-info-400': { light: 'info_400', dark: 'info_600' },
+			'utility-info-500': { light: 'info_500', dark: 'info_500' },
+			'utility-info-600': { light: 'info_600', dark: 'info_400' },
+			'utility-info-700': { light: 'info_700', dark: 'info_300' },
 		},
 	},
 
 	shadows: {
 		none: {
-			offsetX: 0,
-			offsetY: 0,
-			blurRadius: 0,
-			spreadRadius: 0,
+			layers: [{ offsetX: 0, offsetY: 0, blurRadius: 0, spreadRadius: 0, opacity: 0 }],
 			color: { light: 'transparent', dark: 'transparent' },
-			opacity: 0,
 		},
+
 		xs: {
-			offsetX: 0,
-			offsetY: 0.5,
-			blurRadius: 1,
-			spreadRadius: 0,
+			layers: [{ offsetX: 0, offsetY: 1, blurRadius: 2, spreadRadius: 0, opacity: 0.05 }],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.02,
 		},
+
 		sm: {
-			offsetX: 0,
-			offsetY: 2,
-			blurRadius: 4,
-			spreadRadius: 0,
+			layers: [
+				{ offsetX: 0, offsetY: 1, blurRadius: 3, spreadRadius: 0, opacity: 0.1 },
+				{ offsetX: 0, offsetY: 1, blurRadius: 2, spreadRadius: -1, opacity: 0.1 },
+			],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.08,
 		},
+
 		md: {
-			offsetX: 0,
-			offsetY: 5,
-			blurRadius: 10,
-			spreadRadius: -1,
+			layers: [
+				{ offsetX: 0, offsetY: 4, blurRadius: 6, spreadRadius: -1, opacity: 0.1 },
+				{ offsetX: 0, offsetY: 2, blurRadius: 4, spreadRadius: -2, opacity: 0.06 },
+			],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.12,
 		},
+
 		lg: {
-			offsetX: 0,
-			offsetY: 10,
-			blurRadius: 15,
-			spreadRadius: -3,
+			layers: [
+				{ offsetX: 0, offsetY: 12, blurRadius: 16, spreadRadius: -4, opacity: 0.08 },
+				{ offsetX: 0, offsetY: 4, blurRadius: 6, spreadRadius: -2, opacity: 0.03 },
+				{ offsetX: 0, offsetY: 2, blurRadius: 2, spreadRadius: -1, opacity: 0.04 },
+			],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.1,
 		},
+
 		xl: {
-			offsetX: 0,
-			offsetY: 20,
-			blurRadius: 25,
-			spreadRadius: -5,
+			layers: [
+				{ offsetX: 0, offsetY: 20, blurRadius: 24, spreadRadius: -4, opacity: 0.08 },
+				{ offsetX: 0, offsetY: 8, blurRadius: 8, spreadRadius: -4, opacity: 0.03 },
+				{ offsetX: 0, offsetY: 3, blurRadius: 3, spreadRadius: -1.5, opacity: 0.04 },
+			],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.1,
 		},
+
 		'2xl': {
-			offsetX: 0,
-			offsetY: 30,
-			blurRadius: 40,
-			spreadRadius: -8,
+			layers: [
+				{ offsetX: 0, offsetY: 24, blurRadius: 48, spreadRadius: -12, opacity: 0.18 },
+				{ offsetX: 0, offsetY: 4, blurRadius: 4, spreadRadius: -2, opacity: 0.04 },
+			],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.12,
 		},
+
 		'3xl': {
-			offsetX: 0,
-			offsetY: 40,
-			blurRadius: 60,
-			spreadRadius: -12,
+			layers: [
+				{ offsetX: 0, offsetY: 32, blurRadius: 64, spreadRadius: -12, opacity: 0.14 },
+				{ offsetX: 0, offsetY: 5, blurRadius: 5, spreadRadius: -2.5, opacity: 0.04 },
+			],
 			color: { light: 'black', dark: 'white' },
-			opacity: 0.14,
 		},
 	},
-
 	focusRing: {
 		'focus-ring': { color: { light: 'primary_500', dark: 'primary_400' } },
 		'focus-ring-error': { color: { light: 'error_500', dark: 'error_500' } },
@@ -575,19 +618,42 @@ const defaultThemeTokens: Tokens = {
 		wide: 1440,
 		ultra: 1920,
 	},
+
 	grid: {
-		mobile: { columns: 4, gutter: 'sm', margin: 'sm', maxWidth: '100%' },
-		tablet: { columns: 8, gutter: 'md', margin: 'md', maxWidth: 720 },
-		desktop: { columns: 12, gutter: 'lg', margin: 'lg', maxWidth: 960 },
-		wide: { columns: 12, gutter: 'lg', margin: 'xl', maxWidth: 1200 },
-		ultra: { columns: 12, gutter: 'xl', margin: 'xl', maxWidth: 1440 },
-	},
+		mobile: {
+			columns: 4,
+			gutter: 'sm', // 16px
+			margin: 'sm', // 16px
+			maxWidth: 'sm', // 480px
+		},
 
-	components: {
-		buttonBg: { type: 'colorTokens', value: 'bg-brand-solid' },
-		buttonBorderRadii: { type: 'radii', value: 'md' },
+		tablet: {
+			columns: 6,
+			gutter: 'md', // 32px
+			margin: 'md', // 32px
+			maxWidth: 'xl', // 768px
+		},
 
-		cardBorderRadii: { type: 'radii', value: 'lg' },
+		desktop: {
+			columns: 12,
+			gutter: 'md', // 32px
+			margin: 'md', // 32px
+			maxWidth: '3xl', // 1280px
+		},
+
+		wide: {
+			columns: 12,
+			gutter: 'md', // 32px
+			margin: 'lg', // 48px
+			maxWidth: '4xl', // 1440px
+		},
+
+		ultra: {
+			columns: 12,
+			gutter: 'lg', // 48px
+			margin: 'xl', // 64px
+			maxWidth: '5xl', // 1600px
+		},
 	},
 
 	contracts: {
@@ -605,7 +671,7 @@ const defaultThemeTokens: Tokens = {
 				borderFocus: 'border-brand',
 				bgDisabled: 'bg-quaternary',
 				onDisabled: 'text-quaternary',
-				borderDisabled: 'border-primary',
+				borderDisabled: 'border-quaternary',
 			},
 			secondary: {
 				bg: 'bg-tertiary',
@@ -620,7 +686,7 @@ const defaultThemeTokens: Tokens = {
 				borderFocus: 'border-primary',
 				bgDisabled: 'bg-tertiary',
 				onDisabled: 'text-quaternary',
-				borderDisabled: 'border-secondary',
+				borderDisabled: 'border-quaternary',
 			},
 			ghost: {
 				bg: 'transparent',
@@ -638,11 +704,26 @@ const defaultThemeTokens: Tokens = {
 				borderDisabled: 'transparent',
 			},
 			link: {
-				on: 'text-brand-tertiary_alt',
+				on: 'text-brand-tertiary',
 				onHover: 'text-brand-secondary_hover',
 				onActive: 'text-brand-tertiary',
 				onFocus: 'text-brand-secondary_hover',
 				onDisabled: 'text-quaternary',
+			},
+			tertiary: {
+				bg: 'white',
+				on: 'bg-brand-solid',
+				border: 'bg-brand-solid',
+				bgHover: 'bg-tertiary',
+				onHover: 'bg-brand-solid',
+				bgActive: 'bg-tertiary',
+				onActive: 'bg-brand-solid',
+				bgFocus: 'white',
+				onFocus: 'bg-brand-solid',
+				borderFocus: 'white',
+				bgDisabled: 'bg-tertiary',
+				onDisabled: 'text-quaternary',
+				borderDisabled: 'bg-tertiary',
 			},
 		},
 
@@ -651,6 +732,8 @@ const defaultThemeTokens: Tokens = {
 				bg: 'bg-error-primary',
 				on: 'text-error-primary',
 				border: 'border-error',
+				borderWidth: 1,
+				borderRadius: { type: 'radii' as const, value: 'lg' },
 				bgInverse: 'bg-error-solid',
 				onInverse: 'fg-error-secondary',
 			},
@@ -658,6 +741,8 @@ const defaultThemeTokens: Tokens = {
 				bg: 'bg-success-primary',
 				on: 'text-success-primary',
 				border: 'utility-success-300',
+				borderWidth: 1,
+				borderRadius: { type: 'radii' as const, value: 'lg' },
 				bgInverse: 'bg-success-solid',
 				onInverse: 'fg-success-secondary',
 			},
@@ -665,6 +750,8 @@ const defaultThemeTokens: Tokens = {
 				bg: 'bg-warning-primary',
 				on: 'text-warning-primary',
 				border: 'utility-warning-300',
+				borderWidth: 1,
+				borderRadius: { type: 'radii' as const, value: 'lg' },
 				bgInverse: 'bg-warning-solid',
 				onInverse: 'fg-warning-secondary',
 			},
@@ -672,6 +759,8 @@ const defaultThemeTokens: Tokens = {
 				bg: 'bg-info-primary',
 				on: 'text-info-primary',
 				border: 'utility-info-300',
+				borderWidth: 1,
+				borderRadius: { type: 'radii' as const, value: 'lg' },
 				bgInverse: 'bg-info-solid',
 				onInverse: 'fg-info-secondary',
 			},
@@ -691,53 +780,54 @@ const defaultThemeTokens: Tokens = {
 		},
 
 		typography: {
-			heading1: {
-				fontSize: '4xl',
+			h1: {
+				fontSize: '6xl',
 				fontWeight: 'bold',
-				lineHeight: 'tight',
+				lineHeight: 'normal',
 				letterSpacing: 'tight',
+				fontFamily: 'heading',
 				color: 'text-primary',
 			},
-			heading2: {
+			h2: {
+				fontSize: '5xl',
+				fontWeight: 'bold',
+				lineHeight: 'normal',
+				fontFamily: 'heading',
+				color: 'text-primary',
+			},
+			h3: {
+				fontSize: '4xl',
+				fontWeight: 'semibold',
+				lineHeight: 'normal',
+				fontFamily: 'heading',
+				color: 'text-primary',
+			},
+			h4: {
 				fontSize: '3xl',
 				fontWeight: 'semibold',
-				lineHeight: 'tight',
+				lineHeight: 'normal',
+				fontFamily: 'heading',
 				color: 'text-primary',
 			},
-			heading3: {
-				fontSize: '2xl',
-				fontWeight: 'semibold',
-				lineHeight: 'tight',
-				color: 'text-primary',
-			},
-			heading4: {
-				fontSize: 'xl',
-				fontWeight: 'medium',
-				lineHeight: 'tight',
-				color: 'text-primary',
-			},
-			body: {
+			p: {
 				fontSize: 'md',
 				fontWeight: 'regular',
 				lineHeight: 'normal',
-				color: 'text-primary',
-			},
-			bodySm: {
-				fontSize: 'sm',
-				fontWeight: 'regular',
-				lineHeight: 'normal',
+				fontFamily: 'body',
 				color: 'text-primary',
 			},
 			caption: {
 				fontSize: 'xs',
-				fontWeight: 'regular',
+				fontWeight: 'medium',
 				lineHeight: 'normal',
+				fontFamily: 'body',
 				color: 'text-primary',
 			},
 			label: {
 				fontSize: 'sm',
 				fontWeight: 'medium',
 				lineHeight: 'tight',
+				fontFamily: 'body',
 				color: 'text-primary',
 			},
 			overline: {
@@ -745,8 +835,70 @@ const defaultThemeTokens: Tokens = {
 				fontWeight: 'semibold',
 				lineHeight: 'tight',
 				letterSpacing: 'wider',
+				fontFamily: 'body',
 				color: 'text-primary',
 			},
+		},
+
+		inputField: {
+			bg: 'bg-primary',
+			on: 'text-primary',
+			border: 'border-primary',
+			placeholder: 'text-placeholder',
+			bgHover: 'bg-primary',
+			borderHover: 'border-brand',
+			bgFocus: 'bg-primary',
+			borderFocus: 'border-brand',
+			onFocus: 'text-primary',
+			bgDisabled: 'bg-tertiary',
+			onDisabled: 'text-quaternary',
+			borderDisabled: 'border-secondary',
+			borderError: 'border-error',
+			onError: 'text-error-primary',
+			borderSuccess: 'utility-success-500',
+			onSuccess: 'text-success-primary',
+		},
+
+		selectionControl: {
+			bg: 'bg-primary',
+			border: 'border-primary',
+			bgChecked: 'bg-brand-solid',
+			borderChecked: 'border-brand',
+			onChecked: 'text-white',
+			bgHover: 'bg-primary',
+			borderHover: 'border-brand',
+			bgDisabled: 'bg-tertiary',
+			borderDisabled: 'border-secondary',
+			onDisabled: 'text-quaternary',
+			borderError: 'border-error',
+		},
+
+		toggle: {
+			trackBg: 'bg-tertiary',
+			trackBgChecked: 'bg-brand-solid',
+			trackBorder: 'border-primary',
+			thumbColor: 'text-white',
+			thumbColorChecked: 'text-white',
+			bgHover: 'bg-quaternary',
+			trackBgCheckedHover: 'bg-brand-solid_hover',
+			bgDisabled: 'bg-tertiary',
+			trackBgDisabled: 'bg-quaternary',
+			thumbDisabled: 'text-quaternary',
+			borderError: 'border-error',
+		},
+
+		components: {
+			buttonBorderRadii: { type: 'radii' as const, value: 'md' },
+			cardBorderRadii: { type: 'radii' as const, value: 'lg' },
+			saleCardRadii: { type: 'radii' as const, value: '3xl' },
+			inputBorderRadii: { type: 'radii' as const, value: 'md' },
+
+			headerBg: { dark: 'primary_950', light: 'primary_950' },
+			headerAvatarBg: { dark: 'primary_600', light: 'primary_600' },
+			footerBg: { dark: 'primary_950', light: 'primary_950' },
+			footerBgSecondary: { dark: 'primary_950', light: 'primary_950' },
+			salesCardBg: { light: 'white', dark: 'neutral_900' },
+			appShellBg: { light: 'white', dark: 'neutral_950' },
 		},
 	},
 };

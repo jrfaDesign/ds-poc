@@ -70,7 +70,7 @@ function Grid({ children, gap, columns, maxWidth, margin: marginProp, style }: G
 		return {
 			columns: columns ?? cfg.columns,
 			gap: gap ?? cfg.gutter,
-			maxWidth: maxWidth ?? (typeof cfg.maxWidth === 'number' ? `${cfg.maxWidth}px` : cfg.maxWidth),
+			maxWidth: maxWidth ?? `var(--ds-width-${cfg.maxWidth})`,
 			margin: marginProp ?? cfg.margin,
 		};
 	}, [activeBp, columns, gap, maxWidth, marginProp]);
@@ -81,9 +81,9 @@ function Grid({ children, gap, columns, maxWidth, margin: marginProp, style }: G
 				{...stylex.props(styles.grid)}
 				style={{
 					gridTemplateColumns: `repeat(${gridConfig.columns}, 1fr)`,
-					gap: `var(--spacing-${gridConfig.gap})`,
+					gap: `var(--ds-layout-${gridConfig.gap})`,
 					maxWidth: gridConfig.maxWidth,
-					paddingInline: `var(--spacing-${gridConfig.margin})`,
+					paddingInline: `var(--ds-layout-${gridConfig.margin})`,
 					...style,
 				}}
 			>

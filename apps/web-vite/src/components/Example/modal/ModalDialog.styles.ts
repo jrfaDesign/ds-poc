@@ -4,7 +4,6 @@ import {
 	spacing,
 	components,
 	shadows,
-	feedbackContracts,
 	surfaceContracts,
 } from '@repo/ui-web-stylex/vars.stylex';
 

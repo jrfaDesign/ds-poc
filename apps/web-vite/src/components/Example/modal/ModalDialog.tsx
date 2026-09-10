@@ -8,10 +8,10 @@ export function ModalDialog() {
 			<div {...stylex.props(styles.wrapper)}>
 				<div {...stylex.props(styles.dialog)}>
 					<div {...stylex.props(styles.header)}>
-						<Typography role="heading4">Confirm Deletion</Typography>
+						<Typography role="h4">Confirm Deletion</Typography>
 						<button {...stylex.props(styles.closeBtn)}>&times;</button>
 					</div>
-					<Typography role="body">
+					<Typography role="p">
 						Are you sure you want to delete the project &ldquo;Q4 Campaign&rdquo;? This action
 						cannot be undone. All associated files and data will be permanently removed.
 					</Typography>

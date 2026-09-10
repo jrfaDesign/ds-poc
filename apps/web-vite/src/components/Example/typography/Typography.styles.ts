@@ -16,10 +16,18 @@ export const styles = create({
 	field: {
 		display: 'flex',
 		flexDirection: 'column',
-		gap: spacing['3xs'],
+		gap: spacing.xxs,
 		minWidth: 160,
 	},
-
+	description: {
+		padding: spacing.md,
+		backgroundColor: roles.surfaceAlt,
+		borderRadius: 6,
+		fontFamily: '"SF Mono", "Cascadia Code", monospace',
+		fontSize: 12,
+		lineHeight: 1.6,
+		color: roles.textSecondary,
+	},
 	preview: {
 		borderWidth: 1,
 		borderStyle: 'solid',
@@ -27,6 +35,18 @@ export const styles = create({
 		borderRadius: 6,
 		padding: spacing.lg,
 		backgroundColor: roles.surface,
+	},
+	codeBlock: {
+		padding: spacing.sm,
+		backgroundColor: roles.surfaceAlt,
+		borderRadius: 6,
+		overflowX: 'auto' as const,
+	},
+	codeText: {
+		fontFamily: '"SF Mono", "Cascadia Code", monospace',
+		fontSize: 13,
+		color: roles.textSecondary,
+		whiteSpace: 'pre' as const,
 	},
 	table: {
 		width: '100%',

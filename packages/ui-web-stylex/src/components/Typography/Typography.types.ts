@@ -7,5 +7,9 @@ export type TypographyProps = {
 	role?: TypographyRole;
 	color?: TypographyColor;
 	weight?: string;
+	size?: string;
+	lineHeight?: string;
+	letterSpacing?: string;
+	textEllipsis?: boolean;
 	children: ReactNode;
 };

@@ -1,0 +1,31 @@
+{
+	"name": "@repo/ui-web-tailwind",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./theme.css": "./src/adapters/tailwind/tailwind-theme.css",
+		"./applyTheme": "./src/adapters/tailwind/applyTheme.ts",
+		"./*": "./src/*.tsx"
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings 0",
+		"check-types": "tsc --noEmit",
+		"generate:theme-css": "node scripts/generate-theme-css.mjs"
+	},
+	"dependencies": {
+		"@repo/foundations": "workspace:*",
+		"@repo/globals": "workspace:*",
+		"react": "^19.2.7"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "^19.2.17",
+		"@types/react-dom": "^19.2.3",
+		"eslint": "^10.6.0",
+		"react": "^19.2.7",
+		"typescript": "5.9.2"
+	}
+}

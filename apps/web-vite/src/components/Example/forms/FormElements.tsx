@@ -13,12 +13,12 @@ export function FormElements() {
 					label="Password"
 				/>
 				<Select defaultValue="" label="Role">
-					<option value="" disabled>
+					<Select.Item value="" disabled>
 						Select a role
-					</option>
-					<option value="admin">Admin</option>
-					<option value="editor">Editor</option>
-					<option value="viewer">Viewer</option>
+					</Select.Item>
+					<Select.Item value="admin">Admin</Select.Item>
+					<Select.Item value="editor">Editor</Select.Item>
+					<Select.Item value="viewer">Viewer</Select.Item>
 				</Select>
 				<Textarea placeholder="Write your message here\u2026" label="Message" />
 			</div>

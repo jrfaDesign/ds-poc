@@ -4,8 +4,7 @@ import type { TokenNames } from '@repo/foundations';
 // spacing
 const spacingTokens: Record<TokenNames['spacing'], string> = {
 	none: 'var(--spacing-none)',
-	'3xs': 'var(--spacing-3xs)',
-	'2xs': 'var(--spacing-2xs)',
+	xxs: 'var(--spacing-xxs)',
 	xs: 'var(--spacing-xs)',
 	sm: 'var(--spacing-sm)',
 	md: 'var(--spacing-md)',
@@ -14,20 +13,28 @@ const spacingTokens: Record<TokenNames['spacing'], string> = {
 	'2xl': 'var(--spacing-2xl)',
 	'3xl': 'var(--spacing-3xl)',
 	'4xl': 'var(--spacing-4xl)',
+	'5xl': 'var(--spacing-5xl)',
+	'6xl': 'var(--spacing-6xl)',
+	'7xl': 'var(--spacing-7xl)',
+	'8xl': 'var(--spacing-8xl)',
+	'9xl': 'var(--spacing-9xl)',
+	'10xl': 'var(--spacing-10xl)',
+	'11xl': 'var(--spacing-11xl)',
 };
 
 export const spacing = defineVars(spacingTokens);
 
-// typography — font family
-const fontFamilyTokens: Record<'body' | 'mono', string> = {
+// typography - font family
+const fontFamilyTokens: Record<'body' | 'heading' | 'mono', string> = {
 	body: 'var(--typography-fontFamily)',
+	heading: 'var(--typography-headingFontFamily)',
 	mono: 'var(--typography-monospaceFont)',
 };
 export const fontFamily = defineVars(fontFamilyTokens);
 
-// typography — font size
+// typography - font size
 const fontSizeTokens: Record<TokenNames['fontSize'], string> = {
-	'2xs': 'var(--typography-fontSize-2xs)',
+	xxs: 'var(--typography-fontSize-xxs)',
 	xs: 'var(--typography-fontSize-xs)',
 	sm: 'var(--typography-fontSize-sm)',
 	md: 'var(--typography-fontSize-md)',
@@ -41,7 +48,7 @@ const fontSizeTokens: Record<TokenNames['fontSize'], string> = {
 };
 export const fontSize = defineVars(fontSizeTokens);
 
-// typography — font weight
+// typography - font weight
 const fontWeightTokens: Record<TokenNames['fontWeight'], string> = {
 	thin: 'var(--typography-fontWeight-thin)',
 	light: 'var(--typography-fontWeight-light)',
@@ -53,7 +60,7 @@ const fontWeightTokens: Record<TokenNames['fontWeight'], string> = {
 };
 export const fontWeight = defineVars(fontWeightTokens);
 
-// typography — line height
+// typography - line height
 const lineHeightTokens: Record<TokenNames['lineHeight'], string> = {
 	none: 'var(--typography-lineHeight-none)',
 	tight: 'var(--typography-lineHeight-tight)',
@@ -63,7 +70,7 @@ const lineHeightTokens: Record<TokenNames['lineHeight'], string> = {
 };
 export const lineHeight = defineVars(lineHeightTokens);
 
-// typography — letter spacing
+// typography - letter spacing
 const letterSpacingTokens: Record<TokenNames['letterSpacing'], string> = {
 	tighter: 'var(--typography-letterSpacing-tighter)',
 	tight: 'var(--typography-letterSpacing-tight)',
@@ -74,38 +81,33 @@ const letterSpacingTokens: Record<TokenNames['letterSpacing'], string> = {
 };
 export const letterSpacing = defineVars(letterSpacingTokens);
 
-// typography — contracts (resolved compositions from typography.contracts)
+// typography - contracts (resolved compositions from typography.contracts)
 const typographyContractsTokens = {
-	heading1FontSize: 'var(--typography-contract-heading1-fontSize)',
-	heading1FontWeight: 'var(--typography-contract-heading1-fontWeight)',
-	heading1LineHeight: 'var(--typography-contract-heading1-lineHeight)',
-	heading1LetterSpacing: 'var(--typography-contract-heading1-letterSpacing)',
-	heading1Color: 'var(--typography-contract-heading1-color)',
-	heading2FontSize: 'var(--typography-contract-heading2-fontSize)',
-	heading2FontWeight: 'var(--typography-contract-heading2-fontWeight)',
-	heading2LineHeight: 'var(--typography-contract-heading2-lineHeight)',
-	heading2LetterSpacing: 'var(--typography-contract-heading2-letterSpacing)',
-	heading2Color: 'var(--typography-contract-heading2-color)',
-	heading3FontSize: 'var(--typography-contract-heading3-fontSize)',
-	heading3FontWeight: 'var(--typography-contract-heading3-fontWeight)',
-	heading3LineHeight: 'var(--typography-contract-heading3-lineHeight)',
-	heading3LetterSpacing: 'var(--typography-contract-heading3-letterSpacing)',
-	heading3Color: 'var(--typography-contract-heading3-color)',
-	heading4FontSize: 'var(--typography-contract-heading4-fontSize)',
-	heading4FontWeight: 'var(--typography-contract-heading4-fontWeight)',
-	heading4LineHeight: 'var(--typography-contract-heading4-lineHeight)',
-	heading4LetterSpacing: 'var(--typography-contract-heading4-letterSpacing)',
-	heading4Color: 'var(--typography-contract-heading4-color)',
-	bodyFontSize: 'var(--typography-contract-body-fontSize)',
-	bodyFontWeight: 'var(--typography-contract-body-fontWeight)',
-	bodyLineHeight: 'var(--typography-contract-body-lineHeight)',
-	bodyLetterSpacing: 'var(--typography-contract-body-letterSpacing)',
-	bodyColor: 'var(--typography-contract-body-color)',
-	bodySmFontSize: 'var(--typography-contract-bodySm-fontSize)',
-	bodySmFontWeight: 'var(--typography-contract-bodySm-fontWeight)',
-	bodySmLineHeight: 'var(--typography-contract-bodySm-lineHeight)',
-	bodySmLetterSpacing: 'var(--typography-contract-bodySm-letterSpacing)',
-	bodySmColor: 'var(--typography-contract-bodySm-color)',
+	h1FontSize: 'var(--typography-contract-h1-fontSize)',
+	h1FontWeight: 'var(--typography-contract-h1-fontWeight)',
+	h1LineHeight: 'var(--typography-contract-h1-lineHeight)',
+	h1LetterSpacing: 'var(--typography-contract-h1-letterSpacing)',
+	h1Color: 'var(--typography-contract-h1-color)',
+	h2FontSize: 'var(--typography-contract-h2-fontSize)',
+	h2FontWeight: 'var(--typography-contract-h2-fontWeight)',
+	h2LineHeight: 'var(--typography-contract-h2-lineHeight)',
+	h2LetterSpacing: 'var(--typography-contract-h2-letterSpacing)',
+	h2Color: 'var(--typography-contract-h2-color)',
+	h3FontSize: 'var(--typography-contract-h3-fontSize)',
+	h3FontWeight: 'var(--typography-contract-h3-fontWeight)',
+	h3LineHeight: 'var(--typography-contract-h3-lineHeight)',
+	h3LetterSpacing: 'var(--typography-contract-h3-letterSpacing)',
+	h3Color: 'var(--typography-contract-h3-color)',
+	h4FontSize: 'var(--typography-contract-h4-fontSize)',
+	h4FontWeight: 'var(--typography-contract-h4-fontWeight)',
+	h4LineHeight: 'var(--typography-contract-h4-lineHeight)',
+	h4LetterSpacing: 'var(--typography-contract-h4-letterSpacing)',
+	h4Color: 'var(--typography-contract-h4-color)',
+	pFontSize: 'var(--typography-contract-p-fontSize)',
+	pFontWeight: 'var(--typography-contract-p-fontWeight)',
+	pLineHeight: 'var(--typography-contract-p-lineHeight)',
+	pLetterSpacing: 'var(--typography-contract-p-letterSpacing)',
+	pColor: 'var(--typography-contract-p-color)',
 	captionFontSize: 'var(--typography-contract-caption-fontSize)',
 	captionFontWeight: 'var(--typography-contract-caption-fontWeight)',
 	captionLineHeight: 'var(--typography-contract-caption-lineHeight)',
@@ -127,14 +129,44 @@ export const typographyContracts = defineVars(typographyContractsTokens);
 // radii
 const radiiTokens: Record<TokenNames['radii'], string> = {
 	none: 'var(--radii-none)',
+	xxs: 'var(--radii-xxs)',
 	xs: 'var(--radii-xs)',
 	sm: 'var(--radii-sm)',
 	md: 'var(--radii-md)',
 	lg: 'var(--radii-lg)',
 	xl: 'var(--radii-xl)',
+	'2xl': 'var(--radii-2xl)',
+	'3xl': 'var(--radii-3xl)',
+	'4xl': 'var(--radii-4xl)',
 	full: 'var(--radii-full)',
 };
 export const radii = defineVars(radiiTokens);
+
+// widths (container max-widths)
+const widthTokens: Record<TokenNames['widths'], string> = {
+	xxs: 'var(--ds-width-xxs)',
+	xs: 'var(--ds-width-xs)',
+	sm: 'var(--ds-width-sm)',
+	md: 'var(--ds-width-md)',
+	lg: 'var(--ds-width-lg)',
+	xl: 'var(--ds-width-xl)',
+	'2xl': 'var(--ds-width-2xl)',
+	'3xl': 'var(--ds-width-3xl)',
+	'4xl': 'var(--ds-width-4xl)',
+	'5xl': 'var(--ds-width-5xl)',
+	'6xl': 'var(--ds-width-6xl)',
+};
+export const widths = defineVars(widthTokens);
+
+// layout (grid gutter/margin scale)
+const layoutTokens: Record<TokenNames['layout'], string> = {
+	none: 'var(--ds-layout-none)',
+	sm: 'var(--ds-layout-sm)',
+	md: 'var(--ds-layout-md)',
+	lg: 'var(--ds-layout-lg)',
+	xl: 'var(--ds-layout-xl)',
+};
+export const layout = defineVars(layoutTokens);
 
 // colors (raw palette)
 const colorTokens = {
@@ -231,10 +263,9 @@ export const colors = defineVars(colorTokens);
 
 // components
 const componentTokens: Record<TokenNames['components'], string> = {
-	buttonBg: 'var(--component-buttonBg)',
-	buttonBorderRadii: 'var(--component-buttonBorderRadii)',
-
-	cardBorderRadii: 'var(--component-cardBorderRadii)',
+	buttonBorderRadii: 'var(--components-button-border-radii)',
+	cardBorderRadii: 'var(--components-card-border-radii)',
+	inputBorderRadii: 'var(--components-input-border-radii)',
 };
 
 export const components = defineVars(componentTokens);

@@ -1,159 +1,170 @@
-# Turborepo starter
+# Design System POC
 
-This Turborepo starter is maintained by the Turborepo core team.
+A monorepo proof of concept for a unified design system that serves a single source of truth across **web** (Tailwind CSS, StyleX) and **React Native** platforms. Tokens, themes, and contracts are defined once and consumed by platform-specific adapters.
 
-## Using this example
+---
 
-Run the following command:
+## Architecture
 
-```sh
-npx create-turbo@latest
+```
+packages/foundations       Design tokens (typography, spacing, radii, colors, contracts)
+packages/themes            Theme definitions built on top of foundations
+packages/globals           Shared types and constants
+packages/ui-web-tailwind   Web adapter — Tailwind CSS components
+packages/ui-web-stylex     Web adapter — StyleX components
+packages/ui-react-native   Native adapter — React Native components
+packages/ui-mobile         Legacy mobile components (deprecated, use ui-react-native)
+apps/tailwind-sample       Web app — full MVP with dark/light + multi-theme support
+apps/native                React Native app — Expo SDK 57 with same multi-theme support
+apps/web-vite              Vite-based web app
+apps/docs                  Documentation app
 ```
 
-## What's inside?
+### Single Source of Truth
 
-This Turborepo includes the following packages/apps:
+The token system flows like this:
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```
+packages/foundations/src/tokens/    Primitive tokens (raw palette, scale values)
+        |
+packages/themes/src/                Theme contracts (semantic mappings per brand)
+        |
+packages/ui-*/src/adapters/         Platform adapters (resolve tokens to CSS vars, RN styles, etc.)
+        |
+apps/*/src/                         Consumer apps (use components, never raw tokens)
 ```
 
-Without global `turbo`, use your package manager:
+A brand change (e.g. switching from "Default" to "BYD") updates the **theme contract** — no component code changes needed.
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-yarn exec turbo build
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** >= 18
+- **Yarn** 4 (managed via `corepack`)
+- **Android Studio** + JDK 17 (for React Native dev build)
+
+### Install
+
+```bash
+yarn install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Run Web (Tailwind)
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+cd apps/tailwind-sample
+yarn dev
 ```
 
-Without global `turbo`:
+### Run React Native
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-yarn exec turbo build --filter=docs
+The native app requires a **development build** (Expo Go does not support all native modules used here).
+
+```bash
+cd apps/native
+
+# Build and install on Android emulator
+npx expo run:android
+
+# Or for iOS
+npx expo run:ios
 ```
 
-### Develop
+First build takes 5-10 minutes. Subsequent builds are fast (incremental).
 
-To develop all apps and packages, run the following command:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Scripts
 
-```sh
-cd my-turborepo
-turbo dev
+| Command | Description |
+|---------|-------------|
+| `yarn install` | Install all dependencies (run from root) |
+| `yarn fresh` | Re-run install — use when you need a clean state |
+| `yarn clean` | Remove all `node_modules` across the monorepo |
+| `yarn dev` | Start all apps in dev mode via Turborepo |
+| `yarn build` | Build all packages and apps |
+| `yarn lint` | Lint all packages |
+| `yarn check-types` | Type-check all packages |
+
+---
+
+## Troubleshooting
+
+### EPERM / file lock errors during `yarn install`
+
+On Windows, Metro bundler or Gradle may hold file locks on `node_modules`. If `yarn install` fails with `EPERM: operation not permitted`:
+
+1. Close any running Metro bundler terminals (Ctrl+C)
+2. Close any running Gradle build terminals (Ctrl+C)
+3. Close any running `expo start` terminals
+4. Wait 5 seconds for processes to fully terminate
+5. Run `yarn install`
+
+> **Never** run `taskkill /F /IM node.exe` to kill stale processes — it will also kill your editor, terminal sessions, and any tools running on Node.js.
+
+### Expo Go cannot load the native app
+
+The native app uses modules that require a custom dev client. Either update Expo Go from the Play Store, or use a development build:
+
+```bash
+cd apps/native
+npx expo run:android
 ```
 
-Without global `turbo`, use your package manager:
+### Duplicate route errors (Expo Router v57)
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-yarn exec turbo dev
-```
+Expo Router v57 auto-registers routes from the filesystem. Do not explicitly register screens that have corresponding `.tsx` files in your route directory — Expo Router handles them automatically.
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Theme System
 
-```sh
-turbo dev --filter=web
-```
+Six themes are available, each defining a complete set of color tokens, contracts, and overrides:
 
-Without global `turbo`:
+| Key | Name | Description |
+|-----|------|-------------|
+| `default` | Default | Neutral palette with blue primary accent |
+| `cag` | CAG | Gold/amber primary accent |
+| `caos` | CAOS | Warm terracotta accent |
+| `bca` | BCA | Corporate blue-grey |
+| `byd` | BYD | Electric green primary accent |
+| `byd_premium` | BYD Premium | Dark teal primary accent |
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-yarn exec turbo dev --filter=web
-```
+Switch themes in the app Settings tab. Changes apply instantly — all color tokens, borders, backgrounds, and text colors update via the design system contracts.
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## Packages
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+### `@repo/foundations`
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Design token definitions: typography scale, font weights, line heights, letter spacing, spacing scale, radii, color palette, and semantic contracts (surfaces, actions, feedback, selection controls, etc.).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+### `@repo/themes`
 
-```sh
-cd my-turborepo
-turbo login
-```
+Six theme definitions built on foundations. Each theme extends a base and overrides specific tokens. Uses `mergeTheme` for deep composition.
 
-Without global `turbo`, use your package manager:
+### `@repo/globals`
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-yarn exec turbo login
-```
+Shared TypeScript types (`ColorToken`, `ColorTokenName`, `SpacingToken`, etc.) used across all adapters.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### `@repo/ui-web-tailwind`
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Web component library using Tailwind CSS. Exports: `Box`, `Button`, `Card`, `Typography`, `Container`, `Grid`, `PageSection`, `Alert`, `Checkbox`, `Radio`, `Toggle`, `Input`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### `@repo/ui-react-native`
 
-```sh
-turbo link
-```
+React Native component library. Same component API as the web adapter but renders native views with `StyleSheet`. Includes a theme adapter (`AppProvider` + `useTheme`) that resolves tokens at runtime.
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo link
-yarn exec turbo link
-yarn exec turbo link
-```
+## Tech Stack
 
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- **Build**: Turborepo
+- **Package Manager**: Yarn 4 (Berry)
+- **Web**: React, Vite, Tailwind CSS
+- **Native**: React Native 0.86, Expo SDK 57
+- **Type Safety**: TypeScript 5.9+

@@ -8,8 +8,8 @@ export function Navigation() {
 			<>
 				<div {...stylex.props(styles.navInner)}>
 					<div {...stylex.props(styles.brand)}>
-						<Typography role="heading4">D</Typography>
-						<Typography role="heading4">DesignSystem</Typography>
+						<Typography role="h4">D</Typography>
+						<Typography role="h4">DesignSystem</Typography>
 					</div>
 					<div {...stylex.props(styles.links)}>
 						<Typography role="caption" color="text-brand-secondary" weight="bold">

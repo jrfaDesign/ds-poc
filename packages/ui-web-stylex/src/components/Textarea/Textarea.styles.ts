@@ -1,17 +1,21 @@
 import { create } from '@stylexjs/stylex';
-import { spacing, radii } from '../../adapters/stylex/createStylexVars.stylex';
+import {
+	spacing,
+	radii,
+	fontSize,
+	fontFamily,
+	components,
+} from '../../adapters/stylex/createStylexVars.stylex';
 
 export const styles = create({
 	field: {
 		display: 'flex',
 		flexDirection: 'column',
-		gap: spacing['2xs'],
+		gap: spacing.xxs,
 	},
 	base: {
-		padding: `${spacing.sm} ${spacing.md}`,
-		fontSize: 14,
-		fontFamily: 'system-ui, -apple-system, sans-serif',
-		borderRadius: radii.sm,
+		fontFamily: fontFamily.body,
+		borderRadius: components.inputBorderRadii,
 		borderWidth: 1,
 		borderStyle: 'solid',
 		borderColor: 'var(--ct-border-primary)',
@@ -19,7 +23,6 @@ export const styles = create({
 		color: 'var(--ct-text-primary)',
 		outline: 'none',
 		resize: 'vertical',
-		minHeight: 80,
 		transitionProperty: 'border-color, box-shadow',
 		transitionDuration: '150ms',
 		':focus': {
@@ -29,5 +32,20 @@ export const styles = create({
 		'::placeholder': {
 			color: 'var(--ct-text-placeholder)',
 		},
+	},
+	sm: {
+		fontSize: fontSize.xs,
+		padding: `${spacing.xxs} ${spacing.sm}`,
+		minHeight: 60,
+	},
+	md: {
+		fontSize: fontSize.sm,
+		padding: `${spacing.xs} ${spacing.md}`,
+		minHeight: 80,
+	},
+	lg: {
+		fontSize: fontSize.md,
+		padding: `${spacing.sm} ${spacing.lg}`,
+		minHeight: 100,
 	},
 });

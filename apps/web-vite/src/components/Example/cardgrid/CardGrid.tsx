@@ -36,12 +36,12 @@ export function CardGrid() {
 				{cards.map((c) => (
 					<Card key={c.variant} variant={c.variant}>
 						<Typography
-							role="heading4"
+							role="h4"
 							color={c.variant === 'brand' ? 'text-brand-secondary' : undefined}
 						>
 							{c.title}
 						</Typography>
-						<Typography role="bodySm">{c.desc}</Typography>
+						<Typography role="p">{c.desc}</Typography>
 						<Typography role="caption" color="text-tertiary">
 							{c.meta}
 						</Typography>

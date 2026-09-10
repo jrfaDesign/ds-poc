@@ -138,6 +138,7 @@ const borderColorTokenKeys = [
 	'border-secondary',
 	'border-secondary_alt',
 	'border-tertiary',
+	'border-quaternary',
 	'border-brand',
 	'border-brand_alt',
 	'border-error',
@@ -329,27 +330,11 @@ const ColorTokensSchema = z
 export type ColorTokenCategory = keyof typeof ColorTokensSchema.shape;
 
 // ---------------------------------------------
-// COMPONENT COLOR TOKEN
-// ---------------------------------------------
-const ColorTokenRefComponentSchema = z.object({
-	type: z.literal('colorTokens'),
-	value: ColorTokenRefSchema,
-});
-
-const LiteralColorSchema = z.object({
-	light: ColorTokenLeafSchema,
-	dark: ColorTokenLeafSchema,
-});
-
-const ComponentColorSchema = z.union([ColorTokenRefComponentSchema, LiteralColorSchema]);
-
-// ---------------------------------------------
 // NON-COLOR TOKEN
 // ---------------------------------------------
 const spacingKeys = [
 	'none',
-	'3xs',
-	'2xs',
+	'xxs',
 	'xs',
 	'sm',
 	'md',
@@ -358,19 +343,52 @@ const spacingKeys = [
 	'2xl',
 	'3xl',
 	'4xl',
+	'5xl',
+	'6xl',
+	'7xl',
+	'8xl',
+	'9xl',
+	'10xl',
+	'11xl',
 ] as const;
-const radiiKeys = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'full'] as const;
+const radiiKeys = [
+	'none',
+	'xxs',
+	'xs',
+	'sm',
+	'md',
+	'lg',
+	'xl',
+	'2xl',
+	'3xl',
+	'4xl',
+	'5xl',
+	'6xl',
+	'7xl',
+	'full',
+] as const;
+const widthKeys = ['xxs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl'] as const;
+const layoutKeys = ['none', 'sm', 'md', 'lg', 'xl'] as const;
 
 export type SpacingToken = (typeof spacingKeys)[number];
 export type RadiiToken = (typeof radiiKeys)[number];
+export type WidthToken = (typeof widthKeys)[number];
+export type LayoutToken = (typeof layoutKeys)[number];
 
-const SpacingTokenSchema = z.enum(spacingKeys);
 const RadiiTokenSchema = z.enum(radiiKeys);
+const WidthTokenSchema = z.enum(widthKeys);
+const LayoutTokenSchema = z.enum(layoutKeys);
 
-const NonColorTokenSchema = z.object({
-	type: z.enum(['spacing', 'radii']),
-	value: z.union([SpacingTokenSchema, RadiiTokenSchema]),
+// ---------------------------------------------
+// SELF-DESCRIBING CONTRACT VALUE TYPES
+// ---------------------------------------------
+const RadiiRefSchema = z.object({
+	type: z.literal('radii'),
+	value: RadiiTokenSchema,
 });
+
+export type RadiiRef = z.infer<typeof RadiiRefSchema>;
+export type ContractValue = string | number | RadiiRef;
 
 // ---------------------------------------------
 // SHADOWS
@@ -384,13 +402,17 @@ const ShadowColorSchema = z.object({
 	dark: ColorTokenSchema,
 });
 
-const ShadowValueSchema = z.object({
+const ShadowLayerSchema = z.object({
 	offsetX: z.number(),
 	offsetY: z.number(),
 	blurRadius: z.number(),
 	spreadRadius: z.number(),
-	color: ShadowColorSchema,
 	opacity: z.number().min(0).max(1),
+});
+
+const ShadowValueSchema = z.object({
+	layers: z.array(ShadowLayerSchema).min(1).max(3),
+	color: ShadowColorSchema,
 });
 
 /** Box shadow definitions - each shadow has offset, blur, spread, and a mode-aware color. Resolved to CSS `box-shadow` at runtime. */
@@ -490,7 +512,7 @@ const GradientsSchema = z
 // TYPOGRAPHY SCALES
 // ---------------------------------------------
 const fontSizeKeys = [
-	'2xs',
+	'xxs',
 	'xs',
 	'sm',
 	'md',
@@ -511,11 +533,19 @@ export type FontWeightToken = (typeof fontWeightKeys)[number];
 export type LineHeightToken = (typeof lineHeightKeys)[number];
 export type LetterSpacingToken = (typeof letterSpacingKeys)[number];
 
+const TypographyScaleTokenSchema = z.object({
+	fontSizePx: z.number(),
+	fontSizeRem: z.number(),
+	letterSpacing: z.number().optional(),
+});
+
+export type TypographyScaleToken = z.infer<typeof TypographyScaleTokenSchema>;
+
 const FontSizeSchema = z
 	.object(
 		fontSizeKeys.reduce(
-			(acc, key) => ({ ...acc, [key]: z.number() }),
-			{} as Record<FontSizeToken, z.ZodNumber>
+			(acc, key) => ({ ...acc, [key]: TypographyScaleTokenSchema }),
+			{} as Record<FontSizeToken, typeof TypographyScaleTokenSchema>
 		)
 	)
 	.strict();
@@ -548,15 +578,30 @@ const LetterSpacingSchema = z
 	.strict();
 
 // ---------------------------------------------
+// FONT FAMILIES
+// ---------------------------------------------
+const fontFamilyKeys = ['body', 'heading', 'mono'] as const;
+
+export type FontFamilyToken = (typeof fontFamilyKeys)[number];
+
+const FontFamilySchema = z
+	.object(
+		fontFamilyKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.string() }),
+			{} as Record<FontFamilyToken, z.ZodString>
+		)
+	)
+	.strict();
+
+// ---------------------------------------------
 // CONTRACTS - Typography presets
 // ---------------------------------------------
 const typographyContractKeys = [
-	'heading1',
-	'heading2',
-	'heading3',
-	'heading4',
-	'body',
-	'bodySm',
+	'h1',
+	'h2',
+	'h3',
+	'h4',
+	'p',
 	'caption',
 	'label',
 	'overline',
@@ -569,11 +614,14 @@ const FontWeightTokenSchema = z.enum(fontWeightKeys);
 const LineHeightTokenSchema = z.enum(lineHeightKeys);
 const LetterSpacingTokenSchema = z.enum(letterSpacingKeys);
 
+const FontFamilyTokenSchema = z.enum(fontFamilyKeys);
+
 const TypographyContractValueSchema = z.object({
 	fontSize: FontSizeTokenSchema,
 	fontWeight: FontWeightTokenSchema,
 	lineHeight: LineHeightTokenSchema,
 	letterSpacing: LetterSpacingTokenSchema.optional(),
+	fontFamily: FontFamilyTokenSchema.optional().default('body'),
 	color: ColorTokenRefSchema.optional().default('text-primary'),
 });
 
@@ -588,8 +636,7 @@ const TypographyContractsSchema = z
 	.strict();
 
 const TypographySchema = z.object({
-	fontFamily: z.string(),
-	monospaceFont: z.string(),
+	fontFamilies: FontFamilySchema,
 	fontSize: FontSizeSchema,
 	fontWeight: FontWeightSchema,
 	lineHeight: LineHeightSchema,
@@ -634,6 +681,7 @@ const ActionsSchema = z
 		secondary: FullActionPresetSchema,
 		ghost: FullActionPresetSchema,
 		link: LinkActionPresetSchema,
+		tertiary: FullActionPresetSchema,
 	})
 	.strict();
 
@@ -645,6 +693,8 @@ const FeedbackPresetSchema = z
 		bg: ColorTokenRefSchema,
 		on: ColorTokenRefSchema,
 		border: ColorTokenRefSchema,
+		borderWidth: z.number(),
+		borderRadius: RadiiRefSchema,
 		bgInverse: ColorTokenRefSchema,
 		onInverse: ColorTokenRefSchema,
 	})
@@ -683,16 +733,67 @@ const SurfacesSchema = z
 	})
 	.strict();
 
+export type SurfaceKey = keyof typeof SurfacesSchema.shape;
+
 // ---------------------------------------------
-// CONTRACTS - Unified schema
+// CONTRACTS - Input field presets
 // ---------------------------------------------
-/** Structured contracts that group related color tokens into cohesive semantic units. Contracts are the primary API for component styling; use color tokens directly only for atomic overrides not covered by a contract. */
-const ContractsSchema = z
+const InputFieldPresetSchema = z
 	.object({
-		actions: ActionsSchema,
-		feedback: FeedbackSchema,
-		surfaces: SurfacesSchema,
-		typography: TypographyContractsSchema,
+		bg: ColorTokenRefSchema,
+		on: ColorTokenRefSchema,
+		border: ColorTokenRefSchema,
+		placeholder: ColorTokenRefSchema,
+		bgHover: ColorTokenRefSchema,
+		borderHover: ColorTokenRefSchema,
+		bgFocus: ColorTokenRefSchema,
+		borderFocus: ColorTokenRefSchema,
+		onFocus: ColorTokenRefSchema,
+		bgDisabled: ColorTokenRefSchema,
+		onDisabled: ColorTokenRefSchema,
+		borderDisabled: ColorTokenRefSchema,
+		borderError: ColorTokenRefSchema,
+		onError: ColorTokenRefSchema,
+		borderSuccess: ColorTokenRefSchema,
+		onSuccess: ColorTokenRefSchema,
+	})
+	.strict();
+
+// ---------------------------------------------
+// CONTRACTS - Selection control presets
+// ---------------------------------------------
+const SelectionControlPresetSchema = z
+	.object({
+		bg: ColorTokenRefSchema,
+		border: ColorTokenRefSchema,
+		bgChecked: ColorTokenRefSchema,
+		borderChecked: ColorTokenRefSchema,
+		onChecked: ColorTokenRefSchema,
+		bgHover: ColorTokenRefSchema,
+		borderHover: ColorTokenRefSchema,
+		bgDisabled: ColorTokenRefSchema,
+		borderDisabled: ColorTokenRefSchema,
+		onDisabled: ColorTokenRefSchema,
+		borderError: ColorTokenRefSchema,
+	})
+	.strict();
+
+// ---------------------------------------------
+// CONTRACTS - Toggle presets
+// ---------------------------------------------
+const TogglePresetSchema = z
+	.object({
+		trackBg: ColorTokenRefSchema,
+		trackBgChecked: ColorTokenRefSchema,
+		trackBorder: ColorTokenRefSchema,
+		thumbColor: ColorTokenRefSchema,
+		thumbColorChecked: ColorTokenRefSchema,
+		bgHover: ColorTokenRefSchema,
+		trackBgCheckedHover: ColorTokenRefSchema,
+		bgDisabled: ColorTokenRefSchema,
+		trackBgDisabled: ColorTokenRefSchema,
+		thumbDisabled: ColorTokenRefSchema,
+		borderError: ColorTokenRefSchema,
 	})
 	.strict();
 
@@ -720,23 +821,20 @@ const BreakpointsSchema = z
 // ---------------------------------------------
 // GRID
 // ---------------------------------------------
-
-const GridValueSchema = z.union([z.number(), z.string()]);
-
 /**
  * Per‑breakpoint grid configuration.
  *
  * - `columns`: number of explicit grid columns
- * - `gutter`:   spacing token name used for `gap`
- * - `margin`:   spacing token name used for `paddingInline`
- * - `maxWidth`: container max-width (`number` = px, `string` = raw CSS)
+ * - `gutter`:  layout token name used for inter-column `column-gap`
+ * - `margin`:  layout token name used for container inline `padding`
+ * - `maxWidth`: width token name used for the container max-width
  */
 const GridConfigSchema = z
 	.object({
 		columns: z.number(),
-		gutter: SpacingTokenSchema,
-		margin: SpacingTokenSchema,
-		maxWidth: GridValueSchema,
+		gutter: LayoutTokenSchema,
+		margin: LayoutTokenSchema,
+		maxWidth: WidthTokenSchema,
 	})
 	.strict();
 
@@ -751,14 +849,37 @@ const GridSchema = z
 	.strict();
 
 // ---------------------------------------------
-// COMPONENTS
+// CONTRACTS - Components presets
 // ---------------------------------------------
-/** Component-level token overrides - allows themes to customize specific component properties (e.g., buttonBg, buttonBorderRadii) independently of color tokens or contracts. */
-const ComponentsSchema = z
+const ComponentsPresetSchema = z
 	.object({
-		buttonBg: ComponentColorSchema,
-		buttonBorderRadii: NonColorTokenSchema,
-		cardBorderRadii: NonColorTokenSchema,
+		buttonBorderRadii: RadiiRefSchema,
+		cardBorderRadii: RadiiRefSchema,
+		saleCardRadii: RadiiRefSchema,
+		inputBorderRadii: RadiiRefSchema,
+		headerBg: ShadowColorSchema,
+		headerAvatarBg: ShadowColorSchema,
+		footerBg: ShadowColorSchema,
+		footerBgSecondary: ShadowColorSchema,
+		salesCardBg: ShadowColorSchema,
+		appShellBg: ShadowColorSchema,
+	})
+	.strict();
+
+// ---------------------------------------------
+// CONTRACTS - Unified schema
+// ---------------------------------------------
+/** Structured contracts that group related color tokens into cohesive semantic units. Contracts are the primary API for component styling; use color tokens directly only for atomic overrides not covered by a contract. */
+const ContractsSchema = z
+	.object({
+		actions: ActionsSchema,
+		feedback: FeedbackSchema,
+		surfaces: SurfacesSchema,
+		typography: TypographyContractsSchema,
+		inputField: InputFieldPresetSchema,
+		selectionControl: SelectionControlPresetSchema,
+		toggle: TogglePresetSchema,
+		components: ComponentsPresetSchema,
 	})
 	.strict();
 
@@ -783,11 +904,29 @@ const RadiiSchema = z
 	)
 	.strict();
 
+const WidthsSchema = z
+	.object(
+		widthKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.number() }),
+			{} as Record<WidthToken, z.ZodNumber>
+		)
+	)
+	.strict();
+
+const LayoutSchema = z
+	.object(
+		layoutKeys.reduce(
+			(acc, key) => ({ ...acc, [key]: z.number() }),
+			{} as Record<LayoutToken, z.ZodNumber>
+		)
+	)
+	.strict();
+
 /**
  * The fully-validated shape of your design system theme.
  *
  * This type represents the *canonical* structure of all tokens
- * (spacing, radii, colors, colorTokens, contracts, components) after being parsed
+ * (spacing, radii, colors, colorTokens, contracts, shape) after being parsed
  * and runtime-validated by Zod. Every theme variant (default, dark,
  * brand A, brand B) must conform to this type.
  */
@@ -795,6 +934,8 @@ export const TokensSchema = z
 	.object({
 		spacing: SpacingSchema,
 		radii: RadiiSchema,
+		widths: WidthsSchema,
+		layout: LayoutSchema,
 		colors: ColorsSchema,
 		typography: TypographySchema,
 		colorTokens: ColorTokensSchema,
@@ -804,7 +945,6 @@ export const TokensSchema = z
 		gradients: GradientsSchema,
 		breakpoints: BreakpointsSchema,
 		grid: GridSchema,
-		components: ComponentsSchema,
 	})
 	.strict();
 
@@ -816,7 +956,7 @@ export const TokensSchema = z
  * The fully-validated shape of your design system theme.
  *
  * This type represents the *canonical* structure of all tokens
- * (spacing, radii, colors, colorTokens, contracts, components) after being parsed
+ * (spacing, radii, colors, colorTokens, contracts, shape) after being parsed
  * and runtime-validated by Zod. Every theme variant (default, dark,
  * brand A, brand B) must conform to this type.
  */
@@ -837,6 +977,8 @@ export type Tokens = z.infer<typeof TokensSchema>;
 export type TokenNames = {
 	spacing: keyof Tokens['spacing'];
 	radii: keyof Tokens['radii'];
+	widths: keyof Tokens['widths'];
+	layout: keyof Tokens['layout'];
 	colors: keyof Tokens['colors'];
 	colorTokens: {
 		[K in keyof Tokens['colorTokens']]: keyof Tokens['colorTokens'][K];
@@ -847,14 +989,18 @@ export type TokenNames = {
 	feedback: keyof Tokens['contracts']['feedback'];
 	surfaces: keyof Tokens['contracts']['surfaces'];
 	typographyContract: keyof Tokens['contracts']['typography'];
+	inputField: keyof Tokens['contracts']['inputField'];
+	selectionControl: keyof Tokens['contracts']['selectionControl'];
+	toggle: keyof Tokens['contracts']['toggle'];
 	shadows: keyof Tokens['shadows'];
 	focusRing: keyof Tokens['focusRing'];
 	gradients: keyof Tokens['gradients'];
 	breakpoints: keyof Tokens['breakpoints'];
 	grid: keyof Tokens['grid'];
 	gridBreakpoint: keyof Tokens['grid']['mobile'];
-	components: keyof Tokens['components'];
+	components: keyof Tokens['contracts']['components'];
 	typography: keyof Tokens['typography'];
+	fontFamilies: keyof Tokens['typography']['fontFamilies'];
 	fontSize: keyof Tokens['typography']['fontSize'];
 	fontWeight: keyof Tokens['typography']['fontWeight'];
 	lineHeight: keyof Tokens['typography']['lineHeight'];
@@ -889,3 +1035,175 @@ export const themeMandatoryFamilies: readonly ThemeMandatoryFamily[] = [
 	'secondary',
 	'neutral',
 ];
+
+// ---------------------------------------------
+// TOKEN NAME ARRAYS (for codegen / CSS generation)
+// ---------------------------------------------
+// These re-export the private arrays used by the Zod schemas above,
+// making them available to build scripts (e.g. generate-theme-css.mjs).
+
+/** Semantic text color token names. */
+export const exportedTextColorKeys = textColorTokenKeys;
+
+/** Semantic border color token names. */
+export const exportedBorderColorKeys = borderColorTokenKeys;
+
+/** Semantic foreground (fg) color token names. */
+export const exportedFgColorKeys = fgColorTokenKeys;
+
+/** Semantic background (bg) color token names. */
+export const exportedBgColorKeys = bgColorTokenKeys;
+
+/** Utility color token names. */
+export const exportedUtilityColorKeys = utilityColorTokenKeys;
+
+/** Spacing token names. */
+export const exportedSpacingKeys = spacingKeys;
+
+/** Border radius token names. */
+export const exportedRadiiKeys = radiiKeys;
+
+/** Width (container max-width) token names. */
+export const exportedWidthKeys = widthKeys;
+
+/** Layout (grid gutter/margin scale) token names. */
+export const exportedLayoutKeys = layoutKeys;
+
+/** Font size token names. */
+export const exportedFontSizeKeys = fontSizeKeys;
+
+/** Font weight token names. */
+export const exportedFontWeightKeys = fontWeightKeys;
+
+/** Line height token names. */
+export const exportedLineHeightKeys = lineHeightKeys;
+
+/** Letter spacing token names. */
+export const exportedLetterSpacingKeys = letterSpacingKeys;
+
+/** Font family token names. */
+export const exportedFontFamilyKeys = fontFamilyKeys;
+
+/** Typography contract (preset) names. */
+export const exportedTypographyContractKeys = typographyContractKeys;
+
+/** Shadow token names. */
+export const exportedShadowKeys = shadowKeys;
+
+// ---------------------------------------------
+// CONTRACT STRUCTURE METADATA
+// ---------------------------------------------
+
+/**
+ * Maps each contract name to its structure type.
+ * - `"nested"`: object of variants, each variant is an object of properties
+ *   (e.g. actions.primary.bg, feedback.error.border)
+ * - `"flat"`: single object of properties
+ *   (e.g. inputField.bg, selectionControl.border)
+ */
+export const CONTRACT_STRUCTURE: Record<string, 'nested' | 'flat'> = {
+	actions: 'nested',
+	feedback: 'nested',
+	surfaces: 'nested',
+	inputField: 'flat',
+	selectionControl: 'flat',
+	toggle: 'flat',
+	components: 'flat',
+};
+
+/** CSS var prefix for each contract name (handles naming convention differences). */
+export const CONTRACT_PREFIX: Record<string, string> = {
+	actions: 'action',
+	surfaces: 'surface',
+	inputField: 'inputfield',
+	selectionControl: 'selectioncontrol',
+	toggle: 'toggle',
+	components: 'components',
+	feedback: 'feedback',
+};
+
+/** Variant keys for nested contracts. */
+export const CONTRACT_VARIANTS: Record<string, readonly string[]> = {
+	actions: ['primary', 'secondary', 'ghost', 'link', 'tertiary'],
+	feedback: ['error', 'success', 'warning', 'info'],
+	surfaces: ['base', 'alt', 'raised', 'sunken', 'inverse', 'brand'],
+};
+
+/** Properties for each nested contract variant. */
+export const NESTED_CONTRACT_PROPERTIES: Record<string, readonly string[]> = {
+	actions: [
+		'bg',
+		'on',
+		'border',
+		'bgHover',
+		'onHover',
+		'bgActive',
+		'onActive',
+		'bgFocus',
+		'onFocus',
+		'borderFocus',
+		'bgDisabled',
+		'onDisabled',
+		'borderDisabled',
+	],
+	feedback: ['bg', 'on', 'border', 'bgInverse', 'onInverse'],
+	surfaces: ['bg', 'on', 'border'],
+};
+
+/** Properties for each flat contract. */
+export const FLAT_CONTRACT_PROPERTIES: Record<string, readonly string[]> = {
+	inputField: [
+		'bg',
+		'on',
+		'border',
+		'placeholder',
+		'bgHover',
+		'borderHover',
+		'bgFocus',
+		'borderFocus',
+		'onFocus',
+		'bgDisabled',
+		'onDisabled',
+		'borderDisabled',
+		'borderError',
+		'onError',
+		'borderSuccess',
+		'onSuccess',
+	],
+	selectionControl: [
+		'bg',
+		'border',
+		'bgChecked',
+		'borderChecked',
+		'onChecked',
+		'bgHover',
+		'borderHover',
+		'bgDisabled',
+		'borderDisabled',
+		'onDisabled',
+		'borderError',
+	],
+	toggle: [
+		'trackBg',
+		'trackBgChecked',
+		'trackBorder',
+		'thumbColor',
+		'thumbColorChecked',
+		'bgHover',
+		'trackBgCheckedHover',
+		'bgDisabled',
+		'trackBgDisabled',
+		'thumbDisabled',
+		'borderError',
+	],
+	components: [
+		'buttonBorderRadii',
+		'cardBorderRadii',
+		'saleCardRadii',
+		'inputBorderRadii',
+		'headerBg',
+		'headerAvatarBg',
+		'footerBg',
+		'footerBgSecondary',
+	],
+};

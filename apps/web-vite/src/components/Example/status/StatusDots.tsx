@@ -8,19 +8,19 @@ export function StatusDots() {
 			<div {...stylex.props(styles.row)}>
 				<span {...stylex.props(styles.label)}>
 					<span {...stylex.props(styles.dot, styles.active)} />
-					<Typography role="bodySm">Online</Typography>
+					<Typography role="p">Online</Typography>
 				</span>
 				<span {...stylex.props(styles.label)}>
 					<span {...stylex.props(styles.dot, styles.error)} />
-					<Typography role="bodySm">Offline</Typography>
+					<Typography role="p">Offline</Typography>
 				</span>
 				<span {...stylex.props(styles.label)}>
 					<span {...stylex.props(styles.dot, styles.warning)} />
-					<Typography role="bodySm">Away</Typography>
+					<Typography role="p">Away</Typography>
 				</span>
 				<span {...stylex.props(styles.label)}>
 					<span {...stylex.props(styles.dot, styles.info)} />
-					<Typography role="bodySm">Busy</Typography>
+					<Typography role="p">Busy</Typography>
 				</span>
 			</div>
 		</Section>

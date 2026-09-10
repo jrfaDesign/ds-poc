@@ -1,0 +1,29 @@
+{
+	"name": "@repo/ui-react-native",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./*": "./src/*.tsx"
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings 0",
+		"check-types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@repo/foundations": "workspace:*",
+		"@repo/globals": "workspace:*",
+		"react": "^19.2.3",
+		"react-native": "^0.86.3"
+	},
+	"devDependencies": {
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "~19.2.2",
+		"eslint": "^10.6.0",
+		"react": "^19.2.3",
+		"react-native": "^0.86.3",
+		"typescript": "~6.0.3"
+	}
+}

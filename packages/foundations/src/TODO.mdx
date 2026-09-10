@@ -1,0 +1,326 @@
+---
+title: 'Design System White-Label — Analysis & Improvement Plan'
+description: 'Viability assessment and prioritized improvements for API-driven theme loading in the white-label design system.'
+---
+
+# Design System White-Label — Analysis & Improvement Plan
+
+## Architecture Viability Assessment
+
+### Verdict: **VIABLE** — with targeted improvements
+
+The current MVP architecture is **fundamentally sound** for white-label with API-driven theme loading. The core design decisions — Zod validation, runtime CSS variables, deep merge capability, and the contract system — provide a strong foundation. However, several gaps must be addressed before production deployment.
+
+### What Works Well
+
+| Strength                                    | Why It Matters for White-Label                                               |
+| ------------------------------------------- | ---------------------------------------------------------------------------- |
+| **Zod validation** (`TokensSchema.parse()`) | API themes are fully validated at runtime; malformed data fails fast         |
+| **Deep merge** (`mergeTheme()`)             | Partial API themes merge with defaults; only brand-specific overrides needed |
+| **Runtime CSS variables** (`applyTheme()`)  | Themes are hot-swappable; no rebuild required                                |
+| **Contract system**                         | Semantic tokens (actions, surfaces, feedback) can be overridden per brand    |
+| **Class-based dark mode**                   | Mode switching is independent of theme; no JS re-run needed                  |
+| **Type safety**                             | TypeScript types enforce token structure across all packages                 |
+
+### Critical Issues Found
+
+1. **`codegen.js` is out of sync with `index.ts`** — multiple token arrays differ, which will produce incorrect or incomplete generated CSS
+2. **No dynamic theme loading infrastructure** — themes are hardcoded imports, not fetchable from API
+3. **No FOUC prevention** — async theme loading causes flash of unstyled content
+4. **Incomplete `CONTRACT_PREFIX` mapping** in `applyTheme.ts` — missing entries for `feedback`, `toggle`, `components`
+
+---
+
+## Improvement Plan
+
+### HIGH PRIORITY — Must Fix for White-Label
+
+#### 1. Fix `codegen.js` sync with `index.ts`
+
+**Problem:** `codegen.js` is manually maintained and has drifted from the canonical TypeScript arrays. This breaks the generated `tailwind-theme.css`.
+
+**Discrepancies found:**
+
+| Array                                 | `index.ts`                                                                                                                                                | `codegen.js`                                                                                           | Issue                      |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------- |
+| `borderColorKeys`                     | includes `border-quaternary`                                                                                                                              | **missing** `border-quaternary`                                                                        | Missing token              |
+| `CONTRACT_VARIANTS.actions`           | `['primary', 'secondary', 'ghost', 'link', 'tertiary']`                                                                                                   | `['primary', 'secondary', 'ghost', 'link']`                                                            | Missing `tertiary` variant |
+| `FLAT_CONTRACT_PROPERTIES.components` | 8 properties (`buttonBorderRadii`, `cardBorderRadii`, `saleCardRadii`, `inputBorderRadii`, `headerBg`, `headerAvatarBg`, `footerBg`, `footerBgSecondary`) | 5 properties (`buttonBorderRadii`, `cardBorderRadii`, `inputBorderRadii`, `salesCardBg`, `appShellBg`) | Different names and count  |
+
+**Solution:**
+
+- **Option A (preferred):** Generate `codegen.js` from `index.ts` via a build script that extracts the arrays programmatically
+- **Option B:** Add a CI check that diffs `codegen.js` exports against `index.ts` arrays and fails if they diverge
+
+**Files to modify:**
+
+- `packages/foundations/src/codegen.js`
+- `packages/foundations/package.json` (add `generate:codegen` script)
+- `packages/ui-web-tailwind/scripts/generate-theme-css.mjs` (verify imports)
+
+---
+
+#### 2. Add dynamic theme loading infrastructure
+
+**Problem:** `useTheme` hook hardcodes theme imports. For white-label, themes must be fetched from an API.
+
+**Current state** (`apps/tailwind-sample/src/hooks/useTheme.ts:1-22`):
+
+```typescript
+import { defaultTheme, cagTheme, ... } from '@repo/themes';
+const themes: Record<ThemeKey, Tokens> = { default: defaultTheme, ... };
+```
+
+**Required changes:**
+
+1. **Create a `ThemeProvider`** in `@repo/ui-web-tailwind` that:
+   - Accepts a `themeResolver` function or `themeUrl` prop
+   - Fetches theme from API on mount / when brand changes
+   - Validates response with `TokensSchema.parse()`
+   - Provides loading/error states
+   - Falls back to default theme on error
+
+2. **Create a `useRemoteTheme` hook** that:
+   - Manages fetch lifecycle (loading, error, success)
+   - Caches fetched themes in memory (and optionally `localStorage`)
+   - Re-fetches when brand ID changes
+   - Provides `refetch` for manual refresh
+
+3. **Update `applyTheme`** to be idempotent and safe for re-invocation (already is — verified)
+
+**Proposed API:**
+
+```tsx
+<ThemeProvider brandId="cag" fallback={defaultTheme} onError={(err) => console.error(err)}>
+	<App />
+</ThemeProvider>;
+
+// Or with hook:
+const { theme, loading, error } = useRemoteTheme('cag');
+```
+
+**Files to create/modify:**
+
+- `packages/ui-web-tailwind/src/components/ThemeProvider/ThemeProvider.tsx` (new)
+- `packages/ui-web-tailwind/src/components/ThemeProvider/useRemoteTheme.ts` (new)
+- `packages/ui-web-tailwind/src/index.ts` (export new components)
+- `apps/tailwind-sample/src/hooks/useTheme.ts` (migrate to use new infrastructure)
+
+---
+
+#### 3. Prevent FOUC (Flash of Unstyled Content)
+
+**Problem:** Theme loads asynchronously after API fetch. Initial render shows unstyled content.
+
+**Solutions:**
+
+1. **SSR-compatible initial theme:** Provide a default theme synchronously before API fetch completes
+2. **Loading state:** Show a minimal loading skeleton or spinner while theme loads
+3. **Synchronous theme application:** Use `useLayoutEffect` (already done in `useTheme`) to apply theme before paint
+4. **Theme preloading:** Load theme CSS variables in a `<script>` tag before React mounts
+
+**Implementation:**
+
+```tsx
+// In ThemeProvider
+const [theme, setTheme] = useState<Tokens>(fallback); // Synchronous default
+
+useLayoutEffect(() => {
+	fetchTheme(brandId).then((remote) => {
+		setTheme(remote);
+		applyTheme(remote);
+	});
+}, [brandId]);
+```
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/components/ThemeProvider/ThemeProvider.tsx`
+- `apps/tailwind-sample/src/main.tsx`
+
+---
+
+#### 4. Complete `CONTRACT_PREFIX` mapping in `applyTheme.ts`
+
+**Problem:** `applyTheme.ts:168` has a local `CONTRACT_PREFIX` missing entries for `feedback`, `toggle`, and `components`. While the fallback (`contractName` itself) works, it's inconsistent with `index.ts:1115-1123` and fragile.
+
+**Current state** (`applyTheme.ts:168-173`):
+
+```typescript
+const CONTRACT_PREFIX: Record<string, string> = {
+	actions: 'action',
+	surfaces: 'surface',
+	inputField: 'inputfield',
+	selectionControl: 'selectioncontrol',
+	// Missing: feedback, toggle, components
+};
+```
+
+**Fix:** Import `CONTRACT_PREFIX` from `@repo/foundations` instead of redefining it locally.
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts`
+- `packages/foundations/src/index.ts` (verify export)
+
+---
+
+### MEDIUM PRIORITY — Should Fix
+
+#### 5. Optimize `applyTheme` performance
+
+**Problem:** `applyTheme` creates hundreds of CSS variables via individual `setProperty` calls on every theme switch. Visible delay on lower-end devices.
+
+**Solutions:**
+
+1. **Batch DOM writes:** Collect all property changes, then apply in a single `requestAnimationFrame`
+2. **Diff detection:** Only update variables that actually changed between old and new theme
+3. **CSS `@property` transitions:** Enable smooth color transitions when theme changes
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts`
+
+---
+
+#### 6. Add error boundary for theme validation
+
+**Problem:** If API returns a malformed theme, `TokensSchema.parse()` throws and crashes the app without fallback.
+
+**Solution:** Wrap `TokensSchema.parse()` in try-catch, log validation errors, fall back to default theme.
+
+**Implementation:**
+
+```typescript
+function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
+	try {
+		return TokensSchema.parse(data);
+	} catch (err) {
+		console.error('[Theme] Validation failed:', err);
+		return fallback;
+	}
+}
+```
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/components/ThemeProvider/useRemoteTheme.ts`
+- `packages/themes/src/mergeTheme.ts` (optional: add safe variant)
+
+---
+
+#### 7. Add theme versioning and migration
+
+**Problem:** If token schema changes between versions, API themes might break silently.
+
+**Solution:** Add `version` field to `TokensSchema`, implement version-aware migration functions.
+
+**Files to modify:**
+
+- `packages/foundations/src/index.ts`
+- `packages/ui-web-tailwind/src/components/ThemeProvider/useRemoteTheme.ts`
+
+---
+
+#### 8. Deduplicate `hexToRgba` logic
+
+**Problem:** `resolveAlpha` in `index.ts:1021-1028` and `hexToRgba` in `applyTheme.ts:17-23` are nearly identical.
+
+**Solution:** Export `hexToRgba` from `@repo/foundations` and import in `applyTheme.ts`.
+
+**Files to modify:**
+
+- `packages/foundations/src/index.ts` (export `hexToRgba`)
+- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts` (import and use)
+
+---
+
+### LOW PRIORITY — Nice to Have
+
+#### 9. Add SSR support
+
+**Problem:** `applyTheme` uses `document.documentElement` directly, which fails in SSR/Next.js.
+
+**Solution:** Add `typeof document !== 'undefined'` guard. Return CSS variable string for SSR rendering.
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts`
+
+---
+
+#### 10. Simplify CSS variable bridge layer
+
+**Problem:** The `@layer base` bridge variables (`--color-*: var(--*)`) in `tailwind-theme.css:28-117` add complexity.
+
+**Solution:** Update component helpers to reference `--ct-*` or `--action-*` directly, eliminating the bridge layer. Reduces CSS file size and simplifies the variable chain.
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/adapters/tailwind/tailwind-theme.css`
+- `packages/ui-web-tailwind/scripts/generate-theme-css.mjs`
+- `packages/ui-web-tailwind/src/components/shared/cssVars.ts`
+
+---
+
+#### 11. Theme persistence for API themes
+
+**Problem:** `localStorage` only stores theme key, not the full theme data. If API is slow, app re-fetches on every load.
+
+**Solution:** Cache fetched themes in `localStorage` with TTL (e.g., 24 hours).
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/components/ThemeProvider/useRemoteTheme.ts`
+
+---
+
+#### 12. Typography contract letter spacing handling
+
+**Problem:** `letterSpacing` is optional in `TypographyContractValueSchema` (`index.ts:623`), but `@theme inline` always emits `--typography-contract-{role}-letterSpacing`. If undefined, produces empty CSS value.
+
+**Solution:** Conditionally emit the variable only when `letterSpacing` is defined, or provide default in schema.
+
+**Files to modify:**
+
+- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts:207-209`
+- `packages/ui-web-tailwind/scripts/generate-theme-css.mjs`
+
+---
+
+## Implementation Roadmap
+
+| Phase       | Focus           | Items                                                                                          | Timeline |
+| ----------- | --------------- | ---------------------------------------------------------------------------------------------- | -------- |
+| **Phase 1** | Foundation      | Fix codegen sync (HIGH-1), Complete CONTRACT_PREFIX (HIGH-4), Deduplicate hexToRgba (MEDIUM-8) | Week 1   |
+| **Phase 2** | Dynamic Loading | Create ThemeProvider (HIGH-2), Add error boundary (MEDIUM-6), Prevent FOUC (HIGH-3)            | Week 2   |
+| **Phase 3** | Polish          | Optimize applyTheme (MEDIUM-5), Add versioning (MEDIUM-7), SSR support (LOW-9)                 | Week 3   |
+| **Phase 4** | Refinement      | Simplify CSS bridge (LOW-10), Theme caching (LOW-11), Typography fix (LOW-12)                  | Week 4   |
+
+---
+
+## Risk Assessment
+
+| Change                | Risk                                | Mitigation                               |
+| --------------------- | ----------------------------------- | ---------------------------------------- |
+| Fix `codegen.js`      | **Low** — mechanical sync           | Run `generate:theme-css` and diff output |
+| Add `ThemeProvider`   | **Medium** — new API surface        | Keep backward-compatible `useTheme` hook |
+| Optimize `applyTheme` | **Low** — internal refactor         | Verify all tokens still emit correctly   |
+| Add SSR support       | **Medium** — new rendering path     | Guard `document` access, test in Next.js |
+| Simplify CSS bridge   | **High** — breaks component helpers | Keep bridge layer, deprecate gradually   |
+
+---
+
+## Testing Checklist
+
+- [ ] Validate all 6 existing themes load correctly via `applyTheme`
+- [ ] Test API theme loading with valid response
+- [ ] Test API theme loading with malformed response (fallback works)
+- [ ] Test API theme loading with network error (fallback works)
+- [ ] Test dark mode toggle with API theme
+- [ ] Test `ds-invert` section with API theme
+- [ ] Test theme switching performance (< 100ms)
+- [ ] Test SSR rendering with theme provider
+- [ ] Verify all Tailwind utilities work with API theme
+- [ ] Verify all component variants render correctly
+- [ ] Run `generate:theme-css` and verify output matches expected

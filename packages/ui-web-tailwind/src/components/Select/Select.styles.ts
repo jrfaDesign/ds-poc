@@ -1,0 +1,51 @@
+export const selectStyles = {
+	field: 'flex flex-col gap-[var(--ds-spacing-xxs)]',
+	wrapper: 'relative',
+	trigger: [
+		'w-full flex items-center justify-between gap-2 cursor-pointer',
+		'rounded-[var(--components-input-border-radii)]',
+		'border border-inputfield-border',
+		'bg-inputfield-bg',
+		'font-[family-name:var(--typography-fontFamily)]',
+		'text-inputfield-on',
+		'[-webkit-text-fill-color:currentColor]',
+		'outline-none',
+		'transition-[border-color,box-shadow] duration-150',
+		'hover:border-inputfield-border-hover',
+		'focus:border-inputfield-border-focus focus:shadow-[var(--focusring-focus-ring)]',
+	].join(' '),
+	chevron: [
+		'w-4 h-4 flex-shrink-0',
+		'text-inputfield-on',
+		'transition-transform duration-150',
+	].join(' '),
+	chevronOpen: 'rotate-180',
+	panel: [
+		'absolute z-50 left-0 right-0 mt-1',
+		'rounded-[var(--components-input-border-radii)]',
+		'border border-inputfield-border',
+		'bg-inputfield-bg',
+		'shadow-md',
+		'max-h-[240px] overflow-y-auto',
+		'py-1',
+	].join(' '),
+	option: [
+		'w-full text-left',
+		'px-[var(--ds-spacing-sm)] py-[var(--ds-spacing-xs)]',
+		'text-[var(--typography-fontSize-sm)]',
+		'font-[family-name:var(--typography-fontFamily)]',
+		'text-inputfield-on',
+		'cursor-pointer',
+		'outline-none',
+		'transition-colors duration-100',
+		'hover:bg-inputfield-bg-hover',
+	].join(' '),
+	optionSelected: 'bg-inputfield-border-focus text-inputfield-on-focus font-medium',
+	optionDisabled: 'opacity-50 cursor-not-allowed hover:bg-transparent',
+} as const;
+
+export const sizeStyles = {
+	sm: 'text-[var(--typography-fontSize-xs)] py-[2px] px-[var(--ds-spacing-sm)] min-h-[28px]',
+	md: 'text-[var(--typography-fontSize-sm)] py-[var(--ds-spacing-xs)] px-[var(--ds-spacing-md)] min-h-[36px]',
+	lg: 'text-[var(--typography-fontSize-md)] py-[var(--ds-spacing-sm)] px-[var(--ds-spacing-lg)] min-h-[44px]',
+} as const;

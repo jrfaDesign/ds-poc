@@ -15,10 +15,27 @@ const cagTheme = mergeTheme(defaultTheme, {
 		primary_900: '#332755',
 		primary_950: '#1F1535',
 	},
-	components: {
-		buttonBg: { type: 'colorTokens', value: 'bg-brand-solid' },
-		buttonBorderRadii: { type: 'radii', value: 'none' },
-		cardBorderRadii: { type: 'radii', value: 'none' },
+
+	contracts: {
+		feedback: {
+			error: {
+				borderRadius: { type: 'radii' as const, value: 'none' },
+			},
+			success: {
+				borderRadius: { type: 'radii' as const, value: 'none' },
+			},
+			warning: {
+				borderRadius: { type: 'radii' as const, value: 'none' },
+			},
+			info: {
+				borderRadius: { type: 'radii' as const, value: 'none' },
+			},
+		},
+		components: {
+			buttonBorderRadii: { type: 'radii' as const, value: 'none' },
+			cardBorderRadii: { type: 'radii' as const, value: 'none' },
+			inputBorderRadii: { type: 'radii' as const, value: 'none' },
+		},
 	},
 });
 
