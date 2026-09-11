@@ -45,7 +45,7 @@ export function Textarea({
 	const baseSurface = disabled ? 'sunken' : surface;
 
 	const fieldClasses = [
-		'w-full rounded-input border border-solid outline-none cursor-text resize-y',
+		'w-full rounded-inputBorderRadii border border-solid outline-none cursor-text resize-y',
 		'transition-[border-color,box-shadow] duration-150',
 		'placeholder:text-placeholder',
 		disabled ? 'opacity-50 cursor-not-allowed' : '',

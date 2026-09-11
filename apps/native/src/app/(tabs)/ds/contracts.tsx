@@ -189,6 +189,55 @@ export default function ContractsScreen() {
 							);
 						})}
 					</Box>
+
+					{/* Components */}
+					<Box gap="md">
+						<Typography role="h2" color="text-primary">
+							Components
+						</Typography>
+						<Typography role="p" color="text-secondary">
+							Structural tokens for border radii and mode-aware background colors.
+						</Typography>
+						<Box gap="sm">
+							<Typography role="label" color="text-primary">
+								Border Radii
+							</Typography>
+							<Box flexDirection="row" gap="sm" flexWrap="wrap">
+								{(['buttonBorderRadii', 'cardBorderRadii', 'saleCardRadii', 'inputBorderRadii'] as const).map((key) => (
+									<Card key={key} variant="surface" style={{ padding: theme.spacing.md, minWidth: 120 }}>
+										<Typography role="caption" color="text-tertiary">
+											{key}
+										</Typography>
+										<Typography role="p" color="text-primary">
+											{theme.contracts.components[key]}px
+										</Typography>
+									</Card>
+								))}
+							</Box>
+						</Box>
+						<Box gap="sm">
+							<Typography role="label" color="text-primary">
+								Background Colors
+							</Typography>
+							<Box flexDirection="row" gap="sm" flexWrap="wrap">
+								{(['headerBg', 'headerAvatarBg', 'footerBg', 'footerBgSecondary', 'salesCardBg', 'appShellBg'] as const).map((key) => (
+									<View
+										key={key}
+										style={{
+											backgroundColor: theme.contracts.components[key],
+											padding: theme.spacing.md,
+											minWidth: 120,
+											borderRadius: theme.radii.sm,
+										}}
+									>
+										<Typography role="caption" style={{ color: 'white' }}>
+											{key}
+										</Typography>
+									</View>
+								))}
+							</Box>
+						</Box>
+					</Box>
 				</Box>
 			</PageSection>
 		</ThemedScreen>

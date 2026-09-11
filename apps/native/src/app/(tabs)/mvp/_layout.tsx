@@ -9,7 +9,7 @@ export default function MVPLayout() {
 		<Stack
 			screenOptions={{
 				header: ScreenHeader,
-				statusBarStyle: isDark ? 'light' : 'dark',
+				statusBarStyle: 'light',
 			}}
 		>
 			<Stack.Screen name="index" options={{ title: 'MVP' }} />

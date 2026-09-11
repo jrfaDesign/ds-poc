@@ -16,7 +16,7 @@ export default function SettingsScreen() {
 	const { themeKey, setTheme, darkMode, toggleDark } = useThemeSettings();
 	const { theme } = useTheme();
 
-	const active = theme.colorTokens['utility-primary-500'];
+	const active = theme.contracts.actions.primary.bg;
 
 	const optionStyle = (isActive: boolean) => ({
 		padding: theme.spacing.lg,

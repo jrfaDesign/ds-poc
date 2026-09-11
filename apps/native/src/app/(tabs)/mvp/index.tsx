@@ -48,7 +48,7 @@ export default function MVPScreen() {
 					<Box gap="sm">
 						<Box flexDirection="row" alignItems="center" justifyContent="space-between">
 							<Box gap="xs">
-								<Typography role="h2" color="text-primary">
+								<Typography role="h4" color="text-primary">
 									Sales
 								</Typography>
 								<Typography role="caption" color="text-secondary">

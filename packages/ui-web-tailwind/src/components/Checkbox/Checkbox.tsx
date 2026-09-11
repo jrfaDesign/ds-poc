@@ -56,7 +56,7 @@ export function Checkbox({
 
 	const indicatorClasses = [
 		'w-[18px] h-[18px] shrink-0 flex items-center justify-center',
-		'border-2 border-solid rounded-input transition-[background-color,border-color] duration-150',
+		'border-2 border-solid rounded-inputBorderRadii transition-[background-color,border-color] duration-150',
 		bgColor,
 		borderColor,
 	]

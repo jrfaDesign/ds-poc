@@ -62,7 +62,7 @@ export function Button({
 				...style,
 			}}
 			className={[
-				'inline-flex items-center justify-center leading-none font-medium cursor-pointer transition-colors rounded-button',
+				'inline-flex items-center justify-center leading-none font-medium cursor-pointer transition-colors rounded-buttonBorderRadii',
 				variant === 'link' && 'px-0 py-0',
 				invert && 'ds-invert',
 				sizeClasses[size],

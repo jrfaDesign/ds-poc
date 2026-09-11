@@ -11,16 +11,9 @@ import type {
 	LetterSpacingToken,
 	FontFamilyToken,
 } from '@repo/foundations';
+import { CONTRACT_PREFIX, CONTRACT_STRUCTURE, hexToRgba } from '@repo/foundations';
 
 const MODE_STYLE_ID = 'ds-mode-switch';
-
-function hexToRgba(hex: string, alpha: number): string {
-	if (hex === 'transparent') return 'rgba(0,0,0,0)';
-	const r = parseInt(hex.slice(1, 3), 16);
-	const g = parseInt(hex.slice(3, 5), 16);
-	const b = parseInt(hex.slice(5, 7), 16);
-	return `rgba(${r},${g},${b},${alpha})`;
-}
 
 function resolveLeaf(leaf: ColorTokenLeaf, theme: Tokens): string {
 	const token = typeof leaf === 'string' ? leaf : leaf.base;
@@ -50,6 +43,8 @@ type ColorPair = { light: ColorTokenLeaf; dark: ColorTokenLeaf };
  * - no JS re-run required.
  */
 export function applyTheme(theme: Tokens): void {
+	if (typeof document === 'undefined') return;
+
 	const root = document.documentElement;
 	const lightRules: string[] = [];
 	const darkRules: string[] = [];
@@ -58,30 +53,36 @@ export function applyTheme(theme: Tokens): void {
 		darkRules.push(`--${base}:var(--${base}-dark);`);
 	};
 
+	// Batched DOM writes — collect all property changes, flush once at the end
+	const pending = new Map<string, string>();
+	const setVar = (name: string, value: string): void => {
+		pending.set(name, value);
+	};
+
 	// spacing (mode-invariant)
 	(Object.entries(theme.spacing) as [SpacingToken, number][]).forEach(([key, value]) => {
-		root.style.setProperty(`--ds-spacing-${key}`, `${value}px`);
+		setVar(`--ds-spacing-${key}`, `${value}px`);
 	});
 
 	// radii (mode-invariant)
 	(Object.entries(theme.radii) as [RadiiToken, number][]).forEach(([key, value]) => {
-		root.style.setProperty(`--radii-${key}`, `${value}px`);
+		setVar(`--radii-${key}`, `${value}px`);
 	});
 
 	// widths (mode-invariant) - container max-widths; unitless -> px
 	(Object.entries(theme.widths) as [WidthToken, number][]).forEach(([key, value]) => {
-		root.style.setProperty(`--ds-width-${key}`, `${value}px`);
+		setVar(`--ds-width-${key}`, `${value}px`);
 	});
 
 	// layout (mode-invariant) - grid gutter/margin scale; unitless -> px
 	(Object.entries(theme.layout) as [LayoutToken, number][]).forEach(([key, value]) => {
-		root.style.setProperty(`--ds-layout-${key}`, `${value}px`);
+		setVar(`--ds-layout-${key}`, `${value}px`);
 	});
 
 	// typography base scales (mode-invariant)
 	(Object.entries(theme.typography.fontFamilies) as [FontFamilyToken, string][]).forEach(
 		([key, value]) => {
-			root.style.setProperty(`--typography-fontFamilies-${key}`, value);
+			setVar(`--typography-fontFamilies-${key}`, value);
 		}
 	);
 	(
@@ -94,31 +95,31 @@ export function applyTheme(theme: Tokens): void {
 			},
 		][]
 	).forEach(([key, value]) => {
-		root.style.setProperty(`--typography-fontSize-${key}`, `${value.fontSizePx}px`);
-		root.style.setProperty(`--typography-fontSize-${key}-rem`, `${value.fontSizeRem}rem`);
+		setVar(`--typography-fontSize-${key}`, `${value.fontSizePx}px`);
+		setVar(`--typography-fontSize-${key}-rem`, `${value.fontSizeRem}rem`);
 		if (value.letterSpacing !== undefined) {
-			root.style.setProperty(`--typography-letterSpacing-${key}`, `${value.letterSpacing}em`);
+			setVar(`--typography-letterSpacing-${key}`, `${value.letterSpacing}em`);
 		}
 	});
 	(Object.entries(theme.typography.fontWeight) as [FontWeightToken, number][]).forEach(
 		([key, value]) => {
-			root.style.setProperty(`--typography-fontWeight-${key}`, String(value));
+			setVar(`--typography-fontWeight-${key}`, String(value));
 		}
 	);
 	(Object.entries(theme.typography.lineHeight) as [LineHeightToken, number][]).forEach(
 		([key, value]) => {
-			root.style.setProperty(`--typography-lineHeight-${key}`, String(value));
+			setVar(`--typography-lineHeight-${key}`, String(value));
 		}
 	);
 	(Object.entries(theme.typography.letterSpacing) as [LetterSpacingToken, number][]).forEach(
 		([key, value]) => {
-			root.style.setProperty(`--typography-letterSpacing-${key}`, `${value}em`);
+			setVar(`--typography-letterSpacing-${key}`, `${value}em`);
 		}
 	);
 
 	// raw palette colors (mode-invariant)
 	(Object.entries(theme.colors) as [string, string][]).forEach(([key, value]) => {
-		root.style.setProperty(`--${key}`, value);
+		setVar(`--${key}`, value);
 	});
 
 	// semantic color tokens (mode-aware: light/dark pair)
@@ -126,8 +127,8 @@ export function applyTheme(theme: Tokens): void {
 	(Object.values(theme.colorTokens) as Record<string, ColorPair>[]).forEach((group) => {
 		(Object.entries(group) as [string, ColorPair][]).forEach(([name, pair]) => {
 			ctMap[name] = pair;
-			root.style.setProperty(`--ct-${name}-default`, resolveLeaf(pair.light, theme));
-			root.style.setProperty(`--ct-${name}-dark`, resolveLeaf(pair.dark, theme));
+			setVar(`--ct-${name}-default`, resolveLeaf(pair.light, theme));
+			setVar(`--ct-${name}-dark`, resolveLeaf(pair.dark, theme));
 			register(`ct-${name}`);
 		});
 	});
@@ -137,11 +138,11 @@ export function applyTheme(theme: Tokens): void {
 	// .ds-invert. If it's a raw palette color, it's mode-invariant.
 	const setRefVar = (name: string, refColor: string): void => {
 		if (ctMap[refColor]) {
-			root.style.setProperty(`--${name}-default`, `var(--ct-${refColor}-default)`);
-			root.style.setProperty(`--${name}-dark`, `var(--ct-${refColor}-dark)`);
+			setVar(`--${name}-default`, `var(--ct-${refColor}-default)`);
+			setVar(`--${name}-dark`, `var(--ct-${refColor}-dark)`);
 			register(name);
 		} else {
-			root.style.setProperty(`--${name}`, `var(--${refColor})`);
+			setVar(`--${name}`, `var(--${refColor})`);
 		}
 	};
 
@@ -150,14 +151,14 @@ export function applyTheme(theme: Tokens): void {
 		if (typeof value === 'string') {
 			setRefVar(cssVar, value);
 		} else if (typeof value === 'number') {
-			root.style.setProperty(`--${cssVar}`, `${value}px`);
+			setVar(`--${cssVar}`, `${value}px`);
 		} else if (value && typeof value === 'object' && 'type' in value) {
 			if (value.type === 'radii') {
-				root.style.setProperty(`--${cssVar}`, `${theme.radii[value.value as RadiiToken]}px`);
+				setVar(`--${cssVar}`, `${theme.radii[value.value as RadiiToken]}px`);
 			}
 		} else if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
-			root.style.setProperty(`--${cssVar}-default`, resolveLeaf(value.light, theme));
-			root.style.setProperty(`--${cssVar}-dark`, resolveLeaf(value.dark, theme));
+			setVar(`--${cssVar}-default`, resolveLeaf(value.light, theme));
+			setVar(`--${cssVar}-dark`, resolveLeaf(value.dark, theme));
 			register(cssVar);
 		}
 	};
@@ -165,12 +166,6 @@ export function applyTheme(theme: Tokens): void {
 	// Generic contract emitter — handles nested (actions, feedback, surfaces, typography)
 	// and flat (inputField, selectionControl, toggle, components) contracts
 	// CONTRACT_PREFIX maps contract keys to their CSS var prefix (backward compat with CSS bridge)
-	const CONTRACT_PREFIX: Record<string, string> = {
-		actions: 'action',
-		surfaces: 'surface',
-		inputField: 'inputfield',
-		selectionControl: 'selectioncontrol',
-	};
 
 	const emitFlatContract = (prefix: string, preset: Record<string, any>): void => {
 		Object.entries(preset).forEach(([field, value]) => {
@@ -198,18 +193,15 @@ export function applyTheme(theme: Tokens): void {
 		const fw = theme.typography.fontWeight[cv.fontWeight];
 		const lh = theme.typography.lineHeight[cv.lineHeight];
 		const ff = theme.typography.fontFamilies[cv.fontFamily as FontFamilyToken];
-		root.style.setProperty(
-			`--typography-contract-${contractName}-fontSize`,
-			`${scale.fontSizePx}px`
-		);
-		root.style.setProperty(`--typography-contract-${contractName}-fontWeight`, String(fw));
-		root.style.setProperty(`--typography-contract-${contractName}-lineHeight`, String(lh));
+		setVar(`--typography-contract-${contractName}-fontSize`, `${scale.fontSizePx}px`);
+		setVar(`--typography-contract-${contractName}-fontWeight`, String(fw));
+		setVar(`--typography-contract-${contractName}-lineHeight`, String(lh));
 		if (cv.letterSpacing) {
 			const ls = theme.typography.letterSpacing[cv.letterSpacing];
-			root.style.setProperty(`--typography-contract-${contractName}-letterSpacing`, `${ls}em`);
+			setVar(`--typography-contract-${contractName}-letterSpacing`, `${ls}em`);
 		}
 		if (ff) {
-			root.style.setProperty(`--typography-contract-${contractName}-fontFamily`, ff);
+			setVar(`--typography-contract-${contractName}-fontFamily`, ff);
 		}
 		const color = (cv.color ?? 'text-primary') as string;
 		setRefVar(`typography-contract-${contractName}-color`, color);
@@ -217,15 +209,6 @@ export function applyTheme(theme: Tokens): void {
 
 	// ALL other contracts — generic resolution (no per-contract code needed)
 	// CONTRACT_STRUCTURE explicitly declares nested vs flat to avoid fragile auto-detection
-	const CONTRACT_STRUCTURE: Record<string, 'nested' | 'flat'> = {
-		actions: 'nested',
-		feedback: 'nested',
-		surfaces: 'nested',
-		inputField: 'flat',
-		selectionControl: 'flat',
-		toggle: 'flat',
-		components: 'flat',
-	};
 
 	const { typography, ...restContracts } = theme.contracts;
 	Object.entries(restContracts).forEach(([contractName, preset]) => {
@@ -256,10 +239,10 @@ export function applyTheme(theme: Tokens): void {
 	// grid (mode-invariant) - gutter/margin from layout tokens, maxWidth from width tokens
 	(Object.entries(theme.grid) as [string, Tokens['grid'][keyof Tokens['grid']]][]).forEach(
 		([bp, config]) => {
-			root.style.setProperty(`--grid-${bp}-columns`, String(config.columns));
-			root.style.setProperty(`--grid-${bp}-gutter`, `${theme.layout[config.gutter]}px`);
-			root.style.setProperty(`--grid-${bp}-margin`, `${theme.layout[config.margin]}px`);
-			root.style.setProperty(`--grid-${bp}-maxWidth`, `${theme.widths[config.maxWidth]}px`);
+			setVar(`--grid-${bp}-columns`, String(config.columns));
+			setVar(`--grid-${bp}-gutter`, `${theme.layout[config.gutter]}px`);
+			setVar(`--grid-${bp}-margin`, `${theme.layout[config.margin]}px`);
+			setVar(`--grid-${bp}-maxWidth`, `${theme.widths[config.maxWidth]}px`);
 		}
 	);
 
@@ -275,8 +258,8 @@ export function applyTheme(theme: Tokens): void {
 							`${l.offsetX}px ${l.offsetY}px ${l.blurRadius}px ${l.spreadRadius}px ${hexToRgba(hex, l.opacity)}`
 					)
 					.join(', ');
-			root.style.setProperty(`--ds-shadow-${key}-default`, buildShadow(lightHex));
-			root.style.setProperty(`--ds-shadow-${key}-dark`, buildShadow(darkHex));
+			setVar(`--ds-shadow-${key}-default`, buildShadow(lightHex));
+			setVar(`--ds-shadow-${key}-dark`, buildShadow(darkHex));
 			register(`ds-shadow-${key}`);
 		}
 	);
@@ -301,8 +284,8 @@ export function applyTheme(theme: Tokens): void {
 			}
 			return `0 0 0 3px ${ringColor}`;
 		};
-		root.style.setProperty(`--focusring-${key}-default`, buildRing('light'));
-		root.style.setProperty(`--focusring-${key}-dark`, buildRing('dark'));
+		setVar(`--focusring-${key}-default`, buildRing('light'));
+		setVar(`--focusring-${key}-dark`, buildRing('dark'));
 		register(`focusring-${key}`);
 	});
 
@@ -311,7 +294,7 @@ export function applyTheme(theme: Tokens): void {
 		Object.entries(theme.gradients) as [string, Tokens['gradients'][keyof Tokens['gradients']]][]
 	).forEach(([key, value]) => {
 		if (value === null) {
-			root.style.setProperty(`--gradient-${key}`, 'none');
+			setVar(`--gradient-${key}`, 'none');
 			return;
 		}
 		const stops = value.stops
@@ -320,7 +303,7 @@ export function applyTheme(theme: Tokens): void {
 				return stop.position != null ? `${hex} ${stop.position}%` : hex;
 			})
 			.join(', ');
-		root.style.setProperty(`--gradient-${key}`, `linear-gradient(${value.angle}deg, ${stops})`);
+		setVar(`--gradient-${key}`, `linear-gradient(${value.angle}deg, ${stops})`);
 	});
 
 	// inject the light/dark selection rules (idempotent; stable across themes).
@@ -339,6 +322,12 @@ export function applyTheme(theme: Tokens): void {
 		`.ds-force-light{${lightRules.join('')}color-scheme:light;}` +
 		`.ds-unforce{${lightRules.join('')}color-scheme:light;}` +
 		`:root.dark .ds-unforce{${darkRules.join('')}color-scheme:dark;}`;
+
+	// Flush all batched CSS variable writes in a single frame
+	for (const [name, value] of pending) {
+		root.style.setProperty(name, value);
+	}
+
 	let styleEl = document.getElementById(MODE_STYLE_ID) as HTMLStyleElement | null;
 	if (!styleEl) {
 		styleEl = document.createElement('style');

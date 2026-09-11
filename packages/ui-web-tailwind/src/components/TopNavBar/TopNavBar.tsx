@@ -74,7 +74,7 @@ export function TopNavBar({
 
 	return (
 		<nav
-			className={['w-full sticky top-0 z-50 shadow-sm relative', 'bg-components-header', className]
+			className={['w-full sticky top-0 z-50 shadow-sm relative', 'bg-headerBg', className]
 				.filter(Boolean)
 				.join(' ')}
 			style={style}
@@ -146,7 +146,7 @@ export function TopNavBar({
 							<div className="relative" ref={menuRef}>
 								<button
 									onClick={() => setMenuOpen(!menuOpen)}
-									className="flex items-center justify-center w-10 h-10 rounded-full bg-components-header-avatar text-action-primary-on font-bold text-sm cursor-pointer"
+									className="flex items-center justify-center w-10 h-10 rounded-full bg-headerAvatarBg text-action-primary-on font-bold text-sm cursor-pointer"
 								>
 									{profileButton || 'TU'}
 								</button>
@@ -168,7 +168,7 @@ export function TopNavBar({
 				</Container>
 				{/* Active indicator at bottom of header */}
 				<div
-					className="hidden md:flex absolute bottom-0 left-0 h-1 bg-action-primary-bg transition-all duration-200"
+					className="hidden md:flex absolute bottom-0 left-0 h-1 bg-activeTabIndicator transition-all duration-200"
 					style={{
 						width: underlineStyle.width,
 						left: underlineStyle.left,

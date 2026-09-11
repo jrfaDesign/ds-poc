@@ -9,7 +9,10 @@
 	},
 	"scripts": {
 		"lint": "eslint . --max-warnings 0",
-		"check-types": "tsc --noEmit"
+		"check-types": "tsc --noEmit",
+		"generate:codegen": "node scripts/generate-codegen.mjs",
+		"generate:tokens": "yarn generate:codegen && yarn --cwd ../ui-web-tailwind generate:theme-css",
+		"verify:codegen": "node scripts/verify-codegen.mjs"
 	},
 	"dependencies": {
 		"zod": "^3.23.8"

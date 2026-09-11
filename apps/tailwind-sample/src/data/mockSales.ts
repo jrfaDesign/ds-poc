@@ -1,6 +1,6 @@
 export type SaleAccess = 'public' | 'membersOnly' | 'exclusive';
 export type SalePricing = 'fixedPrice' | 'xBid';
-export type SaleStatus = 'live' | 'notStarted' | 'openAuction';
+export type SaleStatus = 'live' | 'notStarted' | 'openAuction' | 'membersOnly';
 
 export type Sale = {
 	id: string;
@@ -64,7 +64,7 @@ const titles = [
 	'BYD Blade Truck sale',
 ];
 
-const statuses: SaleStatus[] = [
+const statuses: (SaleStatus | undefined)[] = [
 	'live',
 	'notStarted',
 	undefined,

@@ -899,6 +899,10 @@ const defaultThemeTokens: Tokens = {
 			footerBgSecondary: { dark: 'primary_950', light: 'primary_950' },
 			salesCardBg: { light: 'white', dark: 'neutral_900' },
 			appShellBg: { light: 'white', dark: 'neutral_950' },
+
+			activeTabIndicator: { light: 'primary_500', dark: 'primary_500' },
+
+			saleCardLogoBg: { light: 'white', dark: 'white' },
 		},
 	},
 };

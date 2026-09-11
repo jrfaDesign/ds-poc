@@ -66,19 +66,6 @@
 		--color-action-ghost-bg-disabled: var(--action-ghost-bg-disabled);
 		--color-action-ghost-on-disabled: var(--action-ghost-on-disabled);
 		--color-action-ghost-border-disabled: var(--action-ghost-border-disabled);
-		--color-action-tertiary-bg: var(--action-tertiary-bg);
-		--color-action-tertiary-on: var(--action-tertiary-on);
-		--color-action-tertiary-border: var(--action-tertiary-border);
-		--color-action-tertiary-bg-hover: var(--action-tertiary-bg-hover);
-		--color-action-tertiary-on-hover: var(--action-tertiary-on-hover);
-		--color-action-tertiary-bg-active: var(--action-tertiary-bg-active);
-		--color-action-tertiary-on-active: var(--action-tertiary-on-active);
-		--color-action-tertiary-bg-focus: var(--action-tertiary-bg-focus);
-		--color-action-tertiary-on-focus: var(--action-tertiary-on-focus);
-		--color-action-tertiary-border-focus: var(--action-tertiary-border-focus);
-		--color-action-tertiary-bg-disabled: var(--action-tertiary-bg-disabled);
-		--color-action-tertiary-on-disabled: var(--action-tertiary-on-disabled);
-		--color-action-tertiary-border-disabled: var(--action-tertiary-border-disabled);
 		--color-action-link-bg: var(--action-link-bg);
 		--color-action-link-on: var(--action-link-on);
 		--color-action-link-border: var(--action-link-border);
@@ -92,6 +79,19 @@
 		--color-action-link-bg-disabled: var(--action-link-bg-disabled);
 		--color-action-link-on-disabled: var(--action-link-on-disabled);
 		--color-action-link-border-disabled: var(--action-link-border-disabled);
+		--color-action-tertiary-bg: var(--action-tertiary-bg);
+		--color-action-tertiary-on: var(--action-tertiary-on);
+		--color-action-tertiary-border: var(--action-tertiary-border);
+		--color-action-tertiary-bg-hover: var(--action-tertiary-bg-hover);
+		--color-action-tertiary-on-hover: var(--action-tertiary-on-hover);
+		--color-action-tertiary-bg-active: var(--action-tertiary-bg-active);
+		--color-action-tertiary-on-active: var(--action-tertiary-on-active);
+		--color-action-tertiary-bg-focus: var(--action-tertiary-bg-focus);
+		--color-action-tertiary-on-focus: var(--action-tertiary-on-focus);
+		--color-action-tertiary-border-focus: var(--action-tertiary-border-focus);
+		--color-action-tertiary-bg-disabled: var(--action-tertiary-bg-disabled);
+		--color-action-tertiary-on-disabled: var(--action-tertiary-on-disabled);
+		--color-action-tertiary-border-disabled: var(--action-tertiary-border-disabled);
 		/* feedback contracts */
 		--color-feedback-error-bg: var(--feedback-error-bg);
 		--color-feedback-error-on: var(--feedback-error-on);
@@ -184,6 +184,8 @@
 		--color-components-footer-bg-secondary: var(--components-footer-bg-secondary);
 		--color-components-sales-card-bg: var(--components-sales-card-bg);
 		--color-components-app-shell-bg: var(--components-app-shell-bg);
+		--color-components-active-tab-indicator: var(--components-active-tab-indicator);
+		--color-components-sale-card-logo-base: var(--components-sale-card-logo-base);
 	}
 }
 
@@ -214,6 +216,7 @@
 	--color-border-secondary: var(--ct-border-secondary);
 	--color-border-secondary-alt: var(--ct-border-secondary_alt);
 	--color-border-tertiary: var(--ct-border-tertiary);
+	--color-border-quaternary: var(--ct-border-quaternary);
 	--color-border-brand: var(--ct-border-brand);
 	--color-border-brand-alt: var(--ct-border-brand_alt);
 	--color-border-error: var(--ct-border-error);
@@ -374,19 +377,6 @@
 	--color-action-ghost-bg-disabled: var(--action-ghost-bg-disabled);
 	--color-action-ghost-on-disabled: var(--action-ghost-on-disabled);
 	--color-action-ghost-border-disabled: var(--action-ghost-border-disabled);
-	--color-action-tertiary-bg: var(--action-tertiary-bg);
-	--color-action-tertiary-on: var(--action-tertiary-on);
-	--color-action-tertiary-border: var(--action-tertiary-border);
-	--color-action-tertiary-bg-hover: var(--action-tertiary-bg-hover);
-	--color-action-tertiary-on-hover: var(--action-tertiary-on-hover);
-	--color-action-tertiary-bg-active: var(--action-tertiary-bg-active);
-	--color-action-tertiary-on-active: var(--action-tertiary-on-active);
-	--color-action-tertiary-bg-focus: var(--action-tertiary-bg-focus);
-	--color-action-tertiary-on-focus: var(--action-tertiary-on-focus);
-	--color-action-tertiary-border-focus: var(--action-tertiary-border-focus);
-	--color-action-tertiary-bg-disabled: var(--action-tertiary-bg-disabled);
-	--color-action-tertiary-on-disabled: var(--action-tertiary-on-disabled);
-	--color-action-tertiary-border-disabled: var(--action-tertiary-border-disabled);
 	--color-action-link-bg: var(--action-link-bg);
 	--color-action-link-on: var(--action-link-on);
 	--color-action-link-border: var(--action-link-border);
@@ -400,6 +390,19 @@
 	--color-action-link-bg-disabled: var(--action-link-bg-disabled);
 	--color-action-link-on-disabled: var(--action-link-on-disabled);
 	--color-action-link-border-disabled: var(--action-link-border-disabled);
+	--color-action-tertiary-bg: var(--action-tertiary-bg);
+	--color-action-tertiary-on: var(--action-tertiary-on);
+	--color-action-tertiary-border: var(--action-tertiary-border);
+	--color-action-tertiary-bg-hover: var(--action-tertiary-bg-hover);
+	--color-action-tertiary-on-hover: var(--action-tertiary-on-hover);
+	--color-action-tertiary-bg-active: var(--action-tertiary-bg-active);
+	--color-action-tertiary-on-active: var(--action-tertiary-on-active);
+	--color-action-tertiary-bg-focus: var(--action-tertiary-bg-focus);
+	--color-action-tertiary-on-focus: var(--action-tertiary-on-focus);
+	--color-action-tertiary-border-focus: var(--action-tertiary-border-focus);
+	--color-action-tertiary-bg-disabled: var(--action-tertiary-bg-disabled);
+	--color-action-tertiary-on-disabled: var(--action-tertiary-on-disabled);
+	--color-action-tertiary-border-disabled: var(--action-tertiary-border-disabled);
 	/* feedback contracts */
 	--color-feedback-error-bg: var(--feedback-error-bg);
 	--color-feedback-error-on: var(--feedback-error-on);
@@ -692,24 +695,6 @@
 @utility bg-info-solid-hover {
 	background-color: var(--ct-bg-info-solid_hover);
 }
-@utility bg-components-header {
-	background-color: var(--components-header-bg);
-}
-@utility bg-components-header-avatar {
-	background-color: var(--components-header-avatar-bg);
-}
-@utility bg-components-footer {
-	background-color: var(--components-footer-bg);
-}
-@utility bg-components-footer-secondary {
-	background-color: var(--components-footer-bg-secondary);
-}
-@utility bg-components-sales-card {
-	background-color: var(--components-sales-card-bg);
-}
-@utility bg-components-app-shell {
-	background-color: var(--components-app-shell-bg);
-}
 /* clean aliases: text-* */
 @utility text-primary {
 	color: var(--ct-text-primary);
@@ -787,6 +772,9 @@
 @utility border-tertiary {
 	border-color: var(--ct-border-tertiary);
 }
+@utility border-quaternary {
+	border-color: var(--ct-border-quaternary);
+}
 @utility border-brand {
 	border-color: var(--ct-border-brand);
 }
@@ -826,18 +814,42 @@
 	border-radius: var(--feedback-info-border-radius);
 }
 
-/* --- component structural utilities --- */
-@utility rounded-button {
+/* --- component contract utilities (auto-generated) --- */
+@utility rounded-buttonBorderRadii {
 	border-radius: var(--components-button-border-radii);
 }
-@utility rounded-card {
+@utility rounded-cardBorderRadii {
 	border-radius: var(--components-card-border-radii);
 }
-@utility rounded-sale-card {
+@utility rounded-saleCardRadii {
 	border-radius: var(--components-sale-card-radii);
 }
-@utility rounded-input {
+@utility rounded-inputBorderRadii {
 	border-radius: var(--components-input-border-radii);
+}
+@utility bg-headerBg {
+	background-color: var(--components-header-bg);
+}
+@utility bg-headerAvatarBg {
+	background-color: var(--components-header-avatar-bg);
+}
+@utility bg-footerBg {
+	background-color: var(--components-footer-bg);
+}
+@utility bg-footerBgSecondary {
+	background-color: var(--components-footer-bg-secondary);
+}
+@utility bg-salesCardBg {
+	background-color: var(--components-sales-card-bg);
+}
+@utility bg-appShellBg {
+	background-color: var(--components-app-shell-bg);
+}
+@utility bg-activeTabIndicator {
+	background-color: var(--components-active-tab-indicator);
+}
+@utility bg-saleCardLogoBg {
+	background-color: var(--components-sale-card-logo-bg);
 }
 @utility ring-focus {
 	box-shadow: var(--focusring-focus-ring);

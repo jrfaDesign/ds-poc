@@ -15,16 +15,10 @@ import type {
 	FontFamilyToken,
 	ShadowToken,
 	TypographyContractToken,
+	ResolvedComponents,
 } from '@repo/foundations';
+import { hexToRgba } from '@repo/foundations';
 import type { ButtonVariant, CardVariant } from '@repo/globals';
-
-function hexToRgba(hex: string, alpha: number): string {
-	if (hex === 'transparent') return 'rgba(0,0,0,0)';
-	const r = parseInt(hex.slice(1, 3), 16);
-	const g = parseInt(hex.slice(3, 5), 16);
-	const b = parseInt(hex.slice(5, 7), 16);
-	return `rgba(${r},${g},${b},${alpha})`;
-}
 
 function resolveLeaf(leaf: ColorTokenLeaf, theme: Tokens): string {
 	const token = typeof leaf === 'string' ? leaf : leaf.base;
@@ -69,6 +63,7 @@ export type ResolvedActions = {
 	secondary: ResolvedFullAction;
 	ghost: ResolvedFullAction;
 	link: ResolvedLinkAction;
+	tertiary: ResolvedFullAction;
 };
 
 export type ResolvedFeedback = {
@@ -192,7 +187,7 @@ export type ResolvedTheme = {
 		inputField: ResolvedInputField;
 		selectionControl: ResolvedSelectionControl;
 		toggle: ResolvedToggle;
-		components: { buttonBorderRadii: number; cardBorderRadii: number; inputBorderRadii: number };
+		components: ResolvedComponents;
 		extraContracts: Record<string, Record<string, any>>;
 	};
 	spacing: Record<SpacingToken, number>;
@@ -313,6 +308,12 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		return (colors as Record<string, string>)[ref] ?? ref;
 	};
 
+	// Helper: resolve a ShadowColorSchema ({light, dark}) to a hex value based on isDark
+	const resolveShadowColor = (pair: { light: ColorToken; dark: ColorToken }): string => {
+		const token = isDark ? pair.dark : pair.light;
+		return (colors as Record<string, string>)[token] ?? token;
+	};
+
 	// Typography contracts
 	const resolvedTypography = {} as Record<TypographyContractToken, ResolvedTypography>;
 	for (const [name, cv] of Object.entries(theme.contracts.typography)) {
@@ -340,6 +341,7 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		secondary: resolveFullAction(actions.secondary, resolveRef),
 		ghost: resolveFullAction(actions.ghost, resolveRef),
 		link: resolveLinkAction(actions.link, resolveRef),
+		tertiary: resolveFullAction(actions.tertiary, resolveRef),
 	};
 
 	// Feedback contracts
@@ -431,15 +433,9 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		}
 	}
 
-	// Components contracts — resolve radii tokens to px values
-	const sh = theme.contracts.components;
-	const resolvedComponents = {
-		buttonBorderRadii: theme.radii[sh.buttonBorderRadii.value],
-		cardBorderRadii: theme.radii[sh.cardBorderRadii.value],
-		inputBorderRadii: theme.radii[sh.inputBorderRadii.value],
-	};
+	// Components contracts — resolve generically via the loop below
 
-	// Generic resolution for any extra contracts not covered by typed resolution
+	// Generic resolution for any flat contracts not covered by typed resolution
 	const knownContracts = new Set([
 		'actions',
 		'feedback',
@@ -448,7 +444,6 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		'inputField',
 		'selectionControl',
 		'toggle',
-		'components',
 	]);
 	const extraContracts: Record<string, Record<string, any>> = {};
 	for (const [name, preset] of Object.entries(theme.contracts)) {
@@ -459,6 +454,8 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 			else if (typeof value === 'number') resolved[field] = value;
 			else if (value && typeof value === 'object' && 'type' in value) {
 				if (value.type === 'radii') resolved[field] = theme.radii[value.value as RadiiToken];
+			} else if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
+				resolved[field] = resolveShadowColor(value);
 			}
 		}
 		extraContracts[name] = resolved;
@@ -475,7 +472,7 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 			inputField: resolvedInputField,
 			selectionControl: resolvedSelectionControl,
 			toggle: resolvedToggle,
-			components: resolvedComponents,
+			components: (extraContracts['components'] ?? {}) as ResolvedComponents,
 			extraContracts,
 		},
 		spacing: theme.spacing,

@@ -117,6 +117,65 @@ const bcaTheme = mergeTheme(defaultTheme, {
 		},
 	},
 
+	gradients: {
+		primary_600_500_90: {
+			type: 'linear',
+			angle: 90,
+			stops: [
+				{ color: 'primary_accent_600', position: 0 },
+				{ color: 'primary_accent_500', position: 100 },
+			],
+		},
+		primary_700_600_45: {
+			type: 'linear',
+			angle: 45,
+			stops: [
+				{ color: 'primary_accent_700', position: 0 },
+				{ color: 'primary_accent_600', position: 100 },
+			],
+		},
+		primary_800_600_45: {
+			type: 'linear',
+			angle: 45,
+			stops: [
+				{ color: 'primary_accent_800', position: 0 },
+				{ color: 'primary_accent_600', position: 100 },
+			],
+		},
+		primary_800_600_90: {
+			type: 'linear',
+			angle: 90,
+			stops: [
+				{ color: 'primary_accent_800', position: 0 },
+				{ color: 'primary_accent_600', position: 100 },
+			],
+		},
+		primary_800_700_26_5: {
+			type: 'linear',
+			angle: 26.5,
+			stops: [
+				{ color: 'primary_accent_800', position: 0 },
+				{ color: 'primary_accent_700', position: 100 },
+			],
+		},
+		primary_900_600_45: {
+			type: 'linear',
+			angle: 45,
+			stops: [
+				{ color: 'primary_accent_900', position: 0 },
+				{ color: 'primary_accent_600', position: 100 },
+			],
+		},
+		primary_900_700_45: {
+			type: 'linear',
+			angle: 45,
+			stops: [
+				{ color: 'primary_accent_900', position: 0 },
+				{ color: 'primary_accent_700', position: 100 },
+			],
+		},
+	},
+
 	contracts: {
 		actions: {
 			primary: {},
@@ -157,6 +216,8 @@ const bcaTheme = mergeTheme(defaultTheme, {
 			footerBg: { light: 'primary_950', dark: 'primary_950' },
 			footerBgSecondary: { light: 'primary_700', dark: 'primary_700' },
 			appShellBg: { light: 'white', dark: 'neutral_900' },
+
+			activeTabIndicator: { light: 'primary_accent_500', dark: 'primary_accent_500' },
 		},
 	},
 

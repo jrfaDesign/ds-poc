@@ -129,6 +129,10 @@ const bydPremiumTheme = mergeTheme(bcaTheme, {
 			headerBg: { dark: 'primary_accent_600', light: 'primary_accent_600' },
 			headerAvatarBg: { dark: 'primary_accent_500', light: 'primary_accent_500' },
 			appShellBg: { light: 'white', dark: 'primary_800' },
+
+			activeTabIndicator: { light: 'primary_accent_100', dark: 'primary_accent_100' },
+
+			saleCardLogoBg: { light: 'black', dark: 'black' },
 		},
 	},
 

@@ -68,7 +68,12 @@ export function SaleCard({ sale }: SaleCardProps) {
 
 				{/* Brand Logo - bottom right */}
 				<View style={styles.logoWrapper}>
-					<View style={styles.logoContainer}>
+					<View
+						style={[
+							styles.logoContainer,
+							{ backgroundColor: theme.contracts.components.saleCardLogoBg },
+						]}
+					>
 						<BrandLogo variant="onImage" style={{ height: 14 }} />
 					</View>
 				</View>

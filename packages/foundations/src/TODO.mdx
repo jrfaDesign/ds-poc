@@ -13,21 +13,23 @@ The current MVP architecture is **fundamentally sound** for white-label with API
 
 ### What Works Well
 
-| Strength                                    | Why It Matters for White-Label                                               |
-| ------------------------------------------- | ---------------------------------------------------------------------------- |
-| **Zod validation** (`TokensSchema.parse()`) | API themes are fully validated at runtime; malformed data fails fast         |
-| **Deep merge** (`mergeTheme()`)             | Partial API themes merge with defaults; only brand-specific overrides needed |
-| **Runtime CSS variables** (`applyTheme()`)  | Themes are hot-swappable; no rebuild required                                |
-| **Contract system**                         | Semantic tokens (actions, surfaces, feedback) can be overridden per brand    |
-| **Class-based dark mode**                   | Mode switching is independent of theme; no JS re-run needed                  |
-| **Type safety**                             | TypeScript types enforce token structure across all packages                 |
+| Strength                                    | Why It Matters for White-Label                                                                                                         |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Zod validation** (`TokensSchema.parse()`) | API themes are fully validated at runtime; malformed data fails fast                                                                   |
+| **Deep merge** (`mergeTheme()`)             | Partial API themes merge with defaults; only brand-specific overrides needed                                                           |
+| **Runtime CSS variables** (`applyTheme()`)  | Themes are hot-swappable; no rebuild required                                                                                          |
+| **Contract system**                         | Semantic tokens (actions, surfaces, feedback) can be overridden per brand                                                              |
+| **Class-based dark mode**                   | Mode switching is independent of theme; no JS re-run needed                                                                            |
+| **Type safety**                             | TypeScript types enforce token structure across all packages                                                                           |
+| **Generic contract resolution**             | Both Tailwind and RN adapters resolve any flat contract property automatically. Adding/removing tokens requires zero adapter edits.    |
+| **Auto-derived types**                      | `ResolvedComponents` type is derived from the Zod schema. Radii → `number`, colors → `string`. Full type safety with zero maintenance. |
 
-### Critical Issues Found
+### ~~Critical Issues Found~~ — Resolved Items
 
-1. **`codegen.js` is out of sync with `index.ts`** — multiple token arrays differ, which will produce incorrect or incomplete generated CSS
+1. ~~`codegen.js` is out of sync with `index.ts`~~ ✅ **RESOLVED** — auto-generated via TS Compiler API
 2. **No dynamic theme loading infrastructure** — themes are hardcoded imports, not fetchable from API
 3. **No FOUC prevention** — async theme loading causes flash of unstyled content
-4. **Incomplete `CONTRACT_PREFIX` mapping** in `applyTheme.ts` — missing entries for `feedback`, `toggle`, `components`
+4. ~~Incomplete `CONTRACT_PREFIX` mapping in `applyTheme.ts`~~ ✅ **RESOLVED** — imported from `@repo/foundations`
 
 ---
 
@@ -35,28 +37,16 @@ The current MVP architecture is **fundamentally sound** for white-label with API
 
 ### HIGH PRIORITY — Must Fix for White-Label
 
-#### 1. Fix `codegen.js` sync with `index.ts`
+#### ✅ 1. Fix `codegen.js` sync with `index.ts` — DONE
 
-**Problem:** `codegen.js` is manually maintained and has drifted from the canonical TypeScript arrays. This breaks the generated `tailwind-theme.css`.
+**Problem:** `codegen.js` is manually maintained and has drifted from the canonical TypeScript arrays.
 
-**Discrepancies found:**
+**Solution implemented:**
 
-| Array                                 | `index.ts`                                                                                                                                                | `codegen.js`                                                                                           | Issue                      |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------- |
-| `borderColorKeys`                     | includes `border-quaternary`                                                                                                                              | **missing** `border-quaternary`                                                                        | Missing token              |
-| `CONTRACT_VARIANTS.actions`           | `['primary', 'secondary', 'ghost', 'link', 'tertiary']`                                                                                                   | `['primary', 'secondary', 'ghost', 'link']`                                                            | Missing `tertiary` variant |
-| `FLAT_CONTRACT_PROPERTIES.components` | 8 properties (`buttonBorderRadii`, `cardBorderRadii`, `saleCardRadii`, `inputBorderRadii`, `headerBg`, `headerAvatarBg`, `footerBg`, `footerBgSecondary`) | 5 properties (`buttonBorderRadii`, `cardBorderRadii`, `inputBorderRadii`, `salesCardBg`, `appShellBg`) | Different names and count  |
-
-**Solution:**
-
-- **Option A (preferred):** Generate `codegen.js` from `index.ts` via a build script that extracts the arrays programmatically
-- **Option B:** Add a CI check that diffs `codegen.js` exports against `index.ts` arrays and fails if they diverge
-
-**Files to modify:**
-
-- `packages/foundations/src/codegen.js`
-- `packages/foundations/package.json` (add `generate:codegen` script)
-- `packages/ui-web-tailwind/scripts/generate-theme-css.mjs` (verify imports)
+- `packages/foundations/scripts/generate-codegen.mjs` — parses `index.ts` via the TypeScript Compiler API, extracts all exported const arrays and objects, writes `codegen.js`
+- `packages/foundations/scripts/verify-codegen.mjs` — CI check that fails if `codegen.js` is out of sync
+- `packages/foundations/package.json` — `generate:codegen`, `generate:tokens`, `verify:codegen` scripts
+- `FLAT_CONTRACT_PROPERTIES.components` — **auto-derived** from `ComponentsPresetSchema` property names by the generate script, eliminating the need to maintain a separate manual array
 
 ---
 
@@ -140,28 +130,57 @@ useLayoutEffect(() => {
 
 ---
 
-#### 4. Complete `CONTRACT_PREFIX` mapping in `applyTheme.ts`
+#### ✅ 4. Complete `CONTRACT_PREFIX` mapping — DONE
 
-**Problem:** `applyTheme.ts:168` has a local `CONTRACT_PREFIX` missing entries for `feedback`, `toggle`, and `components`. While the fallback (`contractName` itself) works, it's inconsistent with `index.ts:1115-1123` and fragile.
+**Problem:** `applyTheme.ts` had a local `CONTRACT_PREFIX` missing entries for `feedback`, `toggle`, and `components`.
 
-**Current state** (`applyTheme.ts:168-173`):
+**Solution implemented:** `applyTheme.ts` now imports `CONTRACT_PREFIX` and `CONTRACT_STRUCTURE` from `@repo/foundations`. Local definition removed. The canonical `CONTRACT_PREFIX` in `index.ts` includes all 7 entries.
+
+---
+
+#### ✅ 4b. Generic contract resolution (React Native) — DONE
+
+**Problem:** The RN adapter had 10 lines of manual per-property resolution code for `components`. Adding a new property required editing the adapter.
+
+**Solution implemented:**
+
+- `applyTheme.ts` component resolution changed from manual per-property code to a generic loop
+- `components` removed from `knownContracts`, flows through the generic `extraContracts` resolver
+- `ShadowColorSchema` handling added to the generic loop (handles `{light, dark}` pairs)
+- Adding/removing properties from `ComponentsPresetSchema` requires zero adapter edits
+
+---
+
+#### ✅ 4c. Auto-derived `ResolvedComponents` type — DONE
+
+**Problem:** The RN adapter used `Record<string, string | number>` for `components`, providing no type safety.
+
+**Solution implemented:**
 
 ```typescript
-const CONTRACT_PREFIX: Record<string, string> = {
-	actions: 'action',
-	surfaces: 'surface',
-	inputField: 'inputfield',
-	selectionControl: 'selectioncontrol',
-	// Missing: feedback, toggle, components
+// packages/foundations/src/index.ts
+type ComponentsRaw = z.infer<typeof ComponentsPresetSchema>;
+export type ResolvedComponents = {
+	[K in keyof ComponentsRaw]: ComponentsRaw[K] extends { type: 'radii' } ? number : string;
 };
 ```
 
-**Fix:** Import `CONTRACT_PREFIX` from `@repo/foundations` instead of redefining it locally.
+- `RadiiRef` properties → `number` (px value)
+- Color properties (`ShadowColorSchema`, `ColorTokenRefSchema`) → `string` (hex value)
+- Imported and used in `applyTheme.ts`, replacing the generic `Record<string, string | number>`
+- Full type safety: typos and unknown properties produce compile errors
 
-**Files to modify:**
+---
 
-- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts`
-- `packages/foundations/src/index.ts` (verify export)
+#### ✅ 4d. Auto-generated component `@utility` classes — DONE
+
+**Problem:** Component CSS utility classes (`bg-components-*`, `rounded-*`) were hardcoded in `generate-theme-css.mjs`. Adding a new property required a manual CSS edit.
+
+**Solution implemented:** `generate-theme-css.mjs` now auto-generates component utility classes by iterating `FLAT_CONTRACT_PROPERTIES.components`:
+
+- Color properties: strip `Bg` from name → `bg-components-{name}` utility
+- Radii properties: strip `-border-radii` or `-radii` → `rounded-{name}` utility
+- `FLAT_CONTRACT_PROPERTIES.components` is auto-derived from `ComponentsPresetSchema` by `generate-codegen.mjs`
 
 ---
 
@@ -224,7 +243,9 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 #### 8. Deduplicate `hexToRgba` logic
 
-**Problem:** `resolveAlpha` in `index.ts:1021-1028` and `hexToRgba` in `applyTheme.ts:17-23` are nearly identical.
+**Problem:** `resolveAlpha` in `index.ts` and `hexToRgba` in `applyTheme.ts` are nearly identical.
+
+**Status:** Still open. This is the only remaining Phase 1 item. Low priority — the duplication is contained (one function in each file) and doesn't affect correctness.
 
 **Solution:** Export `hexToRgba` from `@repo/foundations` and import in `applyTheme.ts`.
 
@@ -251,7 +272,7 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 #### 10. Simplify CSS variable bridge layer
 
-**Problem:** The `@layer base` bridge variables (`--color-*: var(--*)`) in `tailwind-theme.css:28-117` add complexity.
+**Problem:** The `@layer base` bridge variables (`--color-*: var(--*)`) in `tailwind-theme.css` add complexity.
 
 **Solution:** Update component helpers to reference `--ct-*` or `--action-*` directly, eliminating the bridge layer. Reduces CSS file size and simplifies the variable chain.
 
@@ -275,52 +296,65 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 ---
 
-#### 12. Typography contract letter spacing handling
+#### ✅ 12. Typography contract letter spacing handling — DONE
 
-**Problem:** `letterSpacing` is optional in `TypographyContractValueSchema` (`index.ts:623`), but `@theme inline` always emits `--typography-contract-{role}-letterSpacing`. If undefined, produces empty CSS value.
+**Problem:** `letterSpacing` is optional in `TypographyContractValueSchema`, but `@theme inline` always emitted the variable, producing empty CSS values.
 
-**Solution:** Conditionally emit the variable only when `letterSpacing` is defined, or provide default in schema.
+**Solution implemented:**
 
-**Files to modify:**
-
-- `packages/ui-web-tailwind/src/adapters/tailwind/applyTheme.ts:207-209`
-- `packages/ui-web-tailwind/scripts/generate-theme-css.mjs`
+- `applyTheme.ts` conditionally emits `letterSpacing` only when the contract defines it
+- `generate-theme-css.mjs` uses `var(--*, normal)` fallback in the `@utility type-*` blocks
 
 ---
 
 ## Implementation Roadmap
 
-| Phase       | Focus           | Items                                                                                          | Timeline |
-| ----------- | --------------- | ---------------------------------------------------------------------------------------------- | -------- |
-| **Phase 1** | Foundation      | Fix codegen sync (HIGH-1), Complete CONTRACT_PREFIX (HIGH-4), Deduplicate hexToRgba (MEDIUM-8) | Week 1   |
-| **Phase 2** | Dynamic Loading | Create ThemeProvider (HIGH-2), Add error boundary (MEDIUM-6), Prevent FOUC (HIGH-3)            | Week 2   |
-| **Phase 3** | Polish          | Optimize applyTheme (MEDIUM-5), Add versioning (MEDIUM-7), SSR support (LOW-9)                 | Week 3   |
-| **Phase 4** | Refinement      | Simplify CSS bridge (LOW-10), Theme caching (LOW-11), Typography fix (LOW-12)                  | Week 4   |
+| Phase       | Focus           | Items                                                                                                                                                                | Status                        |
+| ----------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| **Phase 1** | Foundation      | Fix codegen sync (#1), Complete CONTRACT_PREFIX (#4), Generic resolution (#4b), Auto-derived types (#4c), Auto-generated utilities (#4d), Deduplicate hexToRgba (#8) | ✅ **DONE** (#8 low priority) |
+| **Phase 2** | Dynamic Loading | Create ThemeProvider (#2), Prevent FOUC (#3), Add error boundary (#6)                                                                                                | **NEXT**                      |
+| **Phase 3** | Polish          | Optimize applyTheme (#5), Add versioning (#7), SSR support (#9)                                                                                                      | Open                          |
+| **Phase 4** | Refinement      | Simplify CSS bridge (#10), Theme caching (#11)                                                                                                                       | Open                          |
 
 ---
 
 ## Risk Assessment
 
-| Change                | Risk                                | Mitigation                               |
-| --------------------- | ----------------------------------- | ---------------------------------------- |
-| Fix `codegen.js`      | **Low** — mechanical sync           | Run `generate:theme-css` and diff output |
-| Add `ThemeProvider`   | **Medium** — new API surface        | Keep backward-compatible `useTheme` hook |
-| Optimize `applyTheme` | **Low** — internal refactor         | Verify all tokens still emit correctly   |
-| Add SSR support       | **Medium** — new rendering path     | Guard `document` access, test in Next.js |
-| Simplify CSS bridge   | **High** — breaks component helpers | Keep bridge layer, deprecate gradually   |
+| Change                      | Risk                                | Mitigation                                    |
+| --------------------------- | ----------------------------------- | --------------------------------------------- |
+| Auto-generated `codegen.js` | **Low** — AST extraction            | `verify:codegen` CI check catches drift       |
+| Generic contract resolution | **Low** — runtime resolution        | `ResolvedComponents` type derives from schema |
+| Add `ThemeProvider`         | **Medium** — new API surface        | Keep backward-compatible `useTheme` hook      |
+| Optimize `applyTheme`       | **Low** — internal refactor         | Verify all tokens still emit correctly        |
+| Add SSR support             | **Medium** — new rendering path     | Guard `document` access, test in Next.js      |
+| Simplify CSS bridge         | **High** — breaks component helpers | Keep bridge layer, deprecate gradually        |
 
 ---
 
 ## Testing Checklist
 
-- [ ] Validate all 6 existing themes load correctly via `applyTheme`
+### Foundation pipeline
+
+- [x] Verify `codegen.js` auto-generates from `index.ts`
+- [x] Verify `verify:codegen` CI check catches drift
+- [x] Verify `ResolvedComponents` type safety (typo produces error)
+- [x] Verify `@utility` auto-generation for new component properties
+- [x] Verify generic RN resolution handles all value types (radii, colors, shadow colors)
+- [x] Verify theme `.strict()` validation catches stale properties after removal
+
+### Theme loading (Phase 2)
+
+- [ ] Validate all existing themes load correctly via `applyTheme`
 - [ ] Test API theme loading with valid response
 - [ ] Test API theme loading with malformed response (fallback works)
 - [ ] Test API theme loading with network error (fallback works)
 - [ ] Test dark mode toggle with API theme
 - [ ] Test `ds-invert` section with API theme
+
+### Performance and polish
+
 - [ ] Test theme switching performance (< 100ms)
 - [ ] Test SSR rendering with theme provider
 - [ ] Verify all Tailwind utilities work with API theme
 - [ ] Verify all component variants render correctly
-- [ ] Run `generate:theme-css` and verify output matches expected
+- [ ] Run `generate:tokens` and verify output matches expected

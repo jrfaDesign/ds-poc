@@ -11,7 +11,7 @@ export default function DSLayout() {
 				header: ScreenHeader,
 				headerShown: true,
 				contentStyle: {},
-				statusBarStyle: isDark ? 'light' : 'dark',
+				statusBarStyle: 'light',
 			}}
 		>
 			<Stack.Screen
@@ -19,6 +19,7 @@ export default function DSLayout() {
 				options={{
 					title: 'index',
 					headerShown: false,
+					statusBarStyle: isDark ? 'light' : 'dark',
 					contentStyle: {
 						paddingTop: theme.spacing['6xl'],
 						backgroundColor: theme.colorTokens['bg-primary'],

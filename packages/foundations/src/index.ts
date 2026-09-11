@@ -804,6 +804,15 @@ const TogglePresetSchema = z
 /** Named viewport thresholds used by the responsive grid system. */
 export const breakpointKeys = ['mobile', 'tablet', 'desktop', 'wide', 'ultra'] as const;
 
+/** Viewport width thresholds for responsive layouts - mobile (0), tablet (600), desktop (1024), wide (1440), ultra (1920). */
+export const breakpoints = {
+	mobile: 0,
+	tablet: 600,
+	desktop: 1024,
+	wide: 1440,
+	ultra: 1920,
+} as const;
+
 /** A named viewport threshold - one of `'mobile' | 'tablet' | 'desktop' | 'wide' | 'ultra'`. */
 export type BreakpointToken = (typeof breakpointKeys)[number];
 
@@ -863,8 +872,16 @@ const ComponentsPresetSchema = z
 		footerBgSecondary: ShadowColorSchema,
 		salesCardBg: ShadowColorSchema,
 		appShellBg: ShadowColorSchema,
+		activeTabIndicator: ShadowColorSchema,
+		saleCardLogoBg: ShadowColorSchema,
 	})
 	.strict();
+
+/** Resolved type for component contracts — auto-derived from ComponentsPresetSchema. RadiiRef properties resolve to number (px), color properties resolve to string (hex). */
+type ComponentsRaw = z.infer<typeof ComponentsPresetSchema>;
+export type ResolvedComponents = {
+	[K in keyof ComponentsRaw]: ComponentsRaw[K] extends { type: 'radii' } ? number : string;
+};
 
 // ---------------------------------------------
 // CONTRACTS - Unified schema
@@ -932,6 +949,7 @@ const LayoutSchema = z
  */
 export const TokensSchema = z
 	.object({
+		version: z.number().optional(),
 		spacing: SpacingSchema,
 		radii: RadiiSchema,
 		widths: WidthsSchema,
@@ -1012,6 +1030,20 @@ export type TokenNames = {
 // ---------------------------------------------
 
 /**
+ * Convert a hex color string and alpha value to an rgba() string.
+ *
+ * @param hex   a CSS hex color (e.g. '#ff0000') or 'transparent'
+ * @param alpha opacity between 0 and 1
+ */
+export function hexToRgba(hex: string, alpha: number): string {
+	if (hex === 'transparent') return 'rgba(0,0,0,0)';
+	const r = parseInt(hex.slice(1, 3), 16);
+	const g = parseInt(hex.slice(3, 5), 16);
+	const b = parseInt(hex.slice(5, 7), 16);
+	return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/**
  * Resolve a raw color token to an rgba() string at a given opacity.
  *
  * @param theme    the validated theme (provides the hex palette)
@@ -1019,12 +1051,7 @@ export type TokenNames = {
  * @param alpha    opacity between 0 and 1
  */
 export function resolveAlpha(theme: Tokens, colorToken: ColorToken, alpha: number): string {
-	const hex = theme.colors[colorToken];
-	if (hex === 'transparent') return 'rgba(0,0,0,0)';
-	const r = parseInt(hex.slice(1, 3), 16);
-	const g = parseInt(hex.slice(3, 5), 16);
-	const b = parseInt(hex.slice(5, 7), 16);
-	return `rgba(${r},${g},${b},${alpha})`;
+	return hexToRgba(theme.colors[colorToken], alpha);
 }
 
 // ---------------------------------------------
@@ -1195,15 +1222,5 @@ export const FLAT_CONTRACT_PROPERTIES: Record<string, readonly string[]> = {
 		'trackBgDisabled',
 		'thumbDisabled',
 		'borderError',
-	],
-	components: [
-		'buttonBorderRadii',
-		'cardBorderRadii',
-		'saleCardRadii',
-		'inputBorderRadii',
-		'headerBg',
-		'headerAvatarBg',
-		'footerBg',
-		'footerBgSecondary',
 	],
 };

@@ -1,4 +1,11 @@
 export { applyTheme } from './adapters/tailwind/applyTheme';
+export { ThemeProvider, useTheme, safeParseTheme } from './components/ThemeProvider';
+export type {
+	ThemeProviderProps,
+	StaticThemeResolver,
+	AsyncThemeResolver,
+	WebThemeContextValue,
+} from './components/ThemeProvider';
 export type {
 	Tokens,
 	ColorToken,

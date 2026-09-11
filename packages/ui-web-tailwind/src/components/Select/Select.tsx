@@ -153,7 +153,7 @@ function SelectRoot({
 	}, [isOpen]);
 
 	const triggerClasses = [
-		'w-full flex items-center justify-center gap-2 cursor-pointer rounded-input border border-solid outline-none',
+		'w-full flex items-center justify-center gap-2 cursor-pointer rounded-inputBorderRadii border border-solid outline-none',
 		'transition-[border-color,box-shadow] duration-150',
 		disabled ? 'opacity-50 cursor-not-allowed' : '',
 		focused
@@ -201,7 +201,7 @@ function SelectRoot({
 				{isOpen && (
 					<div
 						role="listbox"
-						className="absolute z-50 left-0 right-0 mt-1 rounded-input border border-solid bg-surface-alt-bg shadow-md max-h-60 overflow-y-auto py-xs"
+						className="absolute z-50 left-0 right-0 mt-1 rounded-inputBorderRadii border border-solid bg-surface-alt-bg shadow-md max-h-60 overflow-y-auto py-xs"
 					>
 						{items.map((item, idx) => {
 							const isSelected = item.value === selectedValue;

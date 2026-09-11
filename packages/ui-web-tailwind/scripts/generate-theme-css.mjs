@@ -279,12 +279,18 @@ for (const intent of CONTRACT_VARIANTS.feedback) {
 	);
 }
 
-// Component structural tokens (radii)
+// Component contract utilities — auto-generated from FLAT_CONTRACT_PROPERTIES.components
+// Utility names use camelCase property name directly (e.g. bg-headerBg, rounded-buttonBorderRadii)
 lines.push('');
-lines.push('/* --- component structural utilities --- */');
-lines.push('@utility rounded-button { border-radius: var(--components-button-border-radii); }');
-lines.push('@utility rounded-card { border-radius: var(--components-card-border-radii); }');
-lines.push('@utility rounded-input { border-radius: var(--components-input-border-radii); }');
+lines.push('/* --- component contract utilities (auto-generated) --- */');
+for (const prop of FLAT_CONTRACT_PROPERTIES.components) {
+	const kebab = toKebab(prop);
+	if (prop.endsWith('Radii')) {
+		lines.push(`@utility rounded-${prop} { border-radius: var(--components-${kebab}); }`);
+	} else {
+		lines.push(`@utility bg-${prop} { background-color: var(--components-${kebab}); }`);
+	}
+}
 
 // Focus ring utility (box-shadow with ring color)
 lines.push('@utility ring-focus { box-shadow: var(--focusring-focus-ring); }');

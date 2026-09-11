@@ -19,7 +19,7 @@ export function ScreenHeader({ navigation, options, back }: ScreenHeaderProps) {
 				styles.container,
 				{
 					paddingTop: insets.top,
-					backgroundColor: theme.colorTokens['bg-secondary'],
+					backgroundColor: theme.contracts.components.headerBg,
 					borderBottomWidth: 1,
 					borderBottomColor: theme.colorTokens['border-primary'],
 				},
@@ -29,14 +29,12 @@ export function ScreenHeader({ navigation, options, back }: ScreenHeaderProps) {
 			<View style={styles.content}>
 				{back ? (
 					<Pressable onPress={() => navigation.goBack()} style={styles.side}>
-						<Ionicons name="chevron-back" size={28} color={theme.colorTokens['text-primary']} />
+						<Ionicons name="chevron-back" size={28} color={theme.colors.white} />
 					</Pressable>
 				) : (
 					<View style={styles.side} />
 				)}
-				<Text style={[styles.title, { color: theme.colorTokens['text-primary'] }]}>
-					{options.title ?? ''}
-				</Text>
+				<Text style={[styles.title, { color: theme.colors.white }]}>{options.title ?? ''}</Text>
 				<View style={styles.side} />
 			</View>
 		</View>

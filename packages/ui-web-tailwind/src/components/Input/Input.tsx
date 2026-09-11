@@ -79,7 +79,7 @@ export function Input({
 	const isFeedback = status === 'error' || status === 'success';
 
 	const fieldClasses = [
-		'w-full rounded-input border border-solid outline-none cursor-text',
+		'w-full rounded-inputBorderRadii border border-solid outline-none cursor-text',
 		'transition-[border-color,box-shadow] duration-150',
 		'placeholder:text-placeholder',
 		disabled ? 'opacity-50 cursor-not-allowed' : '',

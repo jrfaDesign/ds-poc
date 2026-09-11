@@ -34,7 +34,7 @@ export function Card({
 	return (
 		<div
 			className={[
-				'border rounded-card flex flex-col gap-sm',
+				'border rounded-cardBorderRadii flex flex-col gap-sm',
 				!(shadow || padding) && 'p-md',
 				variantClass[variant],
 				invert && 'ds-invert',
