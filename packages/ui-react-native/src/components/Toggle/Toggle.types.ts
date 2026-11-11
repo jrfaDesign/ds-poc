@@ -1,11 +1,8 @@
 import type { ReactNode } from 'react';
 import type { ViewStyle } from 'react-native';
+import type { ToggleSharedProps } from '@repo/core';
 
-export type ToggleProps = {
-	checked?: boolean;
-	defaultChecked?: boolean;
-	onChange?: (checked: boolean) => void;
-	disabled?: boolean;
+export type ToggleProps = ToggleSharedProps & {
 	label?: ReactNode;
 	style?: ViewStyle;
 };

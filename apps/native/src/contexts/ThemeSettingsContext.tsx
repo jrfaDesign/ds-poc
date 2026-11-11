@@ -1,33 +1,37 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+	type ReactNode,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-	defaultTheme,
-	cagTheme,
-	caosTheme,
-	bcaTheme,
-	bydTheme,
-	bydPremiumTheme,
-} from '@repo/themes';
-import type { Tokens } from '@repo/foundations';
+	themeConfigSchema,
+	resolveThemeConfig,
+	type ThemeConfig,
+} from '@repo/foundations';
+import type { Tokens } from '@repo/core';
+import {
+	MOCK_THEME_CONFIGS,
+	fetchThemeConfig,
+	loadStoredConfig,
+	saveConfig as persistConfig,
+} from '@/theme/themeConfig';
 
-export type ThemeKey = 'default' | 'cag' | 'caos' | 'bca' | 'byd' | 'byd_premium';
-
-const themes: Record<ThemeKey, Tokens> = {
-	default: defaultTheme,
-	cag: cagTheme,
-	caos: caosTheme,
-	bca: bcaTheme,
-	byd: bydTheme,
-	byd_premium: bydPremiumTheme,
-};
-
-const STORAGE_THEME = 'ds-theme-key';
 const STORAGE_DARK = 'ds-theme-dark';
 
 type ThemeSettingsContextValue = {
-	themeKey: ThemeKey;
+	/** The theme config (would come from the theme API). */
+	config: ThemeConfig;
+	/** Shallow-merge a patch into the config, validate, persist, and re-resolve. */
+	setConfig: (patch: Partial<ThemeConfig>) => void;
+	/** Back to the basic mock config (logo-only). */
+	resetConfig: () => void;
+	/** Resolved theme for the current config. */
 	theme: Tokens;
-	setTheme: (key: ThemeKey) => void;
 	darkMode: boolean;
 	toggleDark: () => void;
 };
@@ -35,20 +39,20 @@ type ThemeSettingsContextValue = {
 const ThemeSettingsContext = createContext<ThemeSettingsContextValue | null>(null);
 
 export function ThemeSettingsProvider({ children }: { children: ReactNode }) {
-	const [themeKey, setThemeKey] = useState<ThemeKey>('default');
+	const [config, setConfigState] = useState<ThemeConfig>(() =>
+		themeConfigSchema.parse(MOCK_THEME_CONFIGS.basic)
+	);
 	const [darkMode, setDarkMode] = useState(false);
 	const [loaded, setLoaded] = useState(false);
 
+	// Load the persisted config (or the mock API response) once at startup.
 	useEffect(() => {
 		(async () => {
 			try {
-				const [savedTheme, savedDark] = await Promise.all([
-					AsyncStorage.getItem(STORAGE_THEME),
-					AsyncStorage.getItem(STORAGE_DARK),
-				]);
-				if (savedTheme && savedTheme in themes) {
-					setThemeKey(savedTheme as ThemeKey);
-				}
+				const stored = await loadStoredConfig();
+				const initial = stored ?? (await fetchThemeConfig('basic'));
+				setConfigState(initial);
+				const savedDark = await AsyncStorage.getItem(STORAGE_DARK);
 				if (savedDark != null) {
 					setDarkMode(savedDark === 'true');
 				}
@@ -59,33 +63,30 @@ export function ThemeSettingsProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	useEffect(() => {
-		if (loaded) {
-			AsyncStorage.setItem(STORAGE_THEME, themeKey);
-		}
-	}, [themeKey, loaded]);
+		if (loaded) void persistConfig(config);
+	}, [config, loaded]);
 
 	useEffect(() => {
-		if (loaded) {
-			AsyncStorage.setItem(STORAGE_DARK, String(darkMode));
-		}
+		if (loaded) void AsyncStorage.setItem(STORAGE_DARK, String(darkMode));
 	}, [darkMode, loaded]);
 
-	const setTheme = useCallback((key: ThemeKey) => setThemeKey(key), []);
+	const setConfig = useCallback((patch: Partial<ThemeConfig>) => {
+		setConfigState((prev) => themeConfigSchema.parse({ ...prev, ...patch }));
+	}, []);
+
+	const resetConfig = useCallback(() => {
+		setConfigState(themeConfigSchema.parse(MOCK_THEME_CONFIGS.basic));
+	}, []);
+
+	const theme = useMemo(() => resolveThemeConfig(config), [config]);
 	const toggleDark = useCallback(() => setDarkMode((d) => !d), []);
 
-	return (
-		<ThemeSettingsContext.Provider
-			value={{
-				themeKey,
-				theme: themes[themeKey],
-				setTheme,
-				darkMode,
-				toggleDark,
-			}}
-		>
-			{children}
-		</ThemeSettingsContext.Provider>
+	const value = useMemo<ThemeSettingsContextValue>(
+		() => ({ config, setConfig, resetConfig, theme, darkMode, toggleDark }),
+		[config, setConfig, resetConfig, theme, darkMode, toggleDark]
 	);
+
+	return <ThemeSettingsContext.Provider value={value}>{children}</ThemeSettingsContext.Provider>;
 }
 
 export function useThemeSettings() {

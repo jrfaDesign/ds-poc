@@ -1,18 +1,20 @@
-import { TextInput, Text, View, StyleSheet, type ViewStyle, type TextStyle } from 'react-native';
+import { TextInput, Text, View, type ViewStyle, type TextStyle } from 'react-native';
+import type { ColorTokenName } from '@repo/foundations';
 import type { InputProps, InputStatus } from './Input.types';
 import { resolveMargin } from '../shared/spacing';
 import { useTheme } from '../../adapters/rn/useTheme';
 
-const statusBorderColor: Record<InputStatus, string | null> = {
+// Component formula: input states map directly to semantic color tokens.
+const statusBorderColor: Record<InputStatus, ColorTokenName | null> = {
 	default: null,
-	error: 'error',
-	success: 'success',
+	error: 'border-error',
+	success: 'utility-success-500',
 };
 
-const statusTextColor: Record<InputStatus, string | null> = {
+const statusTextColor: Record<InputStatus, ColorTokenName | null> = {
 	default: null,
-	error: 'onError',
-	success: 'onSuccess',
+	error: 'text-error-primary',
+	success: 'text-success-primary',
 };
 
 const sizeConfig = {
@@ -35,27 +37,26 @@ export function Input({
 	...margin
 }: InputProps) {
 	const theme = useTheme();
-	const { spacing, contracts } = theme.theme;
-	const if_ = contracts.inputField;
+	const { spacing, shape, colorTokens: ct } = theme.theme;
 	const sizeCfg = sizeConfig[size];
 
-	const borderRadius = contracts.components.inputBorderRadii;
+	const borderRadius = shape.input;
 
 	const borderColorKey = statusBorderColor[status];
-	const resolvedBorderColor = borderColorKey ? if_[borderColorKey as keyof typeof if_] : if_.border;
+	const resolvedBorderColor = borderColorKey ? ct[borderColorKey] : ct['border-primary'];
 
 	const resolvedTextColor = disabled
-		? if_.onDisabled
+		? ct['text-quaternary']
 		: status === 'default'
-			? if_.on
-			: if_[statusTextColor[status] as keyof typeof if_];
+			? ct['text-primary']
+			: ct[statusTextColor[status] ?? 'text-primary'];
 
 	const containerStyle: ViewStyle = {
 		gap: spacing.xxs,
 	};
 
 	const inputStyle: ViewStyle = {
-		backgroundColor: disabled ? if_.bgDisabled : if_.bg,
+		backgroundColor: disabled ? ct['bg-tertiary'] : ct['bg-primary'],
 		borderColor: resolvedBorderColor,
 		borderWidth: 1,
 		borderRadius,
@@ -72,13 +73,15 @@ export function Input({
 
 	return (
 		<View style={[containerStyle, resolveMargin(margin, spacing), style]}>
-			{label && <Text style={{ fontSize: 14, fontWeight: '500', color: if_.on }}>{label}</Text>}
+			{label && (
+				<Text style={{ fontSize: 14, fontWeight: '500', color: ct['text-primary'] }}>{label}</Text>
+			)}
 			<TextInput
 				value={value}
 				defaultValue={defaultValue}
 				onChangeText={onChange}
 				placeholder={placeholder}
-				placeholderTextColor={if_.placeholder}
+				placeholderTextColor={ct['text-placeholder']}
 				editable={!disabled}
 				style={[inputStyle, inputTextStyle, textStyle]}
 			/>

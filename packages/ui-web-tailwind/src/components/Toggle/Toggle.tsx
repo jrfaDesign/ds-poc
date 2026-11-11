@@ -1,105 +1,124 @@
-import { useState, useCallback } from 'react';
-import { Typography } from '../Typography/Typography';
-import type { ToggleProps } from './Toggle.types';
+"use client";
 
-const FOCUS_RING = 'ring-2 ring-text-brand-tertiary-alt';
+import { Switch as AriaSwitch } from "react-aria-components";
+import { cx } from "../shared/cx";
+import type { ToggleBaseProps, ToggleProps } from "./Toggle.types";
+export type { ToggleBaseProps, ToggleProps } from "./Toggle.types";
 
-const trackBgClasses = {
-	default: 'bg-toggle-track-bg',
-	checked: 'bg-toggle-track-bg-checked',
-	checkedHovered: 'bg-toggle-track-bg-checked-hover',
-	hovered: 'bg-toggle-bg-hover',
-	disabled: 'bg-toggle-track-bg-disabled',
+
+export const ToggleBase = ({ className, isHovered, isDisabled, isFocusVisible, isSelected, slim, size = "sm" }: ToggleBaseProps) => {
+    const styles = {
+        default: {
+            sm: {
+                root: "h-5 w-9 p-xxs",
+                switch: cx("size-4", isSelected && "translate-x-4"),
+            },
+            md: {
+                root: "h-6 w-11 p-xxs",
+                switch: cx("size-5", isSelected && "translate-x-5"),
+            },
+        },
+        slim: {
+            sm: {
+                root: "h-4 w-8",
+                switch: cx("size-4", isSelected && "translate-x-4"),
+            },
+            md: {
+                root: "h-5 w-10",
+                switch: cx("size-5", isSelected && "translate-x-5"),
+            },
+        },
+    };
+
+    const classes = slim ? styles.slim[size] : styles.default[size];
+
+    return (
+        <div
+            className={cx(
+                "cursor-pointer rounded-full bg-tertiary ring-[0.5px] ring-border-secondary outline-border-brand transition duration-150 ease-linear ring-inset",
+                isSelected && "bg-brand-solid",
+                isSelected && isHovered && "bg-brand-solid-hover",
+                isDisabled && "cursor-not-allowed opacity-50",
+                isFocusVisible && "outline-2 outline-offset-2",
+
+                slim && "ring-1",
+                slim && isSelected && "ring-transparent",
+                classes.root,
+                className,
+            )}
+        >
+            <div
+                style={{
+                    transition: "transform 0.15s ease-in-out, translate 0.15s ease-in-out, border-color 0.1s linear, background-color 0.1s linear",
+                }}
+                className={cx(
+                    "rounded-full bg-fg-white shadow-sm",
+
+                    slim && "shadow-xs",
+                    slim && "border border-toggle-border",
+                    slim && isSelected && "border-toggle-slim-border_pressed",
+                    slim && isSelected && isHovered && "border-toggle-slim-border_pressed-hover",
+
+                    classes.switch,
+                )}
+            />
+        </div>
+    );
 };
 
-const thumbBgClasses = {
-	default: 'bg-toggle-thumb-color',
-	checked: 'bg-toggle-thumb-color-checked',
-	disabled: 'bg-toggle-thumb-disabled',
+const styles = {
+    sm: {
+        root: "gap-md",
+        textWrapper: "",
+        label: "text-xs font-medium",
+        hint: "text-xs",
+    },
+    md: {
+        root: "gap-lg",
+        textWrapper: "gap-xxs",
+        label: "text-sm font-medium",
+        hint: "text-sm",
+    },
 };
 
-export function Toggle({
-	checked: controlled,
-	defaultChecked = false,
-	onChange,
-	disabled = false,
-	label,
-	id,
-}: ToggleProps) {
-	const [uncontrolled, setUncontrolled] = useState(defaultChecked);
-	const [hovered, setHovered] = useState(false);
-	const [focused, setFocused] = useState(false);
-	const isChecked = controlled ?? uncontrolled;
 
-	const handleChange = useCallback(() => {
-		if (disabled) return;
-		const next = !isChecked;
-		setUncontrolled(next);
-		onChange?.(next);
-	}, [isChecked, disabled, onChange]);
+export const Toggle = ({ label, hint, className, size = "sm", slim, ...ariaSwitchProps }: ToggleProps) => {
+    return (
+        <AriaSwitch
+            {...ariaSwitchProps}
+            className={(state) =>
+                cx(
+                    "relative flex w-max items-start",
+                    state.isDisabled && "cursor-not-allowed",
+                    styles[size].root,
+                    typeof className === "function" ? className(state) : className,
+                )
+            }
+        >
+            {({ isSelected, isDisabled, isFocusVisible, isHovered }) => (
+                <>
+                    <ToggleBase
+                        slim={slim}
+                        size={size}
+                        isHovered={isHovered}
+                        isDisabled={isDisabled}
+                        isFocusVisible={isFocusVisible}
+                        isSelected={isSelected}
+                        className={slim ? "mt-xxs" : ""}
+                    />
 
-	const trackBg = disabled
-		? trackBgClasses.disabled
-		: isChecked
-			? hovered
-				? trackBgClasses.checkedHovered
-				: trackBgClasses.checked
-			: hovered
-				? trackBgClasses.hovered
-				: trackBgClasses.default;
-
-	const thumbBg = disabled
-		? thumbBgClasses.disabled
-		: isChecked
-			? thumbBgClasses.checked
-			: thumbBgClasses.default;
-
-	const trackClasses = [
-		'relative inline-flex w-[44px] h-[24px] shrink-0',
-		'rounded-full border border-solid transition-[background-color,border-color] duration-200',
-		trackBg,
-	]
-		.filter(Boolean)
-		.join(' ');
-
-	return (
-		<label
-			htmlFor={id}
-			className="flex items-center gap-xs select-none cursor-pointer"
-			onMouseEnter={() => setHovered(true)}
-			onMouseLeave={() => setHovered(false)}
-		>
-			<input
-				id={id}
-				type="checkbox"
-				checked={isChecked}
-				onChange={handleChange}
-				onFocus={() => setFocused(true)}
-				onBlur={() => setFocused(false)}
-				disabled={disabled}
-				className="sr-only"
-			/>
-			<span
-				className={[trackClasses, focused ? FOCUS_RING : '', disabled ? 'cursor-not-allowed' : '']
-					.filter(Boolean)
-					.join(' ')}
-			>
-				<span
-					className={[
-						'pointer-events-none absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full',
-						'shadow-sm transition-[transform,background-color] duration-200',
-						thumbBg,
-						isChecked ? 'translate-x-[20px]' : 'translate-x-0',
-					]
-						.filter(Boolean)
-						.join(' ')}
-				/>
-			</span>
-			{label && (
-				<Typography role="label" className={disabled ? 'text-toggle-thumb-disabled' : undefined}>
-					{label}
-				</Typography>
-			)}
-		</label>
-	);
-}
+                    {(label || hint) && (
+                        <div className={cx("flex flex-col", styles[size].textWrapper)}>
+                            {label && <p className={cx("text-secondary select-none", styles[size].label)}>{label}</p>}
+                            {hint && (
+                                <span className={cx("text-tertiary", styles[size].hint)} onClick={(event) => event.stopPropagation()}>
+                                    {hint}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </>
+            )}
+        </AriaSwitch>
+    );
+};

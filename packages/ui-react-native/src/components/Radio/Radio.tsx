@@ -12,8 +12,7 @@ export function Radio({
 	style,
 }: RadioProps) {
 	const theme = useTheme();
-	const { spacing, contracts } = theme.theme;
-	const sc = contracts.selectionControl;
+	const { spacing, colorTokens: ct } = theme.theme;
 
 	const [uncontrolled, setUncontrolled] = useState(defaultChecked);
 	const isChecked = controlled ?? uncontrolled;
@@ -25,9 +24,18 @@ export function Radio({
 		onChange?.(next);
 	}, [isChecked, disabled, onChange]);
 
-	const bgColor = disabled ? sc.bgDisabled : isChecked ? sc.bgChecked : sc.bg;
+	// Component formula: selection-control states map directly to semantic color tokens.
+	const bgColor = disabled
+		? ct['bg-tertiary']
+		: isChecked
+			? ct['bg-brand-solid']
+			: ct['bg-primary'];
 
-	const borderColor = disabled ? sc.borderDisabled : isChecked ? sc.borderChecked : sc.border;
+	const borderColor = disabled
+		? ct['border-secondary']
+		: isChecked
+			? ct['border-brand']
+			: ct['border-primary'];
 
 	return (
 		<Pressable
@@ -44,9 +52,9 @@ export function Radio({
 					},
 				]}
 			>
-				{isChecked && <View style={[styles.dot, { backgroundColor: sc.onChecked }]} />}
+				{isChecked && <View style={[styles.dot, { backgroundColor: ct['text-white'] }]} />}
 			</View>
-			{label && <Text style={{ color: sc.onChecked, fontSize: 14 }}>{label}</Text>}
+			{label && <Text style={{ color: ct['text-white'], fontSize: 14 }}>{label}</Text>}
 		</Pressable>
 	);
 }

@@ -19,7 +19,7 @@ export function ThemedScreen({ children, contentContainerStyle, ...props }: Them
 			style={[
 				styles.screen,
 				{
-					backgroundColor: theme.contracts.components.appShellBg,
+					backgroundColor: theme.colorTokens['bg-app-shell'],
 				},
 			]}
 			contentContainerStyle={[defaultContentStyle, contentContainerStyle]}

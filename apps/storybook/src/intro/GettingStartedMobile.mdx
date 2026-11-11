@@ -1,0 +1,165 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as NativeButtonStories from '../native/Button.stories';
+
+<Meta title="Intro/Getting started (Mobile)" />
+
+# Getting started (Mobile)
+
+From an empty React Native app to themed design-system components: install,
+resolve a `ThemeConfig`, wrap with `AppProvider`, render.
+
+## Purpose
+
+This is the integration recipe for **React Native / Expo apps**. The theming
+model is identical to web: the same `ThemeConfig`, the same resolver. Only the
+adapter and the provider differ. No CSS, no Tailwind: tokens are resolved into
+a JS object and handed to components through context.
+
+## When to Use
+
+- Expo or bare React Native app adopting the design-system components.
+- Any mobile app that must re-brand at runtime from a `ThemeConfig`.
+
+## When Not to Use
+
+- **Web (React + Tailwind) apps**: follow
+  [Getting started (Web)](?path=/docs/intro-getting-started-web--docs) instead;
+  `AppProvider` has no CSS-variable pipeline to drive.
+- **Changing the system itself**: tokens and components change in this
+  monorepo's packages. See
+  [Ways of working](?path=/docs/intro-ways-of-working--docs).
+
+## Prerequisites
+
+The workspace packages from [Setup & packages](?path=/docs/intro-setup-packages--docs):
+
+```jsonc
+{
+	"dependencies": {
+		"@repo/foundations": "workspace:*",
+		"@repo/core": "workspace:*",
+		"@repo/ui-react-native": "workspace:*",
+	},
+}
+```
+
+`react-native` itself is a peer of `@repo/ui-react-native`. An Expo app
+already has it.
+
+## Step 1: Resolve the config
+
+The exact same white-label entry point as web:
+
+```tsx
+import { useMemo } from 'react';
+import { resolveThemeConfig, themeConfigSchema, type ThemeConfig } from '@repo/foundations';
+
+// From your theme API: validate at the edge
+const config = themeConfigSchema.parse(await response.json());
+const tokens = useMemo(() => resolveThemeConfig(config), [config]);
+```
+
+`resolveThemeConfig` returns `Tokens`, the platform-agnostic theme. On web
+those tokens become CSS variables; here they become the JS object
+`AppProvider` resolves with `applyTheme(tokens, isDark)` internally.
+
+## Step 2: Wrap with AppProvider
+
+```tsx
+import { AppProvider } from '@repo/ui-react-native';
+
+export function RootLayout({ tokens, isDark }: { tokens: Tokens; isDark: boolean }) {
+	return (
+		<AppProvider theme={tokens} isDark={isDark}>
+			<Stack />
+		</AppProvider>
+	);
+}
+```
+
+- `theme`: the resolved `Tokens`.
+- `isDark`: light/dark as an app-managed boolean. The provider re-resolves the
+  mode-aware half of the theme whenever it changes; nothing else is required
+  for dark mode.
+
+There is no CSS file and no `@source` step: the RN adapter reads token
+properties directly (`theme.colorTokens['bg-primary']`,
+`theme.shape.input`, ...), so the pipeline is one function call deep.
+
+## Step 3: Render a component
+
+This Storybook renders the **real** `@repo/ui-react-native` components through
+react-native-web. The button below is a native component:
+
+<Canvas of={NativeButtonStories.Default} />
+
+```tsx
+import { Button, useTheme } from '@repo/ui-react-native';
+
+function SaveButton() {
+	const { theme, darkMode } = useTheme(); // resolved theme + mode from AppProvider
+	return <Button onPress={() => save()}>Save changes</Button>;
+}
+```
+
+`useTheme()` is the mobile twin of the web hook: same name, same role,
+platform-specific mechanics underneath.
+
+## Theming with the packages' exports
+
+Everything in the web guide applies unchanged, because all of it lives in
+`@repo/foundations`:
+
+- `ThemeConfig` / `themeConfigSchema`: the white-label payload from your
+  API; validate it, then resolve it.
+- `resolveThemeConfig(config)`: config to `Tokens`, deriving color ramps,
+  shape preset and fonts.
+- `defaultTheme`: built-in fallback theme for tests and previews.
+- `mergeTheme(base, overrides)`: deep token override; re-validate the result
+  with `TokensSchema.parse`.
+
+What changes per platform is only the consumption side:
+
+- **Provider**: web `ThemeProvider` (config/static/async modes); mobile
+  `AppProvider` (`theme` + `isDark`).
+- **Token output**: web CSS variables via `applyTheme(tokens)`; mobile a
+  `ResolvedTheme` via `applyTheme(tokens, isDark)`.
+- **Reading tokens**: web `useTheme()` plus classes in `className`; mobile
+  `useTheme()` plus `style` / `theme.*` lookups.
+- **Mode switch**: web the `dark` class on the document element; mobile the
+  `isDark` prop.
+
+## Dark mode
+
+Dark mode is app state, persisted however your app already persists settings
+(the sample app keeps it in `AsyncStorage`):
+
+```tsx
+const [isDark, setIsDark] = useState(false); // seed from storage / system scheme
+<AppProvider theme={tokens} isDark={isDark}>
+	<App />
+</AppProvider>;
+```
+
+Unlike web, nothing toggles a class for you: `isDark` _is_ the switch. Seed it
+from `useColorScheme()` (or your own system-scheme listener) if the OS should
+drive it, then let the user override.
+
+## Accessibility
+
+- Validate configs at the boundary (`themeConfigSchema.parse`): a corrupt
+  stored theme should fall back, not crash the first screen.
+- Pass `isDark` from a single source of truth; two components disagreeing on
+  mode is a contrast bug waiting to happen.
+- Native components inherit the same semantics as web (labels, hints,
+  disabled states). Keep the props that carry them rather than styling around
+  them.
+
+## Design notes
+
+- One `ThemeConfig` for both platforms is the whole point of the architecture:
+  a brand ships once, and web + mobile resolve it through the same function.
+  If mobile ever needs a separate config path, the drift will show up as two
+  products that re-brand differently.
+- `InvertProvider` (exported from `@repo/ui-react-native`) resolves an inverted
+  theme for overlays and contrast flips. Use it instead of hand-negating tokens.

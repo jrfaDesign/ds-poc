@@ -1,6 +1,6 @@
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import type { CardProps } from './Card.types';
-import type { CardVariant } from '@repo/globals';
+import type { CardVariant } from '@repo/core';
 import type { SurfaceKey } from '../../adapters/rn/applyTheme';
 import { resolveMargin } from '../shared/spacing';
 import { useTheme } from '../../adapters/rn/useTheme';
@@ -14,7 +14,7 @@ const variantToSurface: Record<CardVariant, SurfaceKey> = {
 
 export function Card({ variant = 'surface', children, style, ...margin }: CardProps) {
 	const theme = useTheme();
-	const { spacing, radii, contracts } = theme.theme;
+	const { spacing, shape, contracts } = theme.theme;
 
 	const surfaceKey = variantToSurface[variant];
 	const surface = contracts.surfaces[surfaceKey];
@@ -26,6 +26,7 @@ export function Card({ variant = 'surface', children, style, ...margin }: CardPr
 				{
 					backgroundColor: surface.bg,
 					borderColor: surface.border,
+					borderRadius: shape.card,
 				},
 				resolveMargin(margin, spacing),
 				style,
@@ -38,7 +39,6 @@ export function Card({ variant = 'surface', children, style, ...margin }: CardPr
 
 const styles = StyleSheet.create({
 	base: {
-		borderRadius: 12,
 		padding: 16,
 	},
 });

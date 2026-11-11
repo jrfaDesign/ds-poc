@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+@import '@repo/ui-web-tailwind/theme.css';
+
+/* Explicit sources: the component package + .storybook (dot-folders are
+   skipped by Tailwind's auto-detection). The rest of src/ is auto-scanned. */
+@source '../../../packages/ui-web-tailwind/src';
+@source '../.storybook';
+
+@layer base {
+	body {
+		background-color: var(--ct-bg-primary);
+		color: var(--ct-text-primary);
+		min-height: 100vh;
+	}
+}

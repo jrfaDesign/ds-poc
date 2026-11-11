@@ -1,5 +1,6 @@
-import { Container, Typography, Button, PageSection, Box, useTheme } from '@repo/ui-web-tailwind';
+import { Container, Typography, Button, PageSection, Box } from '@repo/ui-web-tailwind';
 import { BrandLogo } from '../../../components/BrandLogo';
+import { useThemeConfig } from '../../../theme/ThemeConfigContext';
 import { useNavigate } from 'react-router-dom';
 
 const footerSections = [
@@ -74,7 +75,7 @@ function BackToTopIcon() {
 }
 
 export function AppFooter() {
-	const { themeKey } = useTheme();
+	const { config } = useThemeConfig();
 	const navigate = useNavigate();
 
 	const scrollToTop = () => {
@@ -82,13 +83,13 @@ export function AppFooter() {
 	};
 
 	return (
-		<PageSection key={themeKey} className="bg-footerBg py-8 " padding="none" mode="dark">
+		<PageSection key={config.tier} className="bg-footer py-8 " padding="none" mode="dark">
 			{/* Back to Top */}
 
 			<Box display="flex" flexDirection="column" gap="2xl">
 				<Container>
 					<div className="flex justify-center py-lg">
-						<Button variant="tertiary" className="gap-sm" onClick={scrollToTop}>
+						<Button color="tertiary" className="gap-sm" onClick={scrollToTop}>
 							<BackToTopIcon />
 							Back to top
 						</Button>
@@ -102,7 +103,7 @@ export function AppFooter() {
 					paddingTop="6xl"
 					paddingBottom="4xl"
 					borderRadius="4xl"
-					className="bg-footerBgSecondary rounded-6xl  "
+					className="bg-footer-secondary rounded-card  "
 					style={{ padding: '4rem' }}
 				>
 					{/* Footer Links */}
@@ -135,11 +136,7 @@ export function AppFooter() {
 						<div className="mb-lg rounded-[36px] ">
 							<div className="flex flex-col sm:flex-row items-center justify-between gap-md">
 								<div className="flex flex-col items-start gap-xl ">
-									<BrandLogo
-										themeKey={themeKey}
-										className="h-10 cursor-pointer"
-										onClick={() => navigate('/')}
-									/>
+									<BrandLogo className="h-10 cursor-pointer" onClick={() => navigate('/')} />
 									<Typography role="caption" color="text-tertiary">
 										© 2027 BYD Auto. All rights reserved.
 									</Typography>

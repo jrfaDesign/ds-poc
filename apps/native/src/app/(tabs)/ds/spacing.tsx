@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useTheme, Typography, Box, Card, PageSection } from '@repo/ui-react-native';
 import { ThemedScreen } from '@/components/ThemedScreen';
 
@@ -15,10 +15,10 @@ export default function SpacingScreen() {
 			<PageSection padding="lg">
 				<Box gap="xl">
 					<Box gap="sm">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Spacing
 						</Typography>
-						<Typography role="p" color="text-secondary">
+						<Typography variant="body" color="text-secondary">
 							Consistent spacing scale from none (0) to 11xl (160px).
 						</Typography>
 					</Box>
@@ -28,7 +28,7 @@ export default function SpacingScreen() {
 							const value = (theme.spacing as Record<string, number>)[key] ?? 0;
 							return (
 								<Box key={key} flexDirection="row" alignItems="center" gap="md">
-									<Typography role="caption" color="text-tertiary" style={spacingLabelStyle}>
+									<Typography variant="caption" color="text-tertiary" style={spacingLabelStyle}>
 										{key}
 									</Typography>
 									<View
@@ -41,7 +41,7 @@ export default function SpacingScreen() {
 											},
 										]}
 									/>
-									<Typography role="caption" color="text-tertiary">
+									<Typography variant="caption" color="text-tertiary">
 										{value}px
 									</Typography>
 								</Box>

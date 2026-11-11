@@ -1,0 +1,159 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Intro/Architecture" />
+
+# Architecture
+
+How this repository is organized: the folder structure, where foundations and
+adapters are developed, and the one dependency rule everything obeys.
+
+## Purpose
+
+Read this page before changing anything in the design system. It answers: what
+lives where, which package owns the change you are about to make, and how a
+theme travels from a brand config to pixels on a screen.
+
+## When to Use
+
+- You are about to add or change a token, component or theme.
+- You need to know which package a file belongs to.
+- You are reviewing a change and want the mental model to check it against.
+
+## When Not to Use
+
+- **Integrating the system into an app**: see
+  [Getting started (Web)](?path=/docs/intro-getting-started-web--docs) or
+  [Getting started (Mobile)](?path=/docs/intro-getting-started-mobile--docs).
+- **Day-to-day commands and gates**: see
+  [Ways of working](?path=/docs/intro-ways-of-working--docs).
+
+## Folder structure
+
+```text
+ds-poc2/
+├── apps/
+│   ├── storybook/              <- this site: docs pages, token stories, component stories
+│   ├── tailwind-sample/        <- the web consumer (Vite + Tailwind) + theme config tester
+│   └── native/                 <- the mobile consumer (Expo) + theme config editor
+├── packages/
+│   ├── foundations/            <- SOURCE OF TRUTH: tokens + theme
+│   │   ├── src/tokens/         <- Zod schemas, token types, contract metadata
+│   │   ├── src/theme/          <- defaultTheme, resolveThemeConfig, mergeTheme
+│   │   └── src/codegen.js      <- GENERATED: never hand-edit
+│   ├── core/                   <- shared types + shared props (plain TS only)
+│   ├── ui-web-tailwind/        <- web components + ThemeProvider + Tailwind adapter
+│   │   ├── src/components/     <- one folder per component (X.tsx + X.types.ts)
+│   │   ├── src/adapters/       <- applyTheme (tokens to CSS variables) + generated tailwind-theme.css
+│   │   └── scripts/            <- generate-theme-css.mjs (the generator, not the output)
+│   ├── ui-react-native/        <- RN components + AppProvider + RN adapter
+│   │   └── src/adapters/rn/    <- applyTheme (tokens to ResolvedTheme) + ThemeContext
+│   └── eslint-config/ prettier-config/ typescript-config/   <- shared tooling
+├── turbo.json                  <- task graph (check-types, lint, build, ...)
+└── yarn.lock                   <- single install for every workspace
+```
+
+## The one rule: dependencies only point down
+
+```text
+@repo/core          (leaf: types + shared props; type-only dep on foundations)
+@repo/foundations   (leaf: only zod; src/tokens + src/theme)
+ui-web-tailwind   ---> @repo/foundations + @repo/core   (resolved theme injected by the app)
+ui-react-native   ---> @repo/foundations + @repo/core   (resolved theme injected by the app)
+apps/*            ---> @repo/foundations + @repo/core + the platform ui package
+```
+
+The leaf packages at the top never learn that React exists. If you ever find
+yourself importing React in `foundations` or `core`, the dependency is pointing
+the wrong way: move the code down into a platform package instead.
+
+## Where foundation development happens
+
+All of it lives in `packages/foundations/src/`:
+
+- **`tokens/`**: the Zod schemas and key arrays, defining what a token _is_
+  (names, shapes, what is allowed). Adding a token starts here.
+- **`theme/`**: the default values (`defaultTheme`), the white-label resolver
+  (`resolveThemeConfig` + `themeConfigSchema`), `mergeTheme`, and the shape
+  presets. Changing what a theme _contains_ or _derives_ happens here.
+- **Generated, never edited:** `src/codegen.js` (produced from the schema by
+  `generate:codegen`) and, downstream,
+  `ui-web-tailwind/src/adapters/tailwind/tailwind-theme.css` (produced by
+  `generate-theme-css.mjs`). Both are guarded by
+  `yarn workspace @repo/foundations verify:codegen`.
+
+`@repo/core` sits beside it for anything both platforms must share **by
+type**: prop shapes (`ButtonSharedProps`), enums (`ButtonVariant`), spacing
+props. Plain TypeScript only: no React types, no runtime values.
+
+## The adapters
+
+Each platform has exactly one place where tokens become something the platform
+understands:
+
+- **Adapter**: web `adapters/tailwind/applyTheme`; mobile `adapters/rn/applyTheme`.
+- **Output**: web CSS custom properties on `:root` (plus `.dark` rules);
+  mobile a `ResolvedTheme` JS object.
+- **Provider**: web `ThemeProvider` (config/static/async modes); mobile
+  `AppProvider` (`theme` + `isDark`).
+- **Component access**: web `useTheme()` plus utilities in `className`;
+  mobile `useTheme()` plus `style` / `theme.*` lookups.
+
+Everything above the adapter (schemas, contracts, color pairs, shape presets)
+is shared. That is why adding a token needs no adapter edits: both adapters
+resolve contracts generically from the same schema.
+
+## How a theme reaches a component
+
+```text
+ThemeConfig  ->  resolveThemeConfig()  ->  Tokens  ->  applyTheme()  ->  CSS vars (web)
+                                                                       ->  ResolvedTheme (native)
+Tokens  ->  ThemeProvider / AppProvider  ->  components
+```
+
+One config in, one theme out. Every consumer (this Storybook, the web app, the
+native app) runs through the same resolver.
+
+## What components are built from
+
+- **Contracts** (`actions`, `feedback`, `surfaces`): semantic bundles that
+  behave identically on web and native. Read them through `useTheme()`.
+- **Color tokens** (`text-primary`, `bg-header`, ...): light/dark pairs for
+  everything contracts don't cover, like state colors and chrome surfaces.
+- **Shape preset** (`theme.style`: `sharp` / `soft` / `rounded` / `full`):
+  decides how round buttons, inputs and cards are.
+- Never a raw hex or px: values are promoted to tokens, and utilities
+  reference them.
+
+## Which package does my change belong to?
+
+- **Add or rename a token**: `packages/foundations/src/tokens`, then run
+  `generate:tokens`.
+- **Change default colors, spacing or type**:
+  `packages/foundations/src/theme/defaultTheme.ts`, then `generate:tokens`.
+- **Change white-label behavior**: `packages/foundations/src/theme/themeConfig.ts`
+  (plus all three config editors; see the note below).
+- **Share a prop shape across platforms**: `packages/core/src/*Shared.ts`.
+- **Build or change a component**:
+  `packages/ui-web-tailwind/src/components/...` and/or
+  `packages/ui-react-native/src/components/...`.
+- **Change how tokens are emitted**:
+  `ui-web-tailwind/scripts/generate-theme-css.mjs` plus
+  `adapters/tailwind/applyTheme.ts`.
+- **Document anything**: `apps/storybook/src/**`.
+- **Change the design language itself**: start from the Super Charge DS Figma
+  system and update tokens and docs in the same change as the code.
+
+Note on white-label changes: a `themeConfig` change usually touches the resolver
+**plus all three config editors** (web profile menu, native Settings, Storybook
+Theme panel), and the `Design system/Theme tiers` page if the tier table
+changed.
+
+## Design notes
+
+- The generated files exist so humans never maintain two parallel token lists;
+  if a generated file is out of sync, run the generator: never edit the output.
+- Apps own theme _config_; packages own theme _resolution_. A UI package that
+  starts hardcoding brand values has broken the white-label model.
+- Storybook runs the real stack (same Vite, Tailwind and providers as the
+  sample apps), so every docs page is verified against the actual pipeline on
+  each `yarn workspace storybook build`.

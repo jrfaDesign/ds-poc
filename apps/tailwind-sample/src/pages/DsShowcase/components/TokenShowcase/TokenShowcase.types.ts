@@ -1,3 +1,3 @@
-import type { Tokens } from '@repo/foundations';
+import type { Tokens } from '@repo/core';
 
 export type TokenShowcaseProps = { theme: Tokens };

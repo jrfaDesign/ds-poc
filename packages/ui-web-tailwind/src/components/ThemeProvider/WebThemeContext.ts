@@ -1,10 +1,10 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 import type { Tokens } from '@repo/foundations';
 
 export type WebThemeContextValue = {
 	/** The currently active raw Tokens object. */
 	theme: Tokens;
-	/** The current theme key (e.g. 'default', 'cag'). */
+	/** The current theme key (e.g. 'config' in config mode, or a static/async map key). */
 	themeKey: string;
 	/** Switch the active theme by key. */
 	setThemeKey: (key: string) => void;

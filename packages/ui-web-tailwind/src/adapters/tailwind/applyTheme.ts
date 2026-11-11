@@ -11,7 +11,7 @@ import type {
 	LetterSpacingToken,
 	FontFamilyToken,
 } from '@repo/foundations';
-import { CONTRACT_PREFIX, CONTRACT_STRUCTURE, hexToRgba } from '@repo/foundations';
+import { CONTRACT_PREFIX, SHAPE_PRESETS, hexToRgba } from '@repo/foundations';
 
 const MODE_STYLE_ID = 'ds-mode-switch';
 
@@ -53,7 +53,7 @@ export function applyTheme(theme: Tokens): void {
 		darkRules.push(`--${base}:var(--${base}-dark);`);
 	};
 
-	// Batched DOM writes — collect all property changes, flush once at the end
+	// Batched DOM writes: collect all property changes, flush once at the end
 	const pending = new Map<string, string>();
 	const setVar = (name: string, value: string): void => {
 		pending.set(name, value);
@@ -68,6 +68,14 @@ export function applyTheme(theme: Tokens): void {
 	(Object.entries(theme.radii) as [RadiiToken, number][]).forEach(([key, value]) => {
 		setVar(`--radii-${key}`, `${value}px`);
 	});
+
+	// shape preset (mode-invariant): resolves button/input/card border radius from theme.style
+	const shape = SHAPE_PRESETS[theme.style];
+	(Object.entries(shape) as ['button' | 'input' | 'card', RadiiToken][]).forEach(
+		([bucket, radiiToken]) => {
+			setVar(`--shape-${bucket}`, `${theme.radii[radiiToken]}px`);
+		}
+	);
 
 	// widths (mode-invariant) - container max-widths; unitless -> px
 	(Object.entries(theme.widths) as [WidthToken, number][]).forEach(([key, value]) => {
@@ -92,13 +100,17 @@ export function applyTheme(theme: Tokens): void {
 				fontSizePx: number;
 				fontSizeRem: number;
 				letterSpacing?: number;
+				lineHeightPx: number;
+				lineHeightRem: number;
 			},
 		][]
 	).forEach(([key, value]) => {
 		setVar(`--typography-fontSize-${key}`, `${value.fontSizePx}px`);
 		setVar(`--typography-fontSize-${key}-rem`, `${value.fontSizeRem}rem`);
+		setVar(`--typography-fontSize-${key}-lineHeight`, `${value.lineHeightPx}px`);
+		setVar(`--typography-fontSize-${key}-lineHeight-rem`, `${value.lineHeightRem}rem`);
 		if (value.letterSpacing !== undefined) {
-			setVar(`--typography-letterSpacing-${key}`, `${value.letterSpacing}em`);
+			setVar(`--typography-fontSize-${key}-letterSpacing`, `${value.letterSpacing}em`);
 		}
 	});
 	(Object.entries(theme.typography.fontWeight) as [FontWeightToken, number][]).forEach(
@@ -146,7 +158,8 @@ export function applyTheme(theme: Tokens): void {
 		}
 	};
 
-	// Generic contract value resolver — handles self-describing values
+	// Generic contract value resolver: handles self-describing values
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const resolveAndEmit = (cssVar: string, value: any): void => {
 		if (typeof value === 'string') {
 			setRefVar(cssVar, value);
@@ -163,16 +176,18 @@ export function applyTheme(theme: Tokens): void {
 		}
 	};
 
-	// Generic contract emitter — handles nested (actions, feedback, surfaces, typography)
+	// Generic contract emitter: handles nested (actions, feedback, surfaces, typography)
 	// and flat (inputField, selectionControl, toggle, components) contracts
 	// CONTRACT_PREFIX maps contract keys to their CSS var prefix (backward compat with CSS bridge)
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const emitFlatContract = (prefix: string, preset: Record<string, any>): void => {
 		Object.entries(preset).forEach(([field, value]) => {
 			resolveAndEmit(`${prefix}-${toKebab(field)}`, value);
 		});
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const emitNestedContract = (name: string, contract: Record<string, any>): void => {
 		const prefix = CONTRACT_PREFIX[name] ?? name;
 		Object.entries(contract).forEach(([variant, preset]) => {
@@ -182,58 +197,11 @@ export function applyTheme(theme: Tokens): void {
 		});
 	};
 
-	// typography contracts — special case (multi-field scale resolution)
-	(
-		Object.entries(theme.contracts.typography) as [
-			string,
-			Tokens['contracts']['typography'][keyof Tokens['contracts']['typography']],
-		][]
-	).forEach(([contractName, cv]) => {
-		const scale = theme.typography.fontSize[cv.fontSize];
-		const fw = theme.typography.fontWeight[cv.fontWeight];
-		const lh = theme.typography.lineHeight[cv.lineHeight];
-		const ff = theme.typography.fontFamilies[cv.fontFamily as FontFamilyToken];
-		setVar(`--typography-contract-${contractName}-fontSize`, `${scale.fontSizePx}px`);
-		setVar(`--typography-contract-${contractName}-fontWeight`, String(fw));
-		setVar(`--typography-contract-${contractName}-lineHeight`, String(lh));
-		if (cv.letterSpacing) {
-			const ls = theme.typography.letterSpacing[cv.letterSpacing];
-			setVar(`--typography-contract-${contractName}-letterSpacing`, `${ls}em`);
-		}
-		if (ff) {
-			setVar(`--typography-contract-${contractName}-fontFamily`, ff);
-		}
-		const color = (cv.color ?? 'text-primary') as string;
-		setRefVar(`typography-contract-${contractName}-color`, color);
-	});
-
-	// ALL other contracts — generic resolution (no per-contract code needed)
-	// CONTRACT_STRUCTURE explicitly declares nested vs flat to avoid fragile auto-detection
-
-	const { typography, ...restContracts } = theme.contracts;
-	Object.entries(restContracts).forEach(([contractName, preset]) => {
+	// contracts: generic nested resolution (actions, feedback, surfaces)
+	Object.entries(theme.contracts).forEach(([contractName, preset]) => {
 		if (!preset || typeof preset !== 'object') return;
-		// Resolve the CSS var prefix (handles case mismatches: selectionControl → selectioncontrol)
-		const prefix = CONTRACT_PREFIX[contractName] ?? contractName;
-		const structure = CONTRACT_STRUCTURE[contractName];
-		if (structure === 'nested') {
-			emitNestedContract(contractName, preset as Record<string, any>);
-		} else if (structure === 'flat') {
-			emitFlatContract(prefix, preset as Record<string, any>);
-		} else {
-			// Unknown contract — auto-detect as fallback
-			const firstVal = Object.values(preset)[0];
-			if (
-				firstVal &&
-				typeof firstVal === 'object' &&
-				!Array.isArray(firstVal) &&
-				!('type' in firstVal)
-			) {
-				emitNestedContract(contractName, preset as Record<string, any>);
-			} else {
-				emitFlatContract(prefix, preset as Record<string, any>);
-			}
-		}
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		emitNestedContract(contractName, preset as Record<string, any>);
 	});
 
 	// grid (mode-invariant) - gutter/margin from layout tokens, maxWidth from width tokens
@@ -264,28 +232,12 @@ export function applyTheme(theme: Tokens): void {
 		}
 	);
 
-	// focus rings (mode-aware: color is {light,dark} + optional shadow)
+	// focus rings (mode-aware color only: rendered as a 2px outline + 2px offset, per UntitledUI)
 	(
 		Object.entries(theme.focusRing) as [string, Tokens['focusRing'][keyof Tokens['focusRing']]][]
 	).forEach(([key, fr]) => {
-		const buildRing = (mode: 'light' | 'dark'): string => {
-			const ringColor = resolveLeaf(mode === 'light' ? fr.color.light : fr.color.dark, theme);
-			if (fr.shadow) {
-				const sv = theme.shadows[fr.shadow];
-				const shadowToken = mode === 'light' ? sv.color.light : sv.color.dark;
-				const shadowHex = theme.colors[shadowToken as keyof Tokens['colors']] as string;
-				const shadowStr = sv.layers
-					.map(
-						(l) =>
-							`${l.offsetX}px ${l.offsetY}px ${l.blurRadius}px ${l.spreadRadius}px ${hexToRgba(shadowHex, l.opacity)}`
-					)
-					.join(', ');
-				return `${shadowStr}, 0 0 0 3px ${ringColor}`;
-			}
-			return `0 0 0 3px ${ringColor}`;
-		};
-		setVar(`--focusring-${key}-default`, buildRing('light'));
-		setVar(`--focusring-${key}-dark`, buildRing('dark'));
+		setVar(`--focusring-${key}-default`, resolveLeaf(fr.color.light, theme));
+		setVar(`--focusring-${key}-dark`, resolveLeaf(fr.color.dark, theme));
 		register(`focusring-${key}`);
 	});
 
@@ -308,7 +260,7 @@ export function applyTheme(theme: Tokens): void {
 
 	// inject the light/dark selection rules (idempotent; stable across themes).
 	// Also emit `.ds-invert` rules so any subtree with the `ds-invert` class
-	// swaps light↔dark relative to the page — a dark section on a light page
+	// swaps light↔dark relative to the page: a dark section on a light page
 	// (and vice-versa). Reuses the same lightRules/darkRules arrays so the
 	// invert set is always in sync with the theme's token set.
 	// `.ds-force-dark` and `.ds-force-light` force a specific mode regardless

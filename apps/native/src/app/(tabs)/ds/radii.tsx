@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useTheme, Typography, Box, Card, PageSection } from '@repo/ui-react-native';
 import { ThemedScreen } from '@/components/ThemedScreen';
 
@@ -15,10 +15,10 @@ export default function RadiiScreen() {
 			<PageSection padding="lg">
 				<Box gap="xl">
 					<Box gap="sm">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Radii
 						</Typography>
-						<Typography role="p" color="text-secondary">
+						<Typography variant="body" color="text-secondary">
 							Border radius tokens from none (0) to full (9999px).
 						</Typography>
 					</Box>
@@ -35,10 +35,10 @@ export default function RadiiScreen() {
 												{ backgroundColor: theme.colorTokens['bg-brand-primary'] ?? theme.colorTokens['text-tertiary'], borderRadius: value },
 											]}
 										/>
-										<Typography role="caption" color="text-tertiary">
+										<Typography variant="caption" color="text-tertiary">
 											{key}
 										</Typography>
-										<Typography role="caption" color="text-tertiary" style={radiusLabelStyle}>
+										<Typography variant="caption" color="text-tertiary" style={radiusLabelStyle}>
 											{value}px
 										</Typography>
 									</Box>

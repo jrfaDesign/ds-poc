@@ -20,6 +20,7 @@ const SPACING_KEYS: SpacingToken[] = [
 	'9xl',
 	'10xl',
 	'11xl',
+	'12xl',
 ];
 
 const RADII_KEYS: RadiiToken[] = [
@@ -35,6 +36,7 @@ const RADII_KEYS: RadiiToken[] = [
 	'4xl',
 	'5xl',
 	'6xl',
+	'7xl',
 	'full',
 ];
 

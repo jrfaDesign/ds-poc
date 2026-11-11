@@ -14,11 +14,8 @@ import type {
 	LetterSpacingToken,
 	FontFamilyToken,
 	ShadowToken,
-	TypographyContractToken,
-	ResolvedComponents,
 } from '@repo/foundations';
-import { hexToRgba } from '@repo/foundations';
-import type { ButtonVariant, CardVariant } from '@repo/globals';
+import { SHAPE_PRESETS, hexToRgba } from '@repo/foundations';
 
 function resolveLeaf(leaf: ColorTokenLeaf, theme: Tokens): string {
 	const token = typeof leaf === 'string' ? leaf : leaf.base;
@@ -116,65 +113,22 @@ export type ResolvedSurfaces = {
 
 export type SurfaceKey = keyof ResolvedSurfaces;
 
-export type ResolvedTypography = {
-	fontSizePx: number;
-	fontWeight: number;
-	lineHeight: number;
-	letterSpacing?: number;
-	fontFamily?: string;
-	color: string;
-};
-
-export type ResolvedInputField = {
-	bg: string;
-	on: string;
-	border: string;
-	placeholder: string;
-	bgHover: string;
-	borderHover: string;
-	bgFocus: string;
-	borderFocus: string;
-	onFocus: string;
-	bgDisabled: string;
-	onDisabled: string;
-	borderDisabled: string;
-	borderError: string;
-	onError: string;
-	borderSuccess: string;
-	onSuccess: string;
-};
-
-export type ResolvedSelectionControl = {
-	bg: string;
-	border: string;
-	bgChecked: string;
-	borderChecked: string;
-	onChecked: string;
-	bgHover: string;
-	borderHover: string;
-	bgDisabled: string;
-	borderDisabled: string;
-	onDisabled: string;
-	borderError: string;
-};
-
-export type ResolvedToggle = {
-	trackBg: string;
-	trackBgChecked: string;
-	trackBorder: string;
-	thumbColor: string;
-	thumbColorChecked: string;
-	bgHover: string;
-	trackBgCheckedHover: string;
-	bgDisabled: string;
-	trackBgDisabled: string;
-	thumbDisabled: string;
-	borderError: string;
+/** Resolved shape preset: border radius (px) per element bucket, from `theme.style`. */
+export type ResolvedShape = {
+	button: number;
+	input: number;
+	card: number;
 };
 
 export type ResolvedShadow = ViewStyle;
 
-type FontSizeScale = { fontSizePx: number; fontSizeRem: number; letterSpacing?: number };
+type FontSizeScale = {
+	fontSizePx: number;
+	fontSizeRem: number;
+	letterSpacing?: number;
+	lineHeightPx: number;
+	lineHeightRem: number;
+};
 
 export type ResolvedTheme = {
 	colors: Record<ColorToken, string>;
@@ -183,13 +137,8 @@ export type ResolvedTheme = {
 		actions: ResolvedActions;
 		feedback: ResolvedFeedback;
 		surfaces: ResolvedSurfaces;
-		typography: Record<TypographyContractToken, ResolvedTypography>;
-		inputField: ResolvedInputField;
-		selectionControl: ResolvedSelectionControl;
-		toggle: ResolvedToggle;
-		components: ResolvedComponents;
-		extraContracts: Record<string, Record<string, any>>;
 	};
+	shape: ResolvedShape;
 	spacing: Record<SpacingToken, number>;
 	radii: Record<RadiiToken, number>;
 	widths: Record<WidthToken, number>;
@@ -203,11 +152,6 @@ export type ResolvedTheme = {
 	};
 	shadows: Record<ShadowToken, ResolvedShadow>;
 };
-// ---------------------------------------------
-
-function toKebab(s: string): string {
-	return s.replace(/([A-Z])/g, '-$1').toLowerCase();
-}
 
 type FullActionRaw = Tokens['contracts']['actions']['primary'];
 type LinkActionRaw = Tokens['contracts']['actions']['link'];
@@ -280,13 +224,13 @@ function resolveSurface(
  * Resolve a design-system Tokens object into a typed ResolvedTheme.
  *
  * Mode-aware tokens (colorTokens, contracts, shadows) are resolved based on
- * the `isDark` boolean — light values in light mode, dark values in dark mode.
+ * the `isDark` boolean: light values in light mode, dark values in dark mode.
  */
 export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 	// Raw palette colors (mode-invariant)
 	const colors = { ...theme.colors } as Record<ColorToken, string>;
 
-	// Semantic color tokens — resolve light/dark pair based on isDark
+	// Semantic color tokens: resolve light/dark pair based on isDark
 	const colorTokens = {} as Record<ColorTokenName, string>;
 	const ctMap: Record<string, ColorPair> = {};
 	const colorTokenGroups = theme.colorTokens;
@@ -307,32 +251,6 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		}
 		return (colors as Record<string, string>)[ref] ?? ref;
 	};
-
-	// Helper: resolve a ShadowColorSchema ({light, dark}) to a hex value based on isDark
-	const resolveShadowColor = (pair: { light: ColorToken; dark: ColorToken }): string => {
-		const token = isDark ? pair.dark : pair.light;
-		return (colors as Record<string, string>)[token] ?? token;
-	};
-
-	// Typography contracts
-	const resolvedTypography = {} as Record<TypographyContractToken, ResolvedTypography>;
-	for (const [name, cv] of Object.entries(theme.contracts.typography)) {
-		const key = name as TypographyContractToken;
-		const scale = theme.typography.fontSize[cv.fontSize];
-		const fw = theme.typography.fontWeight[cv.fontWeight];
-		const lh = theme.typography.lineHeight[cv.lineHeight];
-		const ff = theme.typography.fontFamilies[cv.fontFamily];
-		resolvedTypography[key] = {
-			fontSizePx: scale.fontSizePx,
-			fontWeight: fw,
-			lineHeight: lh,
-			letterSpacing: cv.letterSpacing
-				? theme.typography.letterSpacing[cv.letterSpacing]
-				: undefined,
-			fontFamily: ff,
-			color: resolveRef(cv.color ?? 'text-primary'),
-		};
-	}
 
 	// Action contracts
 	const actions = theme.contracts.actions;
@@ -364,60 +282,15 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		brand: resolveSurface(sf.brand, resolveRef),
 	};
 
-	// InputField contracts
-	const if_ = theme.contracts.inputField;
-	const resolvedInputField: ResolvedInputField = {
-		bg: resolveRef(if_.bg),
-		on: resolveRef(if_.on),
-		border: resolveRef(if_.border),
-		placeholder: resolveRef(if_.placeholder),
-		bgHover: resolveRef(if_.bgHover),
-		borderHover: resolveRef(if_.borderHover),
-		bgFocus: resolveRef(if_.bgFocus),
-		borderFocus: resolveRef(if_.borderFocus),
-		onFocus: resolveRef(if_.onFocus),
-		bgDisabled: resolveRef(if_.bgDisabled),
-		onDisabled: resolveRef(if_.onDisabled),
-		borderDisabled: resolveRef(if_.borderDisabled),
-		borderError: resolveRef(if_.borderError),
-		onError: resolveRef(if_.onError),
-		borderSuccess: resolveRef(if_.borderSuccess),
-		onSuccess: resolveRef(if_.onSuccess),
+	// Shape preset: border radius (px) per element bucket
+	const shapePreset = SHAPE_PRESETS[theme.style];
+	const shape: ResolvedShape = {
+		button: theme.radii[shapePreset.button],
+		input: theme.radii[shapePreset.input],
+		card: theme.radii[shapePreset.card],
 	};
 
-	// SelectionControl contracts
-	const sc = theme.contracts.selectionControl;
-	const resolvedSelectionControl: ResolvedSelectionControl = {
-		bg: resolveRef(sc.bg),
-		border: resolveRef(sc.border),
-		bgChecked: resolveRef(sc.bgChecked),
-		borderChecked: resolveRef(sc.borderChecked),
-		onChecked: resolveRef(sc.onChecked),
-		bgHover: resolveRef(sc.bgHover),
-		borderHover: resolveRef(sc.borderHover),
-		bgDisabled: resolveRef(sc.bgDisabled),
-		borderDisabled: resolveRef(sc.borderDisabled),
-		onDisabled: resolveRef(sc.onDisabled),
-		borderError: resolveRef(sc.borderError),
-	};
-
-	// Toggle contracts
-	const tg = theme.contracts.toggle;
-	const resolvedToggle: ResolvedToggle = {
-		trackBg: resolveRef(tg.trackBg),
-		trackBgChecked: resolveRef(tg.trackBgChecked),
-		trackBorder: resolveRef(tg.trackBorder),
-		thumbColor: resolveRef(tg.thumbColor),
-		thumbColorChecked: resolveRef(tg.thumbColorChecked),
-		bgHover: resolveRef(tg.bgHover),
-		trackBgCheckedHover: resolveRef(tg.trackBgCheckedHover),
-		bgDisabled: resolveRef(tg.bgDisabled),
-		trackBgDisabled: resolveRef(tg.trackBgDisabled),
-		thumbDisabled: resolveRef(tg.thumbDisabled),
-		borderError: resolveRef(tg.borderError),
-	};
-
-	// Shadows — resolve to RN shadow props
+	// Shadows: resolve to RN shadow props
 	const resolvedShadows = {} as Record<ShadowToken, ViewStyle>;
 	for (const [key, value] of Object.entries(theme.shadows)) {
 		const colorToken = isDark ? value.color.dark : value.color.light;
@@ -433,34 +306,6 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 		}
 	}
 
-	// Components contracts — resolve generically via the loop below
-
-	// Generic resolution for any flat contracts not covered by typed resolution
-	const knownContracts = new Set([
-		'actions',
-		'feedback',
-		'surfaces',
-		'typography',
-		'inputField',
-		'selectionControl',
-		'toggle',
-	]);
-	const extraContracts: Record<string, Record<string, any>> = {};
-	for (const [name, preset] of Object.entries(theme.contracts)) {
-		if (knownContracts.has(name) || !preset || typeof preset !== 'object') continue;
-		const resolved: Record<string, any> = {};
-		for (const [field, value] of Object.entries(preset as Record<string, any>)) {
-			if (typeof value === 'string') resolved[field] = resolveRef(value);
-			else if (typeof value === 'number') resolved[field] = value;
-			else if (value && typeof value === 'object' && 'type' in value) {
-				if (value.type === 'radii') resolved[field] = theme.radii[value.value as RadiiToken];
-			} else if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
-				resolved[field] = resolveShadowColor(value);
-			}
-		}
-		extraContracts[name] = resolved;
-	}
-
 	return {
 		colors,
 		colorTokens,
@@ -468,13 +313,8 @@ export function applyTheme(theme: Tokens, isDark: boolean): ResolvedTheme {
 			actions: resolvedActions,
 			feedback: resolvedFeedback,
 			surfaces: resolvedSurfaces,
-			typography: resolvedTypography,
-			inputField: resolvedInputField,
-			selectionControl: resolvedSelectionControl,
-			toggle: resolvedToggle,
-			components: (extraContracts['components'] ?? {}) as ResolvedComponents,
-			extraContracts,
 		},
+		shape,
 		spacing: theme.spacing,
 		radii: theme.radii,
 		widths: theme.widths,

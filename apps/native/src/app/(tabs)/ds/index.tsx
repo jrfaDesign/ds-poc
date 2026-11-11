@@ -75,10 +75,10 @@ export default function DSHome() {
 					<Card variant="raised" style={themedStyles.cardStyle}>
 						<Box flexDirection="row" alignItems="center" justifyContent="space-between">
 							<Box flex={1} gap="xs">
-								<Typography role="h4" color="text-primary">
+								<Typography variant="headline" color="text-primary">
 									{section.title}
 								</Typography>
-								<Typography role="caption" color="text-secondary">
+								<Typography variant="caption" color="text-secondary">
 									{section.subtitle}
 								</Typography>
 							</Box>

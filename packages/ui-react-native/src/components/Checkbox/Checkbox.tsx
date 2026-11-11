@@ -12,9 +12,7 @@ export function Checkbox({
 	style,
 }: CheckboxProps) {
 	const theme = useTheme();
-	const { spacing, contracts } = theme.theme;
-	const sc = contracts.selectionControl;
-	const labelColor = theme.theme.colorTokens['text-primary'];
+	const { spacing, shape, colorTokens: ct } = theme.theme;
 
 	const [uncontrolled, setUncontrolled] = useState(defaultChecked);
 	const isChecked = controlled ?? uncontrolled;
@@ -26,9 +24,18 @@ export function Checkbox({
 		onChange?.(next);
 	}, [isChecked, disabled, onChange]);
 
-	const bgColor = disabled ? sc.bgDisabled : isChecked ? sc.bgChecked : sc.bg;
+	// Component formula: selection-control states map directly to semantic color tokens.
+	const bgColor = disabled
+		? ct['bg-tertiary']
+		: isChecked
+			? ct['bg-brand-solid']
+			: ct['bg-primary'];
 
-	const borderColor = disabled ? sc.borderDisabled : isChecked ? sc.borderChecked : sc.border;
+	const borderColor = disabled
+		? ct['border-secondary']
+		: isChecked
+			? ct['border-brand']
+			: ct['border-primary'];
 
 	return (
 		<Pressable
@@ -42,13 +49,13 @@ export function Checkbox({
 						backgroundColor: bgColor,
 						borderColor: borderColor,
 						borderWidth: 2,
-						borderRadius: 4,
+						borderRadius: shape.input,
 					},
 				]}
 			>
-				{isChecked && <Text style={[styles.check, { color: sc.onChecked }]}>✓</Text>}
+				{isChecked && <Text style={[styles.check, { color: ct['text-white'] }]}>✓</Text>}
 			</View>
-			{label && <Text style={{ color: labelColor, fontSize: 14 }}>{label}</Text>}
+			{label && <Text style={{ color: ct['text-primary'], fontSize: 14 }}>{label}</Text>}
 		</Pressable>
 	);
 }

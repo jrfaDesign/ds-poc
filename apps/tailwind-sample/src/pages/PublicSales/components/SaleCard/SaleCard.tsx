@@ -1,4 +1,4 @@
-import { Button, Card, Typography, useTheme } from '@repo/ui-web-tailwind';
+import { Button, Card, Typography } from '@repo/ui-web-tailwind';
 import { BrandLogo } from '../../../../components/BrandLogo';
 import type { SaleCardProps } from './SaleCard.types';
 import type { Sale } from '../../../../data/mockSales';
@@ -113,14 +113,13 @@ function StarIcon() {
 }
 
 export function SaleCard({ sale }: SaleCardProps) {
-	const { themeKey } = useTheme();
 	const access = accessConfig[sale.access];
 	const status = statusConfig[sale.status];
 
 	return (
 		<Card
 			variant="raised"
-			className="rounded-saleCardRadii px-0 py-0 bg-salesCardBg h-full overflow-hidden"
+			className="rounded-card px-0 py-0 bg-sales-card h-full overflow-hidden"
 			style={{ gap: 0 }}
 		>
 			{/* Image */}
@@ -142,15 +141,15 @@ export function SaleCard({ sale }: SaleCardProps) {
 						</span>
 					</div>
 					<div className="flex justify-end">
-						<div className="bg-saleCardLogoBg rounded-sm p-1 shadow-sm">
-							<BrandLogo themeKey={themeKey} className="h-5 w-15 px-1" />
+						<div className="bg-sale-card-logo rounded-sm p-1 shadow-sm">
+							<BrandLogo className="h-5 w-15 px-1" />
 						</div>
 					</div>
 				</div>
 			</div>
 
 			{/* Content */}
-			<div className="p-xl flex flex-col gap-lg flex-1 bg-salesCardBg">
+			<div className="p-xl flex flex-col gap-lg flex-1 bg-sales-card">
 				{/* Row 1: Flag + Access Badge with colored dot */}
 				<div className="flex items-center gap-xs">
 					<CountryFlag code={sale.countryCode} />
@@ -180,7 +179,7 @@ export function SaleCard({ sale }: SaleCardProps) {
 				</Typography>
 
 				{/* Row 4: Link */}
-				<Button variant="link" size="sm" className="w-fit pb-0">
+				<Button color="link-gray" size="sm" className="w-fit pb-0">
 					See full description
 				</Button>
 

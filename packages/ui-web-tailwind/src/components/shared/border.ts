@@ -23,7 +23,7 @@ export type BorderToken = (typeof BORDER_TOKENS)[number];
 export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'ridge' | 'none';
 
 /**
- * Shorthand border prop — `{width}-{colorToken}-{style}`.
+ * Shorthand border prop: `{width}-{colorToken}-{style}`.
  *
  * - **width**: any CSS width value (e.g. `'1px'`, `'2px'`, `'0.5rem'`).
  * - **colorToken**: one of the 8 `border-*` design tokens.
@@ -71,7 +71,7 @@ export function parseBorder(value: BorderProp): ParsedBorder {
 	}
 
 	if (tokenStart === -1) {
-		// Fallback — couldn't parse
+		// Fallback: couldn't parse
 		return { width: '1px', colorVar: 'currentColor', style: 'solid' };
 	}
 

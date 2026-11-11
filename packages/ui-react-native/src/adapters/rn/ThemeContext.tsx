@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useMemo, type ReactNode } from 'react';
 import type { Tokens } from '@repo/foundations';
 import { applyTheme, type ResolvedTheme } from './applyTheme';
 

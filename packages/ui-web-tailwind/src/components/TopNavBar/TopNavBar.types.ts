@@ -1,5 +1,5 @@
 import type { ReactNode, CSSProperties } from 'react';
-import type { ColorTokenName } from '@repo/foundations';
+import type { ColorTokenName } from '@repo/core';
 
 export type NavItem = {
 	/** Unique identifier for the nav item. */

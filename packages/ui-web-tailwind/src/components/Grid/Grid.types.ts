@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { SpacingToken, LayoutToken, BreakpointToken } from '@repo/foundations';
+import type { SpacingToken, LayoutToken, BreakpointToken } from '@repo/core';
 import type { Responsive } from '../shared/responsive';
 
 /**

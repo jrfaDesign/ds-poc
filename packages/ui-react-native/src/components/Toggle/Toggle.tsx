@@ -12,8 +12,7 @@ export function Toggle({
 	style,
 }: ToggleProps) {
 	const theme = useTheme();
-	const { spacing, contracts } = theme.theme;
-	const tg = contracts.toggle;
+	const { spacing, colorTokens: ct } = theme.theme;
 
 	const [uncontrolled, setUncontrolled] = useState(defaultChecked);
 	const isChecked = controlled ?? uncontrolled;
@@ -25,9 +24,15 @@ export function Toggle({
 		onChange?.(next);
 	}, [isChecked, disabled, onChange]);
 
-	const trackBg = disabled ? tg.trackBgDisabled : isChecked ? tg.trackBgChecked : tg.trackBg;
+	// Component formula: toggle states map directly to semantic color tokens.
+	// The track/thumb stay pill-shaped regardless of the shape preset (platform switch).
+	const trackBg = disabled
+		? ct['bg-quaternary']
+		: isChecked
+			? ct['bg-brand-solid']
+			: ct['bg-tertiary'];
 
-	const thumbBg = disabled ? tg.thumbDisabled : isChecked ? tg.thumbColorChecked : tg.thumbColor;
+	const thumbBg = disabled ? ct['text-quaternary'] : ct['text-white'];
 
 	const thumbX = isChecked ? spacing['2xl'] : 2;
 
@@ -45,7 +50,7 @@ export function Toggle({
 					styles.track,
 					{
 						backgroundColor: trackBg,
-						borderColor: tg.trackBorder,
+						borderColor: ct['border-primary'],
 						borderWidth: 1,
 					},
 				]}
@@ -60,11 +65,7 @@ export function Toggle({
 					]}
 				/>
 			</View>
-			{label && (
-				<Text style={{ color: theme.theme.colorTokens['text-primary'], fontSize: 14 }}>
-					{label}
-				</Text>
-			)}
+			{label && <Text style={{ color: ct['text-primary'], fontSize: 14 }}>{label}</Text>}
 		</Pressable>
 	);
 }

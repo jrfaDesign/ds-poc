@@ -26,6 +26,8 @@ coverage
 out/
 build
 dist
+storybook-static
+.storybook/cache
 
 
 # Debug
@@ -36,3 +38,9 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# AI agent material
+.opencode/
+opencode.json
+AGENTS.md
+CLAUDE.md

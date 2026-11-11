@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Typography } from '@repo/ui-web-tailwind';
+import { Badge, BadgeWithButton, Typography } from '@repo/ui-web-tailwind';
 
 import { GoX } from 'react-icons/go';
 import type { FilterOption, FilterSectionProps } from './FilterSection.types';
@@ -43,12 +43,9 @@ export function FilterSection({ label, options, type, onToggle }: FilterSectionP
 					</Typography>
 					{/* Collapsed: show single summary chip */}
 					{!isExpanded && (
-						<Badge
-							label={formatSelectedSummary(selectedOptions)}
-							surface="brand"
-							icon={<GoX />}
-							reverse
-						/>
+						<BadgeWithButton color="brand" icon={GoX} buttonLabel="Remove">
+							{formatSelectedSummary(selectedOptions)}
+						</BadgeWithButton>
 					)}
 				</div>
 				<ChevronIcon open={isExpanded} />
@@ -66,15 +63,17 @@ export function FilterSection({ label, options, type, onToggle }: FilterSectionP
 					<div className="px-md pb-md flex flex-wrap gap-xs">
 						{type === 'multiSelect'
 							? options.map((opt) => (
-									<Badge
+									<BadgeWithButton
 										key={opt.id}
-										label={opt.label}
-										variant={opt.checked ? 'brand' : 'neutral'}
-										icon={<GoX />}
-										onClick={() => onToggle?.(opt.id)}
-									/>
+										color={opt.checked ? 'brand' : 'gray'}
+										icon={GoX}
+										buttonLabel="Remove"
+										onButtonClick={() => onToggle?.(opt.id)}
+									>
+										{opt.label}
+									</BadgeWithButton>
 								))
-							: options.map((opt) => <Badge key={opt.id} label={opt.label} variant="neutral" />)}
+							: options.map((opt) => <Badge key={opt.id} color="gray">{opt.label}</Badge>)}
 					</div>
 				</div>
 			</div>

@@ -12,8 +12,8 @@
 		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@repo/core": "workspace:*",
 		"@repo/foundations": "workspace:*",
-		"@repo/globals": "workspace:*",
 		"react": "^19.2.3",
 		"react-native": "^0.86.3"
 	},

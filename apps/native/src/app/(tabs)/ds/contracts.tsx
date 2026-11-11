@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import {
 	useTheme,
 	Typography,
@@ -15,7 +15,7 @@ import {
 import { ThemedScreen } from '@/components/ThemedScreen';
 
 export default function ContractsScreen() {
-	const { theme } = useTheme();
+	const { theme, rawTokens } = useTheme();
 	const feedbackCardStyle = { gap: theme.spacing.xs, minWidth: theme.spacing['5xl'] };
 
 	return (
@@ -24,10 +24,10 @@ export default function ContractsScreen() {
 				<Box gap="xl">
 					{/* Actions */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Actions
 						</Typography>
-						<Typography role="p" color="text-secondary">
+						<Typography variant="body" color="text-secondary">
 							Button variant presets with bg, on, border, hover, active, and disabled states.
 						</Typography>
 						<Box flexDirection="row" gap="sm" flexWrap="wrap">
@@ -41,10 +41,10 @@ export default function ContractsScreen() {
 
 					{/* Feedback */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Feedback
 						</Typography>
-						<Typography role="p" color="text-secondary">
+						<Typography variant="body" color="text-secondary">
 							Alerts use feedback contracts. Each intent maps to bg, on, border,
 							borderWidth, and borderRadius from the theme.
 						</Typography>
@@ -59,7 +59,7 @@ export default function ContractsScreen() {
 
 					{/* Surfaces */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Surfaces
 						</Typography>
 						<Box flexDirection="row" gap="sm" flexWrap="wrap">
@@ -67,7 +67,7 @@ export default function ContractsScreen() {
 								const s = theme.contracts.surfaces[surface];
 								return (
 									<Card key={surface} variant="surface" style={{ ...feedbackCardStyle, backgroundColor: s?.bg }}>
-										<Typography role="caption" style={{ color: s?.on }}>
+										<Typography variant="caption" style={{ color: s?.on }}>
 											{surface}
 										</Typography>
 									</Card>
@@ -87,7 +87,7 @@ export default function ContractsScreen() {
 								};
 								return (
 									<View key={surface} style={surfaceStyle}>
-										<Typography role="caption" style={{ color: s?.on }}>
+										<Typography variant="caption" style={{ color: s?.on }}>
 											{surface}
 										</Typography>
 									</View>
@@ -98,12 +98,12 @@ export default function ContractsScreen() {
 
 					{/* Input Field */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Input Field
 						</Typography>
-						<Typography role="p" color="text-secondary">
-							Inputs use the inputField contract. The status prop controls border color
-							for validation states (default, error, success).
+						<Typography variant="body" color="text-secondary">
+							Inputs compose semantic color tokens directly; the status prop controls border
+							color for validation states (default, error, success).
 						</Typography>
 						<Box gap="md">
 							<Input label="Default" placeholder="Enter text..." />
@@ -126,15 +126,16 @@ export default function ContractsScreen() {
 
 					{/* Selection Controls */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Selection Controls
 						</Typography>
-						<Typography role="p" color="text-secondary">
-							Checkboxes and radio buttons use the selectionControl contract.
+						<Typography variant="body" color="text-secondary">
+							Checkboxes and radio buttons map their states directly to semantic color
+							tokens.
 						</Typography>
 						<Box gap="md">
 							<Box gap="sm">
-								<Typography role="label" color="text-primary">
+								<Typography variant="label" color="text-primary">
 									Checkboxes
 								</Typography>
 								<Checkbox defaultChecked label="Checked" />
@@ -142,7 +143,7 @@ export default function ContractsScreen() {
 								<Checkbox disabled label="Disabled" />
 							</Box>
 							<Box gap="sm">
-								<Typography role="label" color="text-primary">
+								<Typography variant="label" color="text-primary">
 									Radio Buttons
 								</Typography>
 								<Radio defaultChecked label="Selected" />
@@ -154,11 +155,11 @@ export default function ContractsScreen() {
 
 					{/* Toggle */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Toggle
 						</Typography>
-						<Typography role="p" color="text-secondary">
-							Toggle switches use the toggle contract with track and thumb tokens.
+						<Typography variant="body" color="text-secondary">
+							Toggle switches map track/thumb states directly to semantic color tokens.
 						</Typography>
 						<Box gap="sm">
 							<Toggle defaultChecked label="On" />
@@ -167,70 +168,58 @@ export default function ContractsScreen() {
 						</Box>
 					</Box>
 
-					{/* Typography Contracts */}
+					{/* Shape preset + chrome tokens */}
 					<Box gap="md">
-						<Typography role="h2" color="text-primary">
-							Typography Contracts
+						<Typography variant="title" color="text-primary">
+							Shape & Chrome
 						</Typography>
-						{(['h1', 'h2', 'h3', 'h4', 'p', 'caption', 'label', 'overline'] as const).map((role) => {
-							const typo = theme.contracts.typography[role];
-							return (
-								<Box key={role} gap="xxs">
-									<Typography role="caption" color="text-tertiary">
-										{role}
-									</Typography>
-									<Typography
-										role={role}
-										style={{ color: typo?.color, fontSize: typo?.fontSizePx, fontWeight: typo?.fontWeight as any }}
-									>
-										The quick brown fox
-									</Typography>
-								</Box>
-							);
-						})}
-					</Box>
-
-					{/* Components */}
-					<Box gap="md">
-						<Typography role="h2" color="text-primary">
-							Components
-						</Typography>
-						<Typography role="p" color="text-secondary">
-							Structural tokens for border radii and mode-aware background colors.
+						<Typography variant="body" color="text-secondary">
+							The shape preset (theme.style) resolves border radius per element bucket, and
+							chrome surfaces read their background from color tokens.
 						</Typography>
 						<Box gap="sm">
-							<Typography role="label" color="text-primary">
-								Border Radii
+							<Typography variant="label" color="text-primary">
+								Shape · {rawTokens.style}
 							</Typography>
 							<Box flexDirection="row" gap="sm" flexWrap="wrap">
-								{(['buttonBorderRadii', 'cardBorderRadii', 'saleCardRadii', 'inputBorderRadii'] as const).map((key) => (
-									<Card key={key} variant="surface" style={{ padding: theme.spacing.md, minWidth: 120 }}>
-										<Typography role="caption" color="text-tertiary">
-											{key}
+								{(['button', 'input', 'card'] as const).map((bucket) => (
+									<Card key={bucket} variant="surface" style={{ padding: theme.spacing.md, minWidth: 120 }}>
+										<Typography variant="caption" color="text-tertiary">
+											{bucket}
 										</Typography>
-										<Typography role="p" color="text-primary">
-											{theme.contracts.components[key]}px
+										<Typography variant="body" color="text-primary">
+											{theme.shape[bucket]}px
 										</Typography>
 									</Card>
 								))}
 							</Box>
 						</Box>
 						<Box gap="sm">
-							<Typography role="label" color="text-primary">
-								Background Colors
+							<Typography variant="label" color="text-primary">
+								Chrome backgrounds
 							</Typography>
 							<Box flexDirection="row" gap="sm" flexWrap="wrap">
-								{(['headerBg', 'headerAvatarBg', 'footerBg', 'footerBgSecondary', 'salesCardBg', 'appShellBg'] as const).map((key) => (
+								{(
+									[
+										'bg-header',
+										'bg-header-avatar',
+										'bg-footer',
+										'bg-footer_secondary',
+										'bg-app-shell',
+										'bg-sales-card',
+										'bg-tab-indicator',
+									] as const
+								).map((key) => (
 									<View
 										key={key}
 										style={{
-											backgroundColor: theme.contracts.components[key],
+											backgroundColor: theme.colorTokens[key],
 											padding: theme.spacing.md,
 											minWidth: 120,
 											borderRadius: theme.radii.sm,
 										}}
 									>
-										<Typography role="caption" style={{ color: 'white' }}>
+										<Typography variant="caption" style={{ color: 'white' }}>
 											{key}
 										</Typography>
 									</View>
@@ -244,8 +233,3 @@ export default function ContractsScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
-	content: {
-		gap: 24,
-	},
-});

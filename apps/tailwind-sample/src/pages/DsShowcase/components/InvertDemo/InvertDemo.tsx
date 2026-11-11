@@ -8,7 +8,7 @@ export function InvertDemo() {
 					<Typography role="h2">Invert mode</Typography>
 					<Typography role="p" color="text-secondary" className="max-w-prose">
 						Set <code className="font-mono text-sm text-brand-secondary">{`invert`}</code> on any
-						component to flip light/dark values for that subtree — a dark section on a light page
+						component to flip light/dark values for that subtree: a dark section on a light page
 						(or vice-versa). All children inherit the inversion automatically. Toggle the page dark
 						mode to see the inverted section swap opposite.
 					</Typography>
@@ -25,16 +25,16 @@ export function InvertDemo() {
 							This card uses the page's current mode.
 						</Typography>
 						<Box display="flex" gap="sm" flexWrap="wrap">
-							<Button variant="primary">Primary</Button>
-							<Button variant="secondary">Secondary</Button>
-							<Button variant="ghost">Ghost</Button>
+							<Button color="primary">Primary</Button>
+							<Button color="secondary">Secondary</Button>
+							<Button color="tertiary">Ghost</Button>
 						</Box>
 					</Card>
 				</Box>
 			</PageSection>
 
 			<PageSection invert background="bg-primary" className="py-xl">
-				{/* Inverted section — the star of the show */}
+				{/* Inverted section: the star of the show */}
 				<Box display="flex" flexDirection="column" gap="md">
 					<Typography role="overline" color="text-secondary">
 						Inverted (flips relative to page)
@@ -50,14 +50,14 @@ export function InvertDemo() {
 					>
 						<Typography role="h3">Inverted section</Typography>
 						<Typography role="p" color="text-secondary">
-							Every token below is flipped — light page shows dark tones here, and vice-versa.
+							Every token below is flipped: light page shows dark tones here, and vice-versa.
 							Notice the native scrollbar color also changes.
 						</Typography>
 
 						<Box display="flex" gap="sm" flexWrap="wrap">
-							<Button variant="primary">Primary</Button>
-							<Button variant="secondary">Secondary</Button>
-							<Button variant="ghost">Ghost</Button>
+							<Button color="primary">Primary</Button>
+							<Button color="secondary">Secondary</Button>
+							<Button color="tertiary">Ghost</Button>
 						</Box>
 
 						<Box display="grid" gap="md" className="grid-cols-1 tablet:grid-cols-2">
@@ -86,11 +86,11 @@ export function InvertDemo() {
 							background="bg-tertiary"
 						>
 							<Typography role="caption" as="div" color="text-secondary">
-								Scroll me — the scrollbar matches the inverted mode (color-scheme flipped).
+								Scroll me: the scrollbar matches the inverted mode (color-scheme flipped).
 							</Typography>
 							{Array.from({ length: 20 }, (_, i) => (
 								<Typography key={i} role="caption" as="div" color="text-tertiary">
-									Line {i + 1} — padding so the scrollbar is scrollable.
+									Line {i + 1}: padding so the scrollbar is scrollable.
 								</Typography>
 							))}
 						</Box>

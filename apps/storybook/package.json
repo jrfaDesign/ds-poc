@@ -1,0 +1,40 @@
+{
+	"name": "storybook",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"storybook": "storybook dev -p 6006",
+		"build": "storybook build",
+		"check-types": "tsc --noEmit",
+		"lint": "eslint . --max-warnings 0"
+	},
+	"dependencies": {
+		"@repo/core": "workspace:*",
+		"@repo/foundations": "workspace:*",
+		"@repo/ui-react-native": "workspace:*",
+		"@repo/ui-web-tailwind": "workspace:*",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8",
+		"react-native": "^0.86.3",
+		"react-native-web": "^0.21.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@storybook/addon-docs": "^10.6.6",
+		"@storybook/react": "^10.6.6",
+		"@storybook/react-vite": "^10.6.6",
+		"@tailwindcss/vite": "^4.3.3",
+		"@types/node": "^24.13.3",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.4",
+		"eslint": "^10.9.0",
+		"eslint-plugin-react-hooks": "^7.1.1",
+		"eslint-plugin-react-refresh": "^0.5.4",
+		"globals": "^17.11.0",
+		"storybook": "^10.6.6",
+		"tailwindcss": "^4.3.3",
+		"typescript": "~6.0.2",
+		"typescript-eslint": "^8.67.0",
+		"vite": "^8.2.2"
+	}
+}

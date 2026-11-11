@@ -1,25 +1,7 @@
-import type { SpacingToken } from '@repo/foundations';
-import type { TextStyle, ViewStyle } from 'react-native';
+import type { MarginProps, PaddingProps } from '@repo/core';
+import type { ViewStyle } from 'react-native';
 
-export type MarginProps = {
-	margin?: SpacingToken;
-	marginX?: SpacingToken;
-	marginY?: SpacingToken;
-	marginTop?: SpacingToken;
-	marginBottom?: SpacingToken;
-	marginLeft?: SpacingToken;
-	marginRight?: SpacingToken;
-};
-
-export type PaddingProps = {
-	padding?: SpacingToken;
-	paddingX?: SpacingToken;
-	paddingY?: SpacingToken;
-	paddingTop?: SpacingToken;
-	paddingBottom?: SpacingToken;
-	paddingLeft?: SpacingToken;
-	paddingRight?: SpacingToken;
-};
+export type { MarginProps, PaddingProps };
 
 export function resolveMargin(p: MarginProps, spacing: Record<string, number>): ViewStyle {
 	const top = p.marginTop ?? p.marginY ?? p.margin;

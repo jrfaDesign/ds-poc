@@ -1,8 +1,8 @@
 /**
- * generate-codegen.mjs — Auto-generate codegen.js from index.ts
+ * generate-codegen.mjs: Auto-generate codegen.js from src/tokens/index.ts
  *
- * Uses the TypeScript Compiler API to parse index.ts and extract all
- * exported const arrays and metadata. This ensures codegen.js stays
+ * Uses the TypeScript Compiler API to parse src/tokens/index.ts and extract
+ * all exported const arrays and metadata. This ensures codegen.js stays
  * perfectly in sync with the canonical source of truth.
  *
  * Usage:
@@ -20,14 +20,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // ---------------------------------------------------------------------------
-// 1. Read and parse index.ts
+// 1. Read and parse src/tokens/index.ts
 // ---------------------------------------------------------------------------
 
-const indexTsPath = join(__dirname, '..', 'src', 'index.ts');
-const sourceText = readFileSync(indexTsPath, 'utf8');
+const tokensTsPath = join(__dirname, '..', 'src', 'tokens', 'index.ts');
+const sourceText = readFileSync(tokensTsPath, 'utf8');
 
 const sourceFile = ts.createSourceFile(
-	'index.ts',
+	'tokens/index.ts',
 	sourceText,
 	ts.ScriptTarget.Latest,
 	true, // setParentNodes
@@ -107,55 +107,10 @@ function extractSimpleObject(node) {
 	return result;
 }
 
-/**
- * Extract property names from a Zod schema variable (e.g. ComponentsPresetSchema).
- * Walks: z.object({ propA: ..., propB: ... }).strict()
- * Returns array of property name strings, or null if not found.
- */
-function extractZodSchemaPropertyNames(node, schemaName) {
-	if (!ts.isVariableStatement(node)) return null;
-	for (const decl of node.declarationList.declarations) {
-		if (!ts.isIdentifier(decl.name) || decl.name.text !== schemaName) continue;
-		if (!decl.initializer) continue;
-
-		// Walk the initializer chain: z.object({...}).strict() or z.object({...})
-		let current = decl.initializer;
-		while (current) {
-			if (ts.isCallExpression(current)) {
-				// Check arguments for ObjectLiteralExpression
-				for (const arg of current.arguments) {
-					if (ts.isObjectLiteralExpression(arg)) {
-						return arg.properties
-							.filter((p) => ts.isPropertyAssignment(p) && ts.isIdentifier(p.name))
-							.map((p) => p.name.text);
-					}
-				}
-				current = current.expression;
-			} else if (ts.isPropertyAccessExpression(current)) {
-				current = current.expression;
-			} else {
-				break;
-			}
-		}
-	}
-	return null;
-}
-
 // Walk the AST and collect variable declarations
 const variables = {};
 
-// Also extract schema property names for auto-derivation
-let componentsPresetProperties = null;
-
 function visit(node) {
-	// Check for ComponentsPresetSchema to extract property names
-	if (ts.isVariableStatement(node)) {
-		const extracted = extractZodSchemaPropertyNames(node, 'ComponentsPresetSchema');
-		if (extracted) {
-			componentsPresetProperties = extracted;
-		}
-	}
-
 	// Handle ALL const variable statements (exported and non-exported)
 	if (ts.isVariableStatement(node)) {
 		for (const decl of node.declarationList.declarations) {
@@ -176,7 +131,7 @@ function visit(node) {
 						extractObjectWithArrays(init.expression) ||
 						extractSimpleObject(init.expression);
 				} else if (ts.isCallExpression(init)) {
-					// Handle: z.object(...) — skip these (Zod schemas)
+					// Handle: z.object(...): skip these (Zod schemas)
 					// But also handle: z.enum(...)
 					// We skip all call expressions
 					value = null;
@@ -197,23 +152,6 @@ function visit(node) {
 visit(sourceFile);
 
 // ---------------------------------------------------------------------------
-// 2b. Auto-derive FLAT_CONTRACT_PROPERTIES.components from ComponentsPresetSchema
-// ---------------------------------------------------------------------------
-
-if (!componentsPresetProperties) {
-	console.error('Could not extract ComponentsPresetSchema property names from index.ts');
-	process.exit(1);
-}
-
-// Inject the auto-derived components list into FLAT_CONTRACT_PROPERTIES
-if (variables['FLAT_CONTRACT_PROPERTIES']) {
-	variables['FLAT_CONTRACT_PROPERTIES'].components = componentsPresetProperties;
-} else {
-	// Fallback: shouldn't happen, but create it if missing
-	variables['FLAT_CONTRACT_PROPERTIES'] = { components: componentsPresetProperties };
-}
-
-// ---------------------------------------------------------------------------
 // 3. Define what we need to export (in order)
 // ---------------------------------------------------------------------------
 
@@ -232,16 +170,13 @@ const arrayExports = [
 	{ name: 'lineHeightKeys', source: 'lineHeightKeys' },
 	{ name: 'letterSpacingKeys', source: 'letterSpacingKeys' },
 	{ name: 'fontFamilyKeys', source: 'fontFamilyKeys' },
-	{ name: 'typographyContractKeys', source: 'typographyContractKeys' },
 	{ name: 'shadowKeys', source: 'shadowKeys' },
 ];
 
 const objectExports = [
-	{ name: 'CONTRACT_STRUCTURE', source: 'CONTRACT_STRUCTURE' },
 	{ name: 'CONTRACT_PREFIX', source: 'CONTRACT_PREFIX' },
 	{ name: 'CONTRACT_VARIANTS', source: 'CONTRACT_VARIANTS' },
 	{ name: 'NESTED_CONTRACT_PROPERTIES', source: 'NESTED_CONTRACT_PROPERTIES' },
-	{ name: 'FLAT_CONTRACT_PROPERTIES', source: 'FLAT_CONTRACT_PROPERTIES' },
 	{ name: 'breakpoints', source: 'breakpoints' },
 ];
 
@@ -251,20 +186,20 @@ const objectExports = [
 
 const errors = [];
 
-for (const { name, source } of arrayExports) {
+for (const { source } of arrayExports) {
 	if (!variables[source]) {
 		errors.push(`Could not extract array: ${source}`);
 	}
 }
 
-for (const { name, source } of objectExports) {
+for (const { source } of objectExports) {
 	if (!variables[source]) {
 		errors.push(`Could not extract object: ${source}`);
 	}
 }
 
 if (errors.length > 0) {
-	console.error('Failed to extract from index.ts:');
+	console.error('Failed to extract from src/tokens/index.ts:');
 	for (const err of errors) {
 		console.error(`  - ${err}`);
 	}
@@ -304,10 +239,10 @@ function formatObject(obj, indent = '') {
 const lines = [];
 
 lines.push('/**');
-lines.push(' * codegen.js — Pure JS token name lists for build scripts.');
+lines.push(' * codegen.js: Pure JS token name lists for build scripts.');
 lines.push(' *');
-lines.push(' * AUTO-GENERATED by scripts/generate-codegen.mjs — DO NOT EDIT');
-lines.push(' * Edit packages/foundations/src/index.ts instead, then run:');
+lines.push(' * AUTO-GENERATED by scripts/generate-codegen.mjs: DO NOT EDIT');
+lines.push(' * Edit packages/foundations/src/tokens/index.ts instead, then run:');
 lines.push(' *   yarn workspace @repo/foundations generate:codegen');
 lines.push(' */');
 lines.push('');

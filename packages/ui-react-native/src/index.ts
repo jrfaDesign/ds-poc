@@ -5,15 +5,12 @@ export { useTheme } from './adapters/rn/useTheme';
 export { applyTheme } from './adapters/rn/applyTheme';
 export type {
 	ResolvedTheme,
-	ResolvedTypography,
+	ResolvedShape,
 	ResolvedShadow,
 	ResolvedActions,
 	ResolvedFeedback,
 	ResolvedSurfaces,
 	SurfaceKey,
-	ResolvedInputField,
-	ResolvedSelectionControl,
-	ResolvedToggle,
 } from './adapters/rn/applyTheme';
 export { InvertProvider } from './adapters/rn/InvertProvider';
 
@@ -33,7 +30,7 @@ export { Input } from './components/Input/Input';
 export type { BoxProps } from './components/Box/Box.types';
 export type { ButtonProps } from './components/Button/Button.types';
 export type { CardProps } from './components/Card/Card.types';
-export type { TypographyProps } from './components/Typography/Typography.types';
+export type { TypographyProps, TypographyVariant } from './components/Typography/Typography.types';
 export type { PageSectionProps } from './components/PageSection/PageSection.types';
 export type { AlertProps } from './components/Alert/Alert.types';
 export type { CheckboxProps } from './components/Checkbox/Checkbox.types';
@@ -60,10 +57,4 @@ export type {
 	LetterSpacingToken,
 	FontFamilyToken,
 } from '@repo/foundations';
-export type {
-	ButtonVariant,
-	CardVariant,
-	AlertIntent,
-	TypographyRole,
-	TypographyColor,
-} from '@repo/globals';
+export type { ButtonVariant, CardVariant, AlertIntent, TypographyColor } from '@repo/core';

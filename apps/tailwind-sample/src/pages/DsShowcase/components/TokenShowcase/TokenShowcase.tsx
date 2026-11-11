@@ -1,5 +1,5 @@
 import { Box, Card, PageSection, Typography } from '@repo/ui-web-tailwind';
-import type { ColorTokenCategory } from '@repo/foundations';
+import type { ColorTokenCategory } from '@repo/core';
 import type { TokenShowcaseProps } from './TokenShowcase.types';
 
 const PALETTE_FAMILIES = [

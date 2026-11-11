@@ -1,0 +1,62 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from '../web/Button.stories';
+
+<Meta title="Design system/Theme tiers" />
+
+# Theme tiers
+
+Every brand's look comes out of one file: the `ThemeConfig`.
+
+## Purpose
+
+Explain how a single config becomes a full theme, which tier a brand should
+get, and where to try it live. `resolveThemeConfig` in `@repo/foundations`
+turns the config into `Tokens`, and all three consumers (this Storybook, the
+web app, the native app) resolve it the same way.
+
+## When to Use
+
+- Deciding which tier to request from the theme API for a new brand.
+- Checking what changes when a tier or color is picked.
+- Demonstrating white-label behavior to stakeholders.
+
+## When Not to Use
+
+- **Choosing individual token values** (exact hexes, spacing, type) - those
+  come from the Super Charge DS design language, not from a tier.
+- **Building UI with tokens** - see the component pages under `Web/Base`.
+
+## The tiers
+
+- **`basic`**: nothing overridden beyond the logo. The safe starting point.
+- **`medium`**: the brand picks primary and secondary 600-step hexes, a shape
+  preset (`sharp` / `soft` / `rounded` / `full`) and fonts. Everything else is
+  derived.
+- **`enterprise`**: full custom themes. Not implemented yet; it resolves to the
+  default until it ships.
+
+## Try it live
+
+<Canvas of={ButtonStories.Default} />
+
+Open the **Theme** tab at the bottom and pick a tier. The fields below follow
+the tier, and only `medium` shows colors, shape and fonts. Colors take a preset
+swatch or a typed `#RRGGBB` value; invalid hex is never committed, so the
+preview cannot break. **Reset theme config** puts everything back.
+
+The **Mode** toolbar in the same bar switches light and dark. Check both modes
+whenever you change colors: contrast that works on white can fail on dark.
+
+## Why the brand only picks a 600
+
+Nobody hand-picks eleven shades. The brand picks the 600 step, and the resolver
+mixes toward white for the lighter steps and toward black for the darker ones.
+One hex in, a full consistent ramp out, behind every tint and shade the UI
+uses.
+
+## Design notes
+
+- One config, one resolver, three consumers. If a platform ever needs its own
+  resolution path, re-branding will start drifting between web and native.
+- The tier list is the contract your theme API should expose: request the
+  tier, get back a `ThemeConfig`, validate with `themeConfigSchema.parse`.

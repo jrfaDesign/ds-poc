@@ -2,14 +2,13 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { TopNavBarProps } from './TopNavBar.types';
 import { Container } from '../Container/Container';
 import { Input } from '../Input/Input';
-import { Tag } from '../Tag/Tag';
 import { Box } from '../Box/Box';
 import { Badge } from '../Badge/Badge';
 import { PageSection } from '../PageSection/PageSection';
 import { Card } from '../Card/Card';
 
 const FOCUS_RING =
-	'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-brand-tertiary-alt';
+	'focus-visible:ring-focus';
 
 const HEADER_MODE = 'light';
 
@@ -40,9 +39,9 @@ export function TopNavBar({
 	});
 
 	const handleSearchChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setSearchValue(e.target.value);
-			onSearchChange(e.target.value);
+		(value: string) => {
+			setSearchValue(value);
+			onSearchChange(value);
 		},
 		[onSearchChange]
 	);
@@ -74,7 +73,7 @@ export function TopNavBar({
 
 	return (
 		<nav
-			className={['w-full sticky top-0 z-50 shadow-sm relative', 'bg-headerBg', className]
+			className={['w-full sticky top-0 z-50 shadow-sm relative', 'bg-header', className]
 				.filter(Boolean)
 				.join(' ')}
 			style={style}
@@ -112,7 +111,9 @@ export function TopNavBar({
 									{item.label}
 									{item.badge && (
 										<>
-											<Badge variant="success" label="Live" size="sm" />
+											<Badge color="success" size="sm">
+												Live
+											</Badge>
 										</>
 									)}
 								</button>
@@ -168,7 +169,7 @@ export function TopNavBar({
 				</Container>
 				{/* Active indicator at bottom of header */}
 				<div
-					className="hidden md:flex absolute bottom-0 left-0 h-1 bg-activeTabIndicator transition-all duration-200"
+					className="hidden md:flex absolute bottom-0 left-0 h-1 bg-tab-indicator transition-all duration-200"
 					style={{
 						width: underlineStyle.width,
 						left: underlineStyle.left,

@@ -10,7 +10,7 @@ import { initialFilters } from '@/data/mockFilters';
 import type { FilterSectionData } from '@/data/mockFilters';
 
 export default function MVPScreen() {
-	const { theme } = useTheme();
+	useTheme();
 	const [filters, setFilters] = useState<FilterSectionData[]>(initialFilters);
 
 	const handleSectionToggle = useCallback((sectionId: string, optionId: string) => {
@@ -48,10 +48,10 @@ export default function MVPScreen() {
 					<Box gap="sm">
 						<Box flexDirection="row" alignItems="center" justifyContent="space-between">
 							<Box gap="xs">
-								<Typography role="h4" color="text-primary">
+								<Typography variant="headline" color="text-primary">
 									Sales
 								</Typography>
-								<Typography role="caption" color="text-secondary">
+								<Typography variant="caption" color="text-secondary">
 									{mockSales.length} results
 								</Typography>
 							</Box>

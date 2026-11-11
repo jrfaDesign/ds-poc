@@ -1,6 +1,6 @@
 import { View, type ViewStyle } from 'react-native';
 import { useTheme, Typography, Box, PageSection } from '@repo/ui-react-native';
-import type { ShadowToken } from '@repo/foundations';
+import type { ShadowToken } from '@repo/core';
 import { ThemedScreen } from '@/components/ThemedScreen';
 
 export default function ShadowsScreen() {
@@ -19,10 +19,10 @@ export default function ShadowsScreen() {
 			<PageSection padding="lg">
 				<Box gap="xl">
 					<Box gap="sm">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Shadows
 						</Typography>
-						<Typography role="p" color="text-secondary">
+						<Typography variant="body" color="text-secondary">
 							Shadow tokens resolved to React Native elevation and shadow props.
 						</Typography>
 					</Box>
@@ -37,10 +37,10 @@ export default function ShadowsScreen() {
 										theme.shadows[key],
 									]}
 								/>
-								<Typography role="caption" color="text-tertiary">
+								<Typography variant="caption" color="text-tertiary">
 									{key}
 								</Typography>
-								<Typography role="caption" color="text-tertiary" style={elevationLabelStyle}>
+								<Typography variant="caption" color="text-tertiary" style={elevationLabelStyle}>
 									elevation: {theme.shadows[key].elevation}
 								</Typography>
 							</Box>

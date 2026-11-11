@@ -3,7 +3,7 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@repo/ui-react-native';
 
 export default function SettingsLayout() {
-	const { isDark, theme } = useTheme();
+	useTheme();
 
 	return (
 		<Stack

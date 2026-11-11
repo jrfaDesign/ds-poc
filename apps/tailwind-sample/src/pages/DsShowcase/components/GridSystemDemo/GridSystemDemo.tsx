@@ -10,7 +10,7 @@ export function GridSystemDemo() {
 					<Typography role="p" color="text-secondary" className="max-w-prose">
 						A responsive, token-driven grid built on CSS custom properties. Columns, gutter, margin,
 						and max-width are read per breakpoint from the active theme. Resize the window to watch
-						everything respond — no JavaScript, no flash.
+						everything respond: no JavaScript, no flash.
 					</Typography>
 				</Box>
 
@@ -42,7 +42,7 @@ export function GridSystemDemo() {
 								border="1px-border-primary-solid"
 							>
 								<Typography role="caption" color="text-tertiary" marginBottom="sm">
-									fixed — max-width capped per breakpoint
+									fixed: max-width capped per breakpoint
 								</Typography>
 								<Container>
 									<Box background="bg-brand-solid" borderRadius="sm" padding="sm">
@@ -61,7 +61,7 @@ export function GridSystemDemo() {
 								border="1px-border-primary-solid"
 							>
 								<Typography role="caption" color="text-tertiary" marginBottom="sm">
-									fluid — no cap, margins apply
+									fluid: no cap, margins apply
 								</Typography>
 								<Container fluid>
 									<Box background="bg-brand-solid" borderRadius="sm" padding="sm">
@@ -144,8 +144,8 @@ export function GridSystemDemo() {
 						accepts a{' '}
 						<Typography role="caption" style={{ fontFamily: 'var(--typography-monospaceFont)' }}>
 							span
-						</Typography>{' '}
-						— a single number or a per-breakpoint map. The column grows or shrinks at each
+						</Typography>
+						: a single number or a per-breakpoint map. The column grows or shrinks at each
 						breakpoint to fill its share of the parent grid.
 					</Typography>
 					<Grid columns={{ mobile: 4, tablet: 6, desktop: 12 }} gap="md">

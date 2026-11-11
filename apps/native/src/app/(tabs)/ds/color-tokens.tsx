@@ -1,6 +1,6 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useTheme, Typography, Box, Card, PageSection } from '@repo/ui-react-native';
-import type { ColorTokenCategory } from '@repo/foundations';
+import type { ColorTokenCategory } from '@repo/core';
 import { ThemedScreen } from '@/components/ThemedScreen';
 
 const CATEGORY_LABELS: Record<ColorTokenCategory, string> = {
@@ -24,11 +24,11 @@ export default function ColorTokensScreen() {
 			<PageSection padding="lg">
 				<Box gap="xl">
 					<Box gap="sm">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Color Tokens
 						</Typography>
-						<Typography role="p" color="text-secondary">
-							Semantic tokens resolve to a light/dark pair — they flip automatically
+						<Typography variant="body" color="text-secondary">
+							Semantic tokens resolve to a light/dark pair: they flip automatically
 							when you toggle dark mode.
 						</Typography>
 					</Box>
@@ -38,7 +38,7 @@ export default function ColorTokensScreen() {
 						const tokenNames = Object.keys(tokens);
 						return (
 							<Card key={category} variant="surface" style={cardStyle}>
-								<Typography role="overline" color="text-secondary">
+								<Typography variant="caption" color="text-secondary">
 									{CATEGORY_LABELS[category]}
 								</Typography>
 								<Box flexDirection="row" gap="sm" flexWrap="wrap">
@@ -50,7 +50,7 @@ export default function ColorTokensScreen() {
 													{ width: '100%', backgroundColor: (theme.colorTokens as Record<string, string>)[name] ?? theme.colorTokens['text-tertiary'], borderColor: theme.colorTokens['border-tertiary'] },
 												]}
 											/>
-											<Typography role="caption" color="text-tertiary" style={tokenLabelStyle}>
+											<Typography variant="caption" color="text-tertiary" style={tokenLabelStyle}>
 												{name}
 											</Typography>
 										</Box>

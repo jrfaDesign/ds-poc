@@ -1,0 +1,52 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Intro/Introduction" />
+
+# Start here
+
+This Storybook is the design system you can click. Everything the apps ship
+(tokens and components) shows up here first, before it hits a branch.
+
+## Purpose
+
+Use this page to pick the right next page. The sidebar has three groups:
+this **Intro**, a **Design system** section with every token we define, and one
+section per platform: **Web** and **React Native**. The native components are
+the real ones from `@repo/ui-react-native`, rendered in the browser, so
+reviewing them doesn't need a simulator.
+
+## Where to go next
+
+### I'm building an app with this design system
+
+1. [Setup & packages](?path=/docs/intro-setup-packages--docs): which packages
+   exist, what each is for, how to install them.
+2. Then your platform guide:
+   - [Getting started (Web)](?path=/docs/intro-getting-started-web--docs):
+     Tailwind wiring, `applyTheme` before first paint, `ThemeProvider`,
+     white-label theming, dark mode.
+   - [Getting started (Mobile)](?path=/docs/intro-getting-started-mobile--docs):
+     `AppProvider`, the same `ThemeConfig`, dark mode as app state.
+
+### I'm changing the design system itself
+
+1. [Architecture](?path=/docs/intro-architecture--docs): folder structure,
+   where foundations and adapters live, which package owns your change.
+2. [Ways of working](?path=/docs/intro-ways-of-working--docs): the
+   development loop, the gates, and the conventions for tokens, components,
+   stories and docs.
+
+### I just want to look around
+
+Open the **Theme** tab at the bottom, switch the tier to `medium`, and the
+color, shape and font fields appear. Change them and the whole preview
+re-themes instantly; it's the same `ThemeConfig` the apps get from their API.
+The **Mode** toolbar next to it flips light and dark; the **Web/Base** pages
+are the components, each with live controls.
+
+## Design notes
+
+Everything here runs the real pipeline (the same providers, resolvers and
+generated theme the apps use), so what you see in a canvas is what an app gets.
+If a preview and the design language ever disagree, the design language wins
+and the code is what gets fixed.

@@ -1,16 +1,15 @@
 import type { ReactNode } from 'react';
 import type { ViewStyle, TextStyle } from 'react-native';
-import type { ButtonVariant } from '@repo/globals';
+import type { ButtonSharedProps, ButtonSize, ButtonVariant } from '@repo/core';
 import type { MarginProps } from '../shared/spacing';
 
-export type { ButtonVariant };
+export type { ButtonSize, ButtonVariant };
 
-export type ButtonProps = MarginProps & {
-	variant?: ButtonVariant;
-	disabled?: boolean;
-	size?: 'sm' | 'md' | 'lg';
-	children?: ReactNode;
-	onPress?: () => void;
-	style?: ViewStyle;
-	textStyle?: TextStyle;
-};
+export type ButtonProps = MarginProps &
+	ButtonSharedProps & {
+		children?: ReactNode;
+		/** Press handler: RN-native activate handler (web uses `onClick`). */
+		onPress?: () => void;
+		style?: ViewStyle;
+		textStyle?: TextStyle;
+	};

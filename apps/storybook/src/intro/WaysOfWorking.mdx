@@ -1,0 +1,147 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Intro/Ways of working" />
+
+# Ways of working
+
+How we develop here: the loop we run for every change, the two gates, and the
+conventions for components, tokens, themes and documentation.
+
+## Purpose
+
+This is the day-to-day playbook for contributing to the design system. Read
+[Architecture](?path=/docs/intro-architecture--docs) for the map. This page is
+how the work actually runs.
+
+## When to Use
+
+- Starting any change in this repository: token, component, theme or docs.
+- Reviewing a change and checking it follows our conventions.
+- Picking up the repo for the first time as a contributor.
+
+## When Not to Use
+
+- **Integrating the system into an app**: see the
+  [Web](?path=/docs/intro-getting-started-web--docs) /
+  [Mobile](?path=/docs/intro-getting-started-mobile--docs) guides.
+- **Design decisions** (which color, which spacing, which radius): those come
+  from the Super Charge DS design language, never from taste in the moment.
+
+## The development loop
+
+```text
+Read the design language + package map  ->  make the change
+->  regenerate if schema/theme touched  ->  yarn check-types  ->  yarn lint
+->  storybook build / preview  ->  done
+```
+
+1. Start from the design language and the package map, not from an example in
+   another repo.
+2. Make the smallest change that satisfies the need. Deleting beats adding.
+3. If you touched `packages/foundations/src/tokens` or `src/theme`, regenerate
+   before type-checking (the generated files are part of the change).
+4. Run the gates. Anything less is not done.
+
+## Commands
+
+- `yarn storybook`: start this Storybook (port 6006).
+- `yarn tailwind-sample`: start the web sample app.
+- `yarn native-sample`: start the native app (Expo).
+- `yarn check-types`: type-check every package.
+- `yarn lint`: lint every package.
+- `yarn build`: build everything, including the static Storybook.
+- `yarn workspace @repo/foundations generate:tokens`: regenerate `codegen.js`
+  and `tailwind-theme.css`.
+- `yarn workspace @repo/foundations verify:codegen`: fail if generated files
+  drifted from the schema.
+
+## The gates
+
+Before you call anything done:
+
+- [ ] `yarn check-types`: green
+- [ ] `yarn lint`: green
+- [ ] Schema/theme change? `generate:tokens` then `verify:codegen`: green
+- [ ] Component or docs change? `yarn workspace storybook build` succeeds, and
+      the story index still shows exactly one story per component
+- [ ] Visual change? Eyeball it in Storybook in **both** light and dark (Mode
+      toolbar), and in the sample app if the change is consumer-facing
+
+Node **18 or newer** is required for Yarn 4 to fetch packages (new dependencies
+fail on older Node with `fetch is not defined`).
+
+## Adding a token
+
+Three steps, no magic:
+
+1. Add the key to the schema in `packages/foundations/src/tokens/index.ts`.
+2. Add its value in `packages/foundations/src/theme/defaultTheme.ts`.
+3. Run `yarn workspace @repo/foundations generate:tokens`.
+
+From there it's `className="bg-my-token"` on web and
+`theme.colorTokens['bg-my-token']` on native. If the token is a color that only
+needs a tint/shade of something that exists, prefer reusing with opacity: don't
+add a hex.
+
+## Adding a component
+
+- **Types first:** if both platforms need a prop, it belongs in `@repo/core`
+  (`*Shared.ts`); handlers and `className`/`style` stay platform-side.
+- **Shape:** one folder per component (`<Name>.tsx` + `<Name>.types.ts`),
+  exported from the package barrel (`src/index.ts`). Consumers never
+  deep-import.
+- **Build against the theme:** read contracts, color tokens and the shape
+  preset through `useTheme()`. Never hardcode a hex or a px; promote the value
+  to a token instead.
+- **Mirror across platforms** when the component is meant to exist everywhere:
+  shared shape in core, platform mechanics in each UI package.
+- **Then document it:** come back to Storybook and add its stories (below).
+
+## Writing stories
+
+- One **`Default`** story per component, control-driven: declare `args` and
+  `argTypes` with a `description` for every control. The controls panel _is_
+  the props documentation.
+- Title convention: web components use `Web/Base/<Component>`, native use
+  `React Native/<Component>`. Exactly one story per component title: multiple
+  stories under one title are a mistake (the index check above catches it).
+- Token stories live under `Design system/*`; guides under `Intro/*`.
+
+## Writing MDX documentation
+
+Documentation exists to help a developer who has never seen this before
+**make decisions**: purpose, when to use, when not to use, examples. It is not
+a description of what something looks like. Focus on decisions, not
+appearances.
+
+## Changing the theme config
+
+The white-label config lives in `packages/foundations/src/theme/`. A change
+usually touches **three places plus docs**: the resolver, this Storybook's
+Theme panel, the sample apps' config editors (web profile menu, native
+Settings screen), and the `Design system/Theme tiers` page if the tier table
+changed.
+
+## Common gotchas
+
+- **Never hand-edit** `packages/foundations/src/codegen.js` or
+  `tailwind-theme.css`: regenerate, then `verify:codegen`.
+- **Don't put React in `foundations` or `core`.** They are leaves; platform
+  code flows down to them, never up.
+- **A token needs no adapter work:** both adapters resolve contracts
+  generically. If you are editing `applyTheme` to add a token, stop: you are
+  editing the wrong layer.
+- **`dark:` utilities follow the `dark` class**, not the OS preference: the
+  thing that toggles the mode must toggle that class (web) or pass `isDark`
+  (mobile).
+- **New package or dependency installs need Node 18 or newer** (see gates
+  above).
+
+## Design notes
+
+- Bias toward deleting code instead of adding it: a smaller system is a system
+  you can keep consistent.
+- Every generated file, theme config editor and docs page exists in pairs for a
+  reason (schema and codegen, resolver and three editors, story and docs).
+  Changes that update only one half of a pair are the classic way drift starts.
+  The gates exist to make the half-done change visible.

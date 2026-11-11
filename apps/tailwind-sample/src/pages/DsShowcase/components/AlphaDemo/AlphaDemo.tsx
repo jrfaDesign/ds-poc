@@ -157,8 +157,8 @@ export function AlphaDemo() {
 							role="caption"
 							color="text-brand-secondary"
 							style={{ fontFamily: fontFamilyVar('mono') }}
-						>{`<Box background="token/value">`}</Typography>{' '}
-						— the same{' '}
+						>{`<Box background="token/value">`}</Typography>
+						: the same{' '}
 						<Typography
 							role="caption"
 							color="text-brand-secondary"
@@ -174,25 +174,12 @@ export function AlphaDemo() {
 						<Box className="min-w-48">
 							<Select
 								label="Token"
-								value={token}
-								onChange={(e) => setToken(e.target.value)}
+								selectedKey={token}
+								onChange={(key) => setToken(key as string)}
 								id="alpha-token"
 							>
-								<optgroup label="Background">
-									{BG_TOKENS.map((t) => (
-										<Select.Item key={t} value={t}>
-											{t}
-										</Select.Item>
-									))}
-								</optgroup>
-								{UTILITY_GROUPS.map((group) => (
-									<optgroup key={group.label} label={group.label}>
-										{group.tokens.map((t) => (
-											<Select.Item key={t} value={t}>
-												{t}
-											</Select.Item>
-										))}
-									</optgroup>
+								{[...BG_TOKENS, ...UTILITY_GROUPS.flatMap((group) => group.tokens)].map((t) => (
+									<Select.Item key={t} id={t} label={t} />
 								))}
 							</Select>
 						</Box>
@@ -243,7 +230,7 @@ export function AlphaDemo() {
 						</Box>
 
 						<Button
-							variant="ghost"
+							color="tertiary"
 							onClick={() => {
 								setToken(DEFAULT_TOKEN);
 								setAlpha(DEFAULT_ALPHA);
@@ -286,7 +273,7 @@ export function AlphaDemo() {
 							See through me
 						</Typography>
 
-						{/* translucent overlay — the star of the show */}
+						{/* translucent overlay: the star of the show */}
 						<Box
 							position="absolute"
 							inset={0}

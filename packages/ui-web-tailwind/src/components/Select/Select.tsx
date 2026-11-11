@@ -1,241 +1,150 @@
-import { useState, useRef, useEffect, useCallback, Children, isValidElement } from 'react';
-import type React from 'react';
-import { Typography } from '../Typography/Typography';
-import type { SelectProps, SelectItemProps } from './Select.types';
+"use client";
 
-const sizeClasses: Record<'sm' | 'md' | 'lg', string> = {
-	sm: 'text-xs py-[2px] ps-sm pe-sm min-h-[30px]',
-	md: 'text-sm py-xs ps-3xl pe-3xl min-h-[40px]',
-	lg: 'text-md py-sm ps-3xl pe-3xl min-h-[50px]',
-};
+import type { FC, ReactNode, Ref } from "react";
+import { isValidElement } from "react";
+import { ChevronDown } from "@untitledui/icons";
+import { Button as AriaButton, ListBox as AriaListBox, Select as AriaSelect, SelectValue as AriaSelectValue } from "react-aria-components";
+import { Avatar } from "../Avatar/Avatar";
+import { HintText } from "../Input/hint-text";
+import { Label } from "../Input/label";
+import { cx } from "../shared/cx";
+import { isReactComponent } from "../shared/is-react-component";
+import { ComboBox } from "./combobox";
+import { Popover } from "./popover";
+import { SelectItem } from "./select-item";
+import { SelectContext, type SelectItemType, sizes } from "./select-shared";
+import type { SelectProps } from "./Select.types";
+export type { SelectProps } from "./Select.types";
 
-const surfaceClasses = {
-	alt: 'bg-surface-alt-bg text-surface-alt-on border-surface-alt-border',
-	base: 'bg-surface-base-bg text-surface-base-on border-surface-base-border',
-	raised: 'bg-surface-raised-bg text-surface-raised-on border-surface-raised-border',
-	sunken: 'bg-surface-sunken-bg text-surface-sunken-on border-surface-sunken-border',
-	brand: 'bg-surface-brand-bg text-surface-brand-on border-surface-brand-border',
-	inverse: 'bg-surface-inverse-bg text-surface-inverse-on border-surface-inverse-border',
-};
+export { SelectContext, sizes, type CommonProps, type SelectItemType } from "./select-shared";
 
-const surfaceLabelColor = {
-	alt: 'text-surface-alt-on',
-	base: 'text-surface-base-on',
-	raised: 'text-surface-raised-on',
-	sunken: 'text-surface-sunken-on',
-	brand: 'text-surface-brand-on',
-	inverse: 'text-surface-inverse-on',
-};
 
-function ChevronIcon({ open }: { open: boolean }) {
-	return (
-		<svg
-			viewBox="0 0 20 20"
-			fill="currentColor"
-			aria-hidden="true"
-			style={{
-				width: 16,
-				height: 16,
-				flexShrink: 0,
-				transition: 'transform 150ms',
-				transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-			}}
-		>
-			<path
-				fillRule="evenodd"
-				d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-				clipRule="evenodd"
-			/>
-		</svg>
-	);
+interface SelectValueProps {
+    /** Whether the dropdown is open, which keeps the trigger in its focused ring style. */
+    isOpen: boolean;
+    /** Controls the trigger's padding, text size, and icon size. */
+    size: "sm" | "md" | "lg";
+    /** Whether the trigger is focused, which draws the brand focus ring. */
+    isFocused: boolean;
+    /** Whether the trigger is dimmed and rejects pointer interaction. */
+    isDisabled: boolean;
+    /** Text shown in the trigger while no item is selected. */
+    placeholder?: string;
+    /** Ref to the trigger button element. */
+    ref?: Ref<HTMLButtonElement>;
+    /** Leading icon shown in the trigger when the selected item has no icon of its own. */
+    icon?: FC | ReactNode;
 }
 
-// SelectItem is only a marker — its props are read by SelectRoot
-function SelectItem(_props: SelectItemProps) {
-	return null;
-}
+const SelectValue = ({ isOpen, isFocused, isDisabled, size, placeholder, icon, ref }: SelectValueProps) => {
+    return (
+        <AriaButton
+            ref={ref}
+            className={cx(
+                "relative flex w-full cursor-pointer items-center rounded-input bg-primary shadow-xs ring-1 ring-border-primary outline-hidden transition duration-100 ease-linear ring-inset",
+                (isFocused || isOpen) && "ring-2 ring-border-brand",
+                isDisabled && "cursor-not-allowed opacity-50",
+            )}
+        >
+            <AriaSelectValue<SelectItemType>
+                className={(state) =>
+                    cx(
+                        "flex h-max w-full items-center justify-start truncate text-left align-middle",
 
-function SelectRoot({
-	label,
-	value: controlledValue,
-	defaultValue = '',
-	onChange,
-	id,
-	children,
-	size = 'md',
-	surface = 'alt',
-	disabled = false,
-}: SelectProps) {
-	const [isOpen, setIsOpen] = useState(false);
-	const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
-	const [hoveredIdx, setHoveredIdx] = useState(-1);
-	const [focused, setFocused] = useState(false);
-	const [hovered, setHovered] = useState(false);
-	const wrapperRef = useRef<HTMLDivElement>(null);
-	const triggerRef = useRef<HTMLButtonElement>(null);
+                        sizes[size].root,
 
-	const selectedValue = controlledValue ?? uncontrolledValue;
+                        // With icon
+                        (state.selectedItems[0]?.icon || icon) && sizes[size].withIcon,
 
-	const items: { value: string; label: string; disabled: boolean }[] = [];
-	Children.forEach(children, (child) => {
-		if (isValidElement(child) && child.type === SelectItem) {
-			const props = child.props as SelectItemProps;
-			items.push({
-				value: props.value,
-				label: typeof props.children === 'string' ? props.children : props.value,
-				disabled: props.disabled ?? false,
-			});
-		}
-	});
+                        // Icon styles
+                        "*:data-icon:shrink-0 *:data-icon:text-fg-quaternary",
+                    )
+                }
+            >
+                {(state) => {
+                    const selectedItem = state.selectedItems[0];
+                    const Icon = selectedItem?.icon || icon;
 
-	const selectedItem = items.find((i) => i.value === selectedValue);
+                    return (
+                        <>
+                            {selectedItem?.avatarUrl ? (
+                                <Avatar size="xs" src={selectedItem.avatarUrl} alt={selectedItem.label} className={cx(size === "sm" && "size-5")} />
+                            ) : isReactComponent(Icon) ? (
+                                <Icon data-icon aria-hidden="true" />
+                            ) : isValidElement(Icon) ? (
+                                Icon
+                            ) : null}
 
-	const selectItem = useCallback(
-		(itemValue: string) => {
-			setUncontrolledValue(itemValue);
-			setIsOpen(false);
-			setHoveredIdx(-1);
-			onChange?.({ target: { value: itemValue } });
-			triggerRef.current?.focus();
-		},
-		[onChange]
-	);
+                            {selectedItem ? (
+                                <section className={cx("flex w-full truncate", sizes[size].textContainer)}>
+                                    <p className={cx("truncate font-medium text-primary", sizes[size].text)}>{selectedItem?.label}</p>
+                                    {selectedItem?.supportingText && <p className={cx("text-tertiary", sizes[size].text)}>{selectedItem?.supportingText}</p>}
+                                </section>
+                            ) : (
+                                <p className={cx("text-placeholder", sizes[size].text)}>{placeholder}</p>
+                            )}
 
-	const handleTriggerKeyDown = useCallback(
-		(e: React.KeyboardEvent) => {
-			if (disabled) return;
-			switch (e.key) {
-				case 'Enter':
-				case ' ':
-					e.preventDefault();
-					setIsOpen((p) => !p);
-					break;
-				case 'ArrowDown':
-					e.preventDefault();
-					if (!isOpen) {
-						setIsOpen(true);
-					} else {
-						const ci = items.findIndex((i) => i.value === selectedValue);
-						const next = items.find((i, idx) => idx > ci && !i.disabled);
-						if (next) selectItem(next.value);
-					}
-					break;
-				case 'ArrowUp':
-					e.preventDefault();
-					if (!isOpen) {
-						setIsOpen(true);
-					} else {
-						const ci = items.findIndex((i) => i.value === selectedValue);
-						for (let idx = ci - 1; idx >= 0; idx--) {
-							const it = items[idx];
-							if (it && !it.disabled) {
-								selectItem(it.value);
-								break;
-							}
-						}
-					}
-					break;
-				case 'Escape':
-					setIsOpen(false);
-					break;
-			}
-		},
-		[disabled, isOpen, items, selectedValue, selectItem]
-	);
+                            <ChevronDown
+                                aria-hidden="true"
+                                className={cx("ml-auto shrink-0 text-fg-quaternary", size === "lg" ? "size-5" : "size-4 stroke-[2.25px]")}
+                            />
+                        </>
+                    );
+                }}
+            </AriaSelectValue>
+        </AriaButton>
+    );
+};
 
-	useEffect(() => {
-		if (!isOpen) return;
-		const handler = (e: MouseEvent) => {
-			if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setIsOpen(false);
-		};
-		document.addEventListener('mousedown', handler);
-		return () => document.removeEventListener('mousedown', handler);
-	}, [isOpen]);
+const Select = ({
+    placeholder = "Select",
+    icon,
+    size = "md",
+    children,
+    items,
+    label,
+    hint,
+    tooltip,
+    hideRequiredIndicator,
+    className,
+    ...rest
+}: SelectProps) => {
+    return (
+        <SelectContext.Provider value={{ size }}>
+            <AriaSelect {...rest} className={(state) => cx("flex flex-col gap-sm", typeof className === "function" ? className(state) : className)}>
+                {(state) => (
+                    <>
+                        {label && (
+                            <Label isRequired={hideRequiredIndicator ? false : state.isRequired} tooltip={tooltip}>
+                                {label}
+                            </Label>
+                        )}
 
-	const triggerClasses = [
-		'w-full flex items-center justify-center gap-2 cursor-pointer rounded-inputBorderRadii border border-solid outline-none',
-		'transition-[border-color,box-shadow] duration-150',
-		disabled ? 'opacity-50 cursor-not-allowed' : '',
-		focused
-			? 'border-surface-brand-border ring-focus'
-			: hovered && !disabled
-				? 'border-surface-raised-border'
-				: surfaceClasses[surface],
-		sizeClasses[size],
-	]
-		.filter(Boolean)
-		.join(' ');
+                        <SelectValue {...state} {...{ size, placeholder }} icon={icon} />
 
-	const labelClass = surfaceLabelColor[surface];
+                        <Popover size={size} className={rest.popoverClassName}>
+                            <AriaListBox items={items} className="size-full outline-hidden">
+                                {children}
+                            </AriaListBox>
+                        </Popover>
 
-	return (
-		<div className="flex flex-col gap-xxs">
-			{label && (
-				<Typography role="label" className={labelClass}>
-					{label}
-				</Typography>
-			)}
-			<div ref={wrapperRef} className="relative">
-				<button
-					ref={triggerRef}
-					type="button"
-					id={id}
-					role="combobox"
-					aria-expanded={isOpen}
-					aria-haspopup="listbox"
-					disabled={disabled}
-					className={triggerClasses}
-					onClick={() => !disabled && setIsOpen((p) => !p)}
-					onKeyDown={handleTriggerKeyDown}
-					onFocus={() => setFocused(true)}
-					onBlur={() => setFocused(false)}
-					onMouseEnter={() => setHovered(true)}
-					onMouseLeave={() => setHovered(false)}
-				>
-					<span className="flex-1 text-left overflow-hidden text-ellipsis whitespace-nowrap">
-						{selectedItem?.label ?? <span className="opacity-50">Select...</span>}
-					</span>
-					<ChevronIcon open={isOpen} />
-				</button>
+                        {hint && (
+                            <HintText isInvalid={state.isInvalid} className={cx(size === "sm" && "text-xxs")}>
+                                {hint}
+                            </HintText>
+                        )}
+                    </>
+                )}
+            </AriaSelect>
+        </SelectContext.Provider>
+    );
+};
 
-				{isOpen && (
-					<div
-						role="listbox"
-						className="absolute z-50 left-0 right-0 mt-1 rounded-inputBorderRadii border border-solid bg-surface-alt-bg shadow-md max-h-60 overflow-y-auto py-xs"
-					>
-						{items.map((item, idx) => {
-							const isSelected = item.value === selectedValue;
-							const isHovered = idx === hoveredIdx;
-							return (
-								<div
-									key={item.value}
-									role="option"
-									aria-selected={isSelected}
-									className={[
-										'py-xs ps-sm pe-sm text-sm cursor-pointer transition-colors',
-										isSelected
-											? 'bg-surface-brand-bg text-surface-brand-on font-semibold'
-											: isHovered
-												? 'bg-surface-raised-bg'
-												: '',
-										item.disabled ? 'opacity-50 cursor-not-allowed' : '',
-									]
-										.filter(Boolean)
-										.join(' ')}
-									onClick={() => !item.disabled && selectItem(item.value)}
-									onMouseEnter={() => !item.disabled && setHoveredIdx(idx)}
-									onMouseLeave={() => setHoveredIdx(-1)}
-									onMouseDown={(e) => e.preventDefault()}
-								>
-									{item.label}
-								</div>
-							);
-						})}
-					</div>
-				)}
-			</div>
-		</div>
-	);
-}
+const _Select = Select as typeof Select & {
+    ComboBox: typeof ComboBox;
+    Item: typeof SelectItem;
+};
+_Select.ComboBox = ComboBox;
+_Select.Item = SelectItem;
 
-export const Select = Object.assign(SelectRoot, { Item: SelectItem });
+export { _Select as Select };

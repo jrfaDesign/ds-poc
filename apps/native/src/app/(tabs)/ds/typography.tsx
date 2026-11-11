@@ -1,9 +1,19 @@
 import { useTheme, Typography, Box, Card, PageSection } from '@repo/ui-react-native';
 import { ThemedScreen } from '@/components/ThemedScreen';
 
+const VARIANTS = ['display', 'title', 'headline', 'body', 'label', 'caption'] as const;
+
+const variantSize = {
+	display: '5xl',
+	title: '3xl',
+	headline: 'xl',
+	body: 'md',
+	label: 'sm',
+	caption: 'xs',
+} as const;
+
 export default function TypographyScreen() {
 	const { theme } = useTheme();
-	const roles = ['h1', 'h2', 'h3', 'h4', 'p', 'caption', 'label', 'overline'] as const;
 
 	const cardStyle = { gap: theme.spacing.md };
 
@@ -12,44 +22,33 @@ export default function TypographyScreen() {
 			<PageSection padding="lg">
 				<Box gap="xl">
 					<Box gap="sm">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Typography
 						</Typography>
-						<Typography role="p" color="text-secondary">
-							Typography contracts — semantic compositions of font size, weight, line height, and
-							color.
+						<Typography variant="body" color="text-secondary">
+							Mobile type variants: display, title, headline, body, label, caption. Each maps
+							to a size/weight/family pair inside the RN library (the web h1/h2 hierarchy is
+							web-only).
 						</Typography>
 					</Box>
 
-					{roles.map((role) => {
-						const typo = theme.contracts.typography[role];
+					{VARIANTS.map((variant) => {
+						const size = theme.typography.fontSize[variantSize[variant]];
 						return (
-							<Card key={role} variant="surface" style={cardStyle}>
-								<Typography role="h4" color="text-brand-tertiary">
-									{role}
+							<Card key={variant} variant="surface" style={cardStyle}>
+								<Typography variant="label" color="text-brand-tertiary">
+									{variant}
 								</Typography>
-								<Typography
-									role={role}
-									style={{
-										color: typo?.color,
-										fontSize: typo?.fontSizePx,
-										fontWeight: typo?.fontWeight as any,
-									}}
-								>
+								<Typography variant={variant}>
 									The quick brown fox jumps over the lazy dog
 								</Typography>
 								<Box flexDirection="row" gap="md" flexWrap="wrap">
-									<Typography role="caption" color="text-tertiary">
-										Size: {typo?.fontSizePx}px
+									<Typography variant="caption" color="text-tertiary">
+										Size: {size.fontSizePx}px
 									</Typography>
-									<Typography role="caption" color="text-tertiary">
-										Weight: {typo?.fontWeight}
+									<Typography variant="caption" color="text-tertiary">
+										Line height: {size.lineHeightPx}px
 									</Typography>
-									{typo?.fontFamily && (
-										<Typography role="caption" color="text-tertiary">
-											Family: {typo.fontFamily}
-										</Typography>
-									)}
 								</Box>
 							</Card>
 						);

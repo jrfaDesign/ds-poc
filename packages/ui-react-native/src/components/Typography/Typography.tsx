@@ -1,44 +1,30 @@
-import { Text, StyleSheet, type TextStyle } from 'react-native';
-import type { TypographyProps, TypographyRole } from './Typography.types';
-import type { FontSizeToken, LineHeightToken } from '@repo/foundations';
+import { Text, type TextStyle } from 'react-native';
+import type { FontSizeToken } from '@repo/foundations';
+import type { TypographyProps, TypographyVariant } from './Typography.types';
 import { resolveMargin } from '../shared/spacing';
 import { useTheme } from '../../adapters/rn/useTheme';
 
-const roleFontSizeMap: Record<TypographyRole, FontSizeToken> = {
-	h1: '5xl',
-	h2: '4xl',
-	h3: '3xl',
-	h4: '2xl',
-	p: 'md',
-	caption: 'xs',
-	label: 'sm',
-	overline: 'xs',
+/** Variant → font-size step, weight, and family bucket (heading vs body). */
+const variantStyles: Record<
+	TypographyVariant,
+	{ size: FontSizeToken; weight: TextStyle['fontWeight']; heading?: boolean }
+> = {
+	display: { size: '5xl', weight: '700', heading: true },
+	title: { size: '3xl', weight: '600', heading: true },
+	headline: { size: 'xl', weight: '600', heading: true },
+	body: { size: 'md', weight: '400' },
+	label: { size: 'sm', weight: '500' },
+	caption: { size: 'xs', weight: '400' },
 };
 
-const roleLineHeightMap: Record<TypographyRole, LineHeightToken> = {
-	h1: 'tight',
-	h2: 'tight',
-	h3: 'tight',
-	h4: 'tight',
-	p: 'normal',
-	caption: 'normal',
-	label: 'tight',
-	overline: 'tight',
-};
-
-const roleWeightMap: Record<TypographyRole, number> = {
-	h1: 700,
-	h2: 700,
-	h3: 600,
-	h4: 600,
-	p: 400,
-	caption: 400,
-	label: 500,
-	overline: 600,
-};
+/** RN accepts a single family name, not a CSS font stack: take the first entry. */
+function firstFontFamily(stack: string): string {
+	const [first = stack] = stack.split(',');
+	return first.replace(/["']/g, '').trim();
+}
 
 export function Typography({
-	role = 'p',
+	variant = 'body',
 	color,
 	weight,
 	size,
@@ -51,28 +37,46 @@ export function Typography({
 	const theme = useTheme();
 	const { spacing, typography, colorTokens } = theme.theme;
 
-	const fontSizeKey = size ?? roleFontSizeMap[role];
-	const lhKey = lineHeight ?? roleLineHeightMap[role];
-	const fw = weight ?? roleWeightMap[role];
+	const variantStyle = variantStyles[variant];
+	const fontFamily = variantStyle.heading
+		? typography.fontFamilies.heading
+		: typography.fontFamilies.body;
 
-	const fontSizeValue = typography.fontSize[fontSizeKey];
-	const lhValue = typography.lineHeight[lhKey];
-	const ffValue = typography.fontFamilies.body;
+	const fontSizePx = size
+		? (typography.fontSize[size]?.fontSizePx ?? typography.fontSize[variantStyle.size].fontSizePx)
+		: typography.fontSize[variantStyle.size].fontSizePx;
 
-	const resolvedColor = color && color !== 'inherit' ? (colorTokens[color] ?? color) : undefined;
+	const lhRatio = lineHeight !== undefined ? typography.lineHeight[lineHeight] : undefined;
+	const lineHeightPx =
+		lhRatio !== undefined
+			? lhRatio * fontSizePx
+			: size !== undefined
+				? (typography.fontSize[size]?.lineHeightPx ??
+					typography.fontSize[variantStyle.size].lineHeightPx)
+				: typography.fontSize[variantStyle.size].lineHeightPx;
 
-	const letterSpacingValue = letterSpacing ? typography.letterSpacing[letterSpacing] : undefined;
+	const fw = weight ?? variantStyle.weight;
+	const resolvedColor =
+		color === 'inherit'
+			? undefined
+			: color
+				? (colorTokens[color] ?? color)
+				: colorTokens['text-primary'];
+
+	const lsEm =
+		letterSpacing !== undefined
+			? typography.letterSpacing[letterSpacing]
+			: typography.fontSize[size ?? variantStyle.size].letterSpacing;
 
 	const resolvedStyle: TextStyle = {
-		fontSize: fontSizeValue?.fontSizePx ?? 16,
-		fontWeight: fw as TextStyle['fontWeight'],
-		fontFamily: ffValue,
+		fontSize: fontSizePx,
+		fontWeight: fw,
+		fontFamily: firstFontFamily(fontFamily),
+		lineHeight: lineHeightPx,
 	};
-	if (lhValue && fontSizeValue) {
-		resolvedStyle.lineHeight = lhValue * fontSizeValue.fontSizePx;
-	}
-	if (letterSpacingValue !== undefined) {
-		resolvedStyle.letterSpacing = letterSpacingValue;
+	if (lsEm !== undefined) {
+		// Token tracking is em-based; RN letterSpacing is px.
+		resolvedStyle.letterSpacing = lsEm * fontSizePx;
 	}
 	if (resolvedColor) {
 		resolvedStyle.color = resolvedColor;

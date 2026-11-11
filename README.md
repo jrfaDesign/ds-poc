@@ -1,6 +1,6 @@
-# Design System — White-Label POC
+# Design System: White-Label POC
 
-A monorepo proof of concept for a **unified, white-label design system** that serves a single source of truth across **web** (Tailwind CSS) and **React Native**. Tokens, themes, and contracts are defined once in TypeScript and consumed by platform-specific adapters — with full type safety, zero code duplication, and instant theme switching.
+A monorepo proof of concept for a **unified, white-label design system** that serves a single source of truth across **web** (Tailwind CSS) and **React Native**. Tokens, themes, and contracts are defined once in TypeScript and consumed by platform-specific adapters, with full type safety, zero code duplication, and instant theme switching.
 
 ---
 
@@ -10,12 +10,12 @@ A monorepo proof of concept for a **unified, white-label design system** that se
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **One token source, two platforms**       | `packages/foundations/src/index.ts` defines all tokens. Both Tailwind and React Native consume the same definitions via auto-generated codegen and generic adapter loops.        |
 | **Type safety without manual type files** | `ResolvedComponents` is auto-derived from the Zod schema. Adding a property to the schema instantly gives you TypeScript autocomplete and compile-time checks on both platforms. |
-| **New tokens require zero adapter edits** | Both adapters resolve contract properties generically. Add a property to `ComponentsPresetSchema`, add values to themes, run `yarn generate:tokens` — done.                      |
-| **Instant theme switching**               | Dark mode is class-based (`html.dark`). Theme switching updates CSS variables at runtime — no rebuild, no flash.                                                                 |
-| **White-label ready**                     | Six themes ship out of the box. Switching brands (Default → BYD → BCA) changes colors, borders, backgrounds, and logos — all from the theme contract, no component code changes. |
+| **New tokens require zero adapter edits** | Both adapters resolve contract properties generically. Add a property to `ComponentsPresetSchema`, add values to themes, run `yarn generate:tokens`, done.                      |
+| **Instant theme switching**               | Dark mode is class-based (`html.dark`). Theme switching updates CSS variables at runtime, no rebuild, no flash.                                                                 |
+| **White-label ready**                     | Six themes ship out of the box. Switching brands (Default → BYD → BCA) changes colors, borders, backgrounds, and logos, all from the theme contract, no component code changes. |
 | **Validated at runtime**                  | `TokensSchema.parse()` (Zod) validates every theme at load time. Malformed data fails fast. `.strict()` catches stale or unknown properties.                                     |
-| **FOUC prevention**                       | `applyTheme()` is called synchronously before React mounts. `ThemeProvider` reads localStorage in `useState` initializer — no flash of unstyled content.                         |
-| **SSR compatible**                        | `applyTheme()` has a `typeof document` guard — works in Next.js/SSR without crashing.                                                                                            |
+| **FOUC prevention**                       | `applyTheme()` is called synchronously before React mounts. `ThemeProvider` reads localStorage in `useState` initializer, no flash of unstyled content.                         |
+| **SSR compatible**                        | `applyTheme()` has a `typeof document` guard, works in Next.js/SSR without crashing.                                                                                            |
 
 ---
 
@@ -36,23 +36,20 @@ packages/foundations/src/index.ts          ← SINGLE SOURCE OF TRUTH
 
 ### Package Overview
 
-| Package                 | Role                                                              |
-| ----------------------- | ----------------------------------------------------------------- |
-| `@repo/foundations`     | Token definitions, Zod schemas, TypeScript types, codegen scripts |
-| `@repo/themes`          | 6 theme definitions (Default, CAG, CAOS, BCA, BYD, BYD Premium)   |
-| `@repo/globals`         | Shared types and constants across adapters                        |
-| `@repo/ui-web-tailwind` | Web component library + Tailwind adapter + ThemeProvider          |
-| `@repo/ui-react-native` | React Native component library + RN adapter + AppProvider         |
-| `@repo/ui-web-stylex`   | Web adapter — StyleX components (experimental)                    |
+| Package                 | Role                                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| `@repo/foundations`     | `src/tokens/` (schemas, scales, helpers) + `src/theme/` (default theme, theme config) + codegen scripts |
+| `@repo/core`            | Types & shared component props: foundation type re-exports, `*Shared` props, global enums               |
+| `@repo/ui-web-tailwind` | Web component library + Tailwind adapter + ThemeProvider                                                |
+| `@repo/ui-react-native` | React Native component library + RN adapter + AppProvider                                               |
 
 ### App Overview
 
-| App                    | Stack                      | Purpose                                        |
-| ---------------------- | -------------------------- | ---------------------------------------------- |
-| `apps/tailwind-sample` | React + Vite + Tailwind    | Full MVP web app with dark/light + multi-theme |
-| `apps/native`          | React Native + Expo SDK 57 | Same multi-theme support on mobile             |
-| `apps/web-vite`        | Vite-based web app         | Minimal web shell                              |
-| `apps/docs`            | Documentation app          | Design system docs                             |
+| App                    | Stack                      | Purpose                                                |
+| ---------------------- | -------------------------- | ------------------------------------------------------ |
+| `apps/tailwind-sample` | React + Vite + Tailwind    | Full MVP web app with dark/light + theme config tester |
+| `apps/native`          | React Native + Expo SDK 57 | Same theme config support on mobile                    |
+| `apps/storybook`       | Storybook 10 + Vite        | Design-system docs: tokens, stories, theme panel       |
 
 ---
 
@@ -60,43 +57,39 @@ packages/foundations/src/index.ts          ← SINGLE SOURCE OF TRUTH
 
 ### Token Categories
 
-| Category         | Type                           | Example                              | Count               |
-| ---------------- | ------------------------------ | ------------------------------------ | ------------------- |
-| **Colors**       | Raw palette hex values         | `primary_500`, `neutral_900`         | 100+                |
-| **Color Tokens** | Semantic light/dark pairs      | `text-primary`, `bg-brand-solid`     | 100+                |
-| **Spacing**      | Layout spacing scale           | `sm` (8px), `md` (16px), `lg` (24px) | 17                  |
-| **Radii**        | Border radius scale            | `sm`, `md`, `full`                   | 15                  |
-| **Typography**   | Font size, weight, line-height | `h1`, `body`, `caption`              | 11 sizes, 7 weights |
-| **Contracts**    | Semantic bundles               | `actions.primary`, `surfaces.base`   | 7 contract types    |
-| **Shadows**      | Multi-layer box shadows        | `sm`, `md`, `lg`                     | 8                   |
-| **Gradients**    | Linear gradient definitions    | `primary_600_500_90`                 | 21                  |
-| **Breakpoints**  | Responsive viewport thresholds | `mobile` (0), `desktop` (1024)       | 5                   |
-| **Grid**         | Per-breakpoint grid config     | columns, gutter, margin              | 5 breakpoints       |
+| Category         | Type                           | Example                             | Count               |
+| ---------------- | ------------------------------ | ----------------------------------- | ------------------- |
+| **Colors**       | Raw palette hex values         | `primary_500`, `neutral_900`        | 100+                |
+| **Color Tokens** | Semantic light/dark pairs      | `text-primary`, `bg-brand-solid`    | 100+                |
+| **Spacing**      | Layout spacing scale           | `sm` (6px), `md` (8px), `lg` (12px) | 18                  |
+| **Radii**        | Border radius scale            | `sm`, `md`, `full`                  | 14                  |
+| **Typography**   | Font size, weight, line-height | `h1`, `body`, `caption`             | 11 sizes, 7 weights |
+| **Contracts**    | Semantic bundles               | `actions.primary`, `surfaces.base`  | 3 contract types    |
+| **Shadows**      | Multi-layer box shadows        | `sm`, `md`, `lg`                    | 8                   |
+| **Gradients**    | Linear gradient definitions    | `primary_600_500_90`                | 21                  |
+| **Breakpoints**  | Responsive viewport thresholds | `mobile` (0), `desktop` (1024)      | 5                   |
+| **Grid**         | Per-breakpoint grid config     | columns, gutter, margin             | 5 breakpoints       |
 
 ### Contract Types
 
-Contracts bundle related tokens into semantic units. Components never reference raw tokens — they use contracts.
+Contracts bundle related tokens into semantic units: the cross-platform consistency layer. Everything else is owned by each platform's component formula: input/selection/toggle state colors come from semantic color tokens directly, chrome surfaces from `colorTokens.bg` (`bg-header`, `bg-footer`, …), border radius from the shape preset (`theme.style`), and typography roles live inside each platform's `Typography` component.
 
-| Contract             | Structure         | What it bundles             | Example properties                                          |
-| -------------------- | ----------------- | --------------------------- | ----------------------------------------------------------- |
-| **actions**          | Nested (variants) | Button/link states          | `bg`, `on`, `border`, `bgHover`, `bgDisabled` per variant   |
-| **feedback**         | Nested (variants) | Alert/notification states   | `bg`, `on`, `border`, `bgInverse` per intent                |
-| **surfaces**         | Nested (variants) | Card/section backgrounds    | `bg`, `on`, `border` per surface type                       |
-| **inputField**       | Flat              | Form input states           | `bg`, `border`, `placeholder`, `borderFocus`, `borderError` |
-| **selectionControl** | Flat              | Checkbox/radio states       | `bg`, `border`, `bgChecked`, `borderChecked`                |
-| **toggle**           | Flat              | Toggle switch states        | `trackBg`, `thumbColor`, `trackBgChecked`                   |
-| **components**       | Flat              | Structural component tokens | `buttonBorderRadii`, `headerBg`, `footerBg`, `appShellBg`   |
+| Contract     | Structure         | What it bundles           | Example properties                                        |
+| ------------ | ----------------- | ------------------------- | --------------------------------------------------------- |
+| **actions**  | Nested (variants) | Button/link states        | `bg`, `on`, `border`, `bgHover`, `bgDisabled` per variant |
+| **feedback** | Nested (variants) | Alert/notification states | `bg`, `on`, `border`, `bgInverse` per intent              |
+| **surfaces** | Nested (variants) | Card/section backgrounds  | `bg`, `on`, `border` per surface type                     |
 
 ### How Tokens Flow
 
 ```
-index.ts (schema)  →  codegen.js (auto)  →  generate-theme-css.mjs  →  tailwind-theme.css
+tokens/index.ts (schema) → codegen.js (auto) → generate-theme-css.mjs → tailwind-theme.css
                          ↓
                     applyTheme.ts (Tailwind)  →  CSS variables on :root
                          ↓
                     ThemeProvider (React Context)  →  all components get theme
 
-index.ts (schema)  →  applyTheme.ts (RN)  →  ResolvedTheme object
+tokens/index.ts (schema) → applyTheme.ts (RN)  →  ResolvedTheme object
                          ↓
                     AppProvider (React Context)  →  all components get theme
 ```
@@ -105,46 +98,36 @@ index.ts (schema)  →  applyTheme.ts (RN)  →  ResolvedTheme object
 
 ## Theme System
 
-### 6 Built-in Themes
+### Config-driven themes (white-label tiers)
 
-| Key           | Name        | Primary Accent      | Dark Mode    |
-| ------------- | ----------- | ------------------- | ------------ |
-| `default`     | Default     | Blue                | Neutral dark |
-| `cag`         | CAG         | Gold/amber          | Neutral dark |
-| `caos`        | CAOS        | Warm terracotta     | Neutral dark |
-| `bca`         | BCA         | Corporate blue-grey | Neutral dark |
-| `byd`         | BYD         | Electric green      | Neutral dark |
-| `byd_premium` | BYD Premium | Dark teal           | Dark teal    |
+There are no per-brand theme files. The app fetches a `ThemeConfig` from the theme API at startup and resolves it with `resolveThemeConfig` (`packages/foundations/src/theme/themeConfig.ts`):
 
-### Adding a New Theme
+| Tier         | Behavior                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `basic`      | No overrides: the default theme as-is (logo-only brands)                                                   |
+| `medium`     | Derived 50–950 color ramps from the picked 600 hexes, shape preset (`sharp`/`soft`/`rounded`/`full`), fonts |
+| `enterprise` | Full custom theme: returns default for now (TODO)                                                          |
 
 ```typescript
-// packages/themes/src/myBrand.ts
-import { createTheme, defaultTheme } from './createTheme';
+import { resolveThemeConfig, type ThemeConfig } from '@repo/foundations';
 
-export default createTheme(defaultTheme, {
-  colors: { primary_500: '#FF6B00', primary_600: '#CC5500', ... },
-  contracts: {
-    actions: {
-      primary: { bg: 'primary_500', on: 'white', ... },
-    },
-  },
-});
+const config: ThemeConfig = { tier: 'medium', colors: { primary600: '#7C3AED' }, style: 'rounded' };
+const tokens = resolveThemeConfig(config); // → validated Tokens
 ```
 
-Only override what differs from the base theme. `mergeTheme` deep-merges with defaults.
+Both apps ship a config tester built on this (web: profile menu; native: Settings screen), with a mock `fetchThemeConfig` standing in for the real endpoint.
 
 ### Theme Edge Cases: Mode-Aware Colors
 
-Some component backgrounds differ between light and dark mode (e.g., app shell is white in light, dark in dark). Use `ShadowColorSchema`:
+Some values differ between light and dark mode. Shadows and chrome color tokens carry explicit pairs:
 
 ```typescript
-// In theme file:
-contracts: {
-  components: {
-    appShellBg: { light: 'white', dark: 'neutral_950' },  // different per mode
-    headerBg: { light: 'primary_950', dark: 'primary_950' }, // same in both modes
-  },
+// packages/foundations/src/theme/defaultTheme.ts
+shadows: {
+  sm: { color: { light: 'neutral_900', dark: 'white' }, layers: [...] },
+},
+colorTokens: {
+  bg: { 'bg-app-shell': { light: 'white', dark: 'neutral_950' } },
 }
 ```
 
@@ -186,38 +169,35 @@ Every mode-aware token has `-default` and `-dark` CSS variable variants. The sel
 
 ```bash
 # 1. Edit the single source of truth
-vim packages/foundations/src/index.ts
+vim packages/foundations/src/tokens/index.ts
 
-# 2. Add to the Zod schema
-const ComponentsPresetSchema = z.object({
+# 2. Add to the relevant Zod schema / key list
+const bgColorTokenKeys = [
   // ... existing
-  myNewToken: ColorTokenRefSchema,  // ← ADD
-}).strict();
+  'bg-my-new-token',  // ← ADD
+] as const;
 
-# 3. Add values to theme files
-vim packages/themes/src/default.ts
+# 3. Add the value to the default theme
+vim packages/foundations/src/theme/defaultTheme.ts
 
 # 4. Regenerate everything
 yarn generate:tokens
 
 # 5. Use in components
-# Web: bg-myNewToken
-# Native: theme.contracts.components.myNewToken
+# Web: bg-my-new-token   (colorToken names: underscores → hyphens in classes)
+# Native: theme.colorTokens['bg-my-new-token']
 ```
 
-Full details: `packages/foundations/CREATE_NEW_VARS.md`
+### Add Theme Config Behavior
 
-### Add a New Theme
-
-1. Create `packages/themes/src/myBrand.ts`
-2. Extend `defaultTheme` with overrides
-3. Export from `packages/themes/src/index.ts`
-4. Add to `ThemeProvider` in `apps/tailwind-sample/src/main.tsx` and `AppProvider` in `apps/native`
+1. Extend `themeConfigSchema` + `resolveThemeConfig` in `packages/foundations/src/theme/themeConfig.ts`
+2. Handle the new field in both config editors (`apps/*/src/components/theme-config/`)
+3. Validate with a quick `resolveThemeConfig` assertion + `yarn check-types`
 
 ### Remove a Token
 
-1. Remove from `ComponentsPresetSchema` (or relevant schema)
-2. Remove from all theme files
+1. Remove from the relevant schema in `packages/foundations/src/tokens/index.ts`
+2. Remove its value from `packages/foundations/src/theme/defaultTheme.ts`
 3. Run `yarn generate:tokens`
 4. Zod `.strict()` will catch any stale references at runtime
 
@@ -225,16 +205,16 @@ Full details: `packages/foundations/CREATE_NEW_VARS.md`
 
 ## Platform Comparison
 
-| Feature                 | Tailwind (Web)                                 | React Native                              |
-| ----------------------- | ---------------------------------------------- | ----------------------------------------- |
-| **Token resolution**    | CSS variables via `applyTheme()`               | JS object via `applyTheme(theme, isDark)` |
-| **Utility classes**     | Auto-generated from `FLAT_CONTRACT_PROPERTIES` | N/A (inline styles)                       |
-| **Dark mode**           | Class-based (`html.dark`)                      | `isDark` prop on `AppProvider`            |
-| **Type safety**         | `ResolvedComponents` from Zod schema           | Same `ResolvedComponents` type            |
-| **Contract resolution** | Generic loop over flat contracts               | Generic loop over flat contracts          |
-| **ThemeProvider**       | `ThemeProvider` (React Context)                | `AppProvider` (React Context)             |
-| **FOUC prevention**     | `applyTheme()` before React mount              | N/A (no DOM)                              |
-| **SSR support**         | `typeof document` guard                        | N/A                                       |
+| Feature                 | Tailwind (Web)                                 | React Native                                |
+| ----------------------- | ---------------------------------------------- | ------------------------------------------- |
+| **Token resolution**    | CSS variables via `applyTheme()`               | JS object via `applyTheme(theme, isDark)`   |
+| **Utility classes**     | Auto-generated from token + contract key lists | N/A (inline styles / `colorTokens` lookups) |
+| **Dark mode**           | Class-based (`html.dark`)                      | `isDark` prop on `AppProvider`              |
+| **Type safety**         | `Tokens` / `ResolvedTheme` derived from Zod    | Same `ResolvedTheme` type                   |
+| **Contract resolution** | Generic loop over nested contracts             | Generic loop over nested contracts          |
+| **ThemeProvider**       | `ThemeProvider` (React Context)                | `AppProvider` (React Context)               |
+| **FOUC prevention**     | `applyTheme()` before React mount              | N/A (no DOM)                                |
+| **SSR support**         | `typeof document` guard                        | N/A                                         |
 
 ---
 
@@ -242,39 +222,39 @@ Full details: `packages/foundations/CREATE_NEW_VARS.md`
 
 ### What's Automatic
 
-| Task                                     | Automatic? | How                                                            |
-| ---------------------------------------- | ---------- | -------------------------------------------------------------- |
-| Add property to `ComponentsPresetSchema` | ✅         | `FLAT_CONTRACT_PROPERTIES.components` auto-derived from schema |
-| Generate CSS bridge variables            | ✅         | `generate-theme-css.mjs` reads `FLAT_CONTRACT_PROPERTIES`      |
-| Generate Tailwind utility classes        | ✅         | `bg-{propertyName}` / `rounded-{propertyName}` auto-generated  |
-| Resolve new property on web              | ✅         | `applyTheme.ts` generic flat contract loop                     |
-| Resolve new property on native           | ✅         | `applyTheme.ts` generic flat contract loop                     |
-| TypeScript types for new property        | ✅         | `ResolvedComponents` derived from Zod schema                   |
-| Catch stale properties after removal     | ✅         | Zod `.strict()` rejects unknown properties                     |
+| Task                                 | Automatic? | How                                                                 |
+| ------------------------------------ | ---------- | ------------------------------------------------------------------- |
+| Add a color-token key                | ✅         | `generate-theme-css.mjs` emits `bg-*`/`text-*`/`border-*` utilities |
+| Add a contract property              | ✅         | Schema → `CONTRACT_*` metadata → CSS vars + both adapters' loops    |
+| Generate CSS bridge variables        | ✅         | `generate-theme-css.mjs` reads the codegen key lists                |
+| Generate Tailwind shape utilities    | ✅         | `rounded-button`/`rounded-input`/`rounded-card` from `theme.style`  |
+| Catch stale properties after removal | ✅         | Zod `.strict()` rejects unknown properties                          |
 
 ### What Requires Manual Work
 
-| Task                       | Manual? | What to edit                                     |
-| -------------------------- | ------- | ------------------------------------------------ |
-| Add property to schema     | Yes     | `packages/foundations/src/index.ts`              |
-| Add values to themes       | Yes     | `packages/themes/src/*.ts`                       |
-| Add a new theme            | Yes     | Create theme file + register in apps             |
-| Add a new contract type    | Yes     | Schema + `CONTRACT_STRUCTURE` + adapter metadata |
-| Add a new platform adapter | Yes     | New adapter package with generic contract loop   |
+| Task                       | Manual? | What to edit                                            |
+| -------------------------- | ------- | ------------------------------------------------------- |
+| Add property to schema     | Yes     | `packages/foundations/src/tokens/index.ts`              |
+| Add values to the theme    | Yes     | `packages/foundations/src/theme/defaultTheme.ts`        |
+| Add theme-config behavior  | Yes     | `theme/config` schema + resolver + both config editors  |
+| Add a new contract type    | Yes     | Schema + `CONTRACT_PREFIX`/`NESTED_CONTRACT_PROPERTIES` |
+| Add a new platform adapter | Yes     | New adapter package with generic contract loop          |
 
 ---
 
 ## Scripts
 
-| Command                 | Description                                     |
-| ----------------------- | ----------------------------------------------- |
-| `yarn install`          | Install all dependencies                        |
-| `yarn generate:tokens`  | Regenerate `codegen.js` + `tailwind-theme.css`  |
-| `yarn generate:codegen` | Regenerate `codegen.js` only                    |
-| `yarn verify:codegen`   | CI check — fails if `codegen.js` is out of sync |
-| `yarn check-types`      | Type-check all packages                         |
-| `yarn lint`             | Lint all packages                               |
-| `yarn dev`              | Start all apps in dev mode                      |
+| Command                                            | Description                                     |
+| -------------------------------------------------- | ----------------------------------------------- |
+| `yarn install`                                     | Install all dependencies                        |
+| `yarn storybook`                                   | Start the design-system Storybook (port 6006)   |
+| `yarn tailwind-sample`                             | Start the web sample app                        |
+| `yarn native-sample`                               | Start the native sample app (Expo)              |
+| `yarn workspace @repo/foundations generate:tokens` | Regenerate `codegen.js` + `tailwind-theme.css`  |
+| `yarn workspace @repo/foundations verify:codegen`  | CI check: fails if `codegen.js` is out of sync |
+| `yarn check-types`                                 | Type-check all packages                         |
+| `yarn lint`                                        | Lint all packages                               |
+| `yarn dev`                                         | Start all apps in dev mode                      |
 
 ---
 

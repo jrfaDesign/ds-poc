@@ -1,106 +1,106 @@
-import { useState, useCallback } from 'react';
-import { Typography } from '../Typography/Typography';
-import type { CheckboxProps } from './Checkbox.types';
+"use client";
 
-const FOCUS_RING = 'ring-2 ring-text-brand-tertiary-alt';
+import { Checkbox as AriaCheckbox } from "react-aria-components";
+import { cx } from "../shared/cx";
+import type { CheckboxBaseProps, CheckboxProps } from "./Checkbox.types";
+export type { CheckboxBaseProps, CheckboxProps } from "./Checkbox.types";
 
-const bgClasses = {
-	default: 'bg-selectioncontrol-bg',
-	checked: 'bg-selectioncontrol-bg-checked',
-	hovered: 'bg-selectioncontrol-bg-hover',
-	disabled: 'bg-selectioncontrol-bg-disabled',
+
+export const CheckboxBase = ({ className, isSelected, isDisabled, isIndeterminate, size = "sm", isFocusVisible = false }: CheckboxBaseProps) => {
+    return (
+        <div
+            className={cx(
+                "relative flex size-4 shrink-0 cursor-pointer appearance-none items-center justify-center rounded bg-primary ring-1 ring-primary ring-inset",
+                size === "md" && "size-5 rounded-md",
+                (isSelected || isIndeterminate) && "bg-brand-solid ring-brand-solid",
+                isDisabled && "cursor-not-allowed opacity-50",
+                isDisabled && !(isSelected || isIndeterminate) && "bg-tertiary",
+                isFocusVisible && "outline-2 outline-offset-2 outline-focus-ring",
+                className,
+            )}
+        >
+            <svg
+                aria-hidden="true"
+                viewBox="0 0 14 14"
+                fill="none"
+                className={cx(
+                    "pointer-events-none absolute h-3 w-2.5 text-fg-white opacity-0 transition-inherit-all",
+                    size === "md" && "size-3.5",
+                    isIndeterminate && "opacity-100",
+                )}
+            >
+                <path d="M2.91675 7H11.0834" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+
+            <svg
+                aria-hidden="true"
+                viewBox="0 0 14 14"
+                fill="none"
+                className={cx(
+                    "pointer-events-none absolute size-3 text-fg-white opacity-0 transition-inherit-all",
+                    size === "md" && "size-3.5",
+                    isSelected && !isIndeterminate && "opacity-100",
+                )}
+            >
+                <path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        </div>
+    );
 };
+CheckboxBase.displayName = "CheckboxBase";
 
-const borderClasses = {
-	default: 'border-selectioncontrol-border',
-	checked: 'border-selectioncontrol-border-checked',
-	hovered: 'border-selectioncontrol-border-hover',
-	disabled: 'border-selectioncontrol-border-disabled',
+
+export const Checkbox = ({ label, hint, size = "sm", className, ...ariaCheckboxProps }: CheckboxProps) => {
+    const sizes = {
+        sm: {
+            root: "gap-2",
+            textWrapper: "",
+            label: "text-sm font-medium",
+            hint: "text-sm",
+        },
+        md: {
+            root: "gap-3",
+            textWrapper: "gap-0.5",
+            label: "text-md font-medium",
+            hint: "text-md",
+        },
+    };
+
+    return (
+        <AriaCheckbox
+            {...ariaCheckboxProps}
+            className={(state) =>
+                cx(
+                    "relative flex items-start",
+                    state.isDisabled && "cursor-not-allowed",
+                    sizes[size].root,
+                    typeof className === "function" ? className(state) : className,
+                )
+            }
+        >
+            {({ isSelected, isIndeterminate, isDisabled, isFocusVisible }) => (
+                <>
+                    <CheckboxBase
+                        size={size}
+                        isSelected={isSelected}
+                        isIndeterminate={isIndeterminate}
+                        isDisabled={isDisabled}
+                        isFocusVisible={isFocusVisible}
+                        className={label || hint ? "mt-0.5" : ""}
+                    />
+                    {(label || hint) && (
+                        <div className={cx("inline-flex flex-col", sizes[size].textWrapper)}>
+                            {label && <p className={cx("text-secondary select-none", sizes[size].label)}>{label}</p>}
+                            {hint && (
+                                <span className={cx("text-tertiary", sizes[size].hint)} onClick={(event) => event.stopPropagation()}>
+                                    {hint}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </>
+            )}
+        </AriaCheckbox>
+    );
 };
-
-export function Checkbox({
-	checked: controlled,
-	defaultChecked = false,
-	onChange,
-	disabled = false,
-	label,
-	id,
-}: CheckboxProps) {
-	const [uncontrolled, setUncontrolled] = useState(defaultChecked);
-	const [hovered, setHovered] = useState(false);
-	const [focused, setFocused] = useState(false);
-	const isChecked = controlled ?? uncontrolled;
-
-	const handleChange = useCallback(() => {
-		if (disabled) return;
-		const next = !isChecked;
-		setUncontrolled(next);
-		onChange?.(next);
-	}, [isChecked, disabled, onChange]);
-
-	const bgColor = disabled
-		? bgClasses.disabled
-		: isChecked
-			? bgClasses.checked
-			: hovered
-				? bgClasses.hovered
-				: bgClasses.default;
-
-	const borderColor = disabled
-		? borderClasses.disabled
-		: isChecked
-			? borderClasses.checked
-			: hovered
-				? borderClasses.hovered
-				: borderClasses.default;
-
-	const indicatorClasses = [
-		'w-[18px] h-[18px] shrink-0 flex items-center justify-center',
-		'border-2 border-solid rounded-inputBorderRadii transition-[background-color,border-color] duration-150',
-		bgColor,
-		borderColor,
-	]
-		.filter(Boolean)
-		.join(' ');
-
-	return (
-		<label
-			htmlFor={id}
-			className="flex items-center gap-xs select-none cursor-pointer"
-			onMouseEnter={() => setHovered(true)}
-			onMouseLeave={() => setHovered(false)}
-		>
-			<input
-				type="checkbox"
-				id={id}
-				checked={isChecked}
-				onChange={handleChange}
-				onFocus={() => setFocused(true)}
-				onBlur={() => setFocused(false)}
-				disabled={disabled}
-				className="sr-only"
-			/>
-			<span className={[indicatorClasses, focused ? FOCUS_RING : ''].filter(Boolean).join(' ')}>
-				{isChecked && (
-					<svg viewBox="0 0 12 12" fill="none" className="w-3 h-3 text-selectioncontrol-on-checked">
-						<path
-							d="M10 3L4.5 8.5L2 6"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-					</svg>
-				)}
-			</span>
-			{label && (
-				<Typography
-					role="label"
-					className={disabled ? 'text-selectioncontrol-on-disabled' : undefined}
-				>
-					{label}
-				</Typography>
-			)}
-		</label>
-	);
-}
+Checkbox.displayName = "Checkbox";

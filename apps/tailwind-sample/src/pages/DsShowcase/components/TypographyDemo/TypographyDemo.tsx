@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Card, PageSection, Select, Typography } from '@repo/ui-web-tailwind';
 import type { TypographyRole, TypographyColor } from '@repo/ui-web-tailwind';
-import type { FontSizeToken, LineHeightToken, LetterSpacingToken } from '@repo/foundations';
+import type { FontSizeToken, LineHeightToken, LetterSpacingToken } from '@repo/core';
 import { colorTokenVar, spacingVar, fontFamilyVar } from '@repo/ui-web-tailwind';
 import type { TypographyDemoProps } from './TypographyDemo.types';
 
@@ -63,7 +63,7 @@ const lineHeightOptions = [
 const letterSpacingOptions = [
 	{ value: '', label: 'role default' },
 	{ value: 'tighter', label: 'tighter (-0.05em)' },
-	{ value: 'tight', label: 'tight (-0.025em)' },
+	{ value: 'tight', label: 'tight (-0.02em)' },
 	{ value: 'normal', label: 'normal (0)' },
 	{ value: 'wide', label: 'wide (0.025em)' },
 	{ value: 'wider', label: 'wider (0.05em)' },
@@ -75,13 +75,36 @@ const fontSizeValues: Record<string, number> = {
 	xs: 14,
 	sm: 16,
 	md: 18,
-	lg: 22,
+	lg: 20,
 	xl: 24,
-	'2xl': 28,
-	'3xl': 32,
-	'4xl': 40,
-	'5xl': 56,
+	'2xl': 30,
+	'3xl': 36,
+	'4xl': 48,
+	'5xl': 60,
 	'6xl': 72,
+};
+
+// Super Charge DS §4: line height is a property of the font-size step.
+const lineHeightPxValues: Record<string, number> = {
+	xxs: 18,
+	xs: 20,
+	sm: 24,
+	md: 28,
+	lg: 30,
+	xl: 32,
+	'2xl': 38,
+	'3xl': 44,
+	'4xl': 60,
+	'5xl': 72,
+	'6xl': 90,
+};
+
+// Super Charge DS §4: -0.02em on >=36px, normal below.
+const sizeLetterSpacing: Record<string, string> = {
+	'3xl': '-0.02em',
+	'4xl': '-0.02em',
+	'5xl': '-0.02em',
+	'6xl': '-0.02em',
 };
 
 const fontWeightValues: Record<string, number> = {
@@ -104,7 +127,7 @@ const lineHeightValues: Record<string, number> = {
 
 const letterSpacingValues: Record<string, string> = {
 	tighter: '-0.05em',
-	tight: '-0.025em',
+	tight: '-0.02em',
 	normal: '0',
 	wide: '0.025em',
 	wider: '0.05em',
@@ -114,7 +137,9 @@ const letterSpacingValues: Record<string, string> = {
 type RoleConfig = {
 	fontSize: string;
 	fontWeight: string;
-	lineHeight: string;
+	/** null = derived from the font-size step (Super Charge DS line heights) */
+	lineHeight: string | null;
+	/** null = derived from the font-size step (-0.02em >=36px, normal below) */
 	letterSpacing: string | null;
 	color: string;
 };
@@ -123,57 +148,57 @@ const roleConfigs: Record<TypographyRole, RoleConfig> = {
 	h1: {
 		fontSize: '6xl',
 		fontWeight: 'bold',
-		lineHeight: 'normal',
-		letterSpacing: 'tight',
+		lineHeight: null,
+		letterSpacing: null,
 		color: 'text-primary',
 	},
 	h2: {
 		fontSize: '5xl',
 		fontWeight: 'bold',
-		lineHeight: 'normal',
-		letterSpacing: 'tight',
+		lineHeight: null,
+		letterSpacing: null,
 		color: 'text-primary',
 	},
 	h3: {
 		fontSize: '4xl',
 		fontWeight: 'semibold',
-		lineHeight: 'normal',
+		lineHeight: null,
 		letterSpacing: null,
 		color: 'text-primary',
 	},
 	h4: {
 		fontSize: '3xl',
 		fontWeight: 'semibold',
-		lineHeight: 'normal',
+		lineHeight: null,
 		letterSpacing: null,
 		color: 'text-primary',
 	},
 	p: {
 		fontSize: 'md',
 		fontWeight: 'regular',
-		lineHeight: 'normal',
+		lineHeight: null,
 		letterSpacing: null,
 		color: 'text-primary',
 	},
 	caption: {
 		fontSize: 'xs',
 		fontWeight: 'medium',
-		lineHeight: 'normal',
+		lineHeight: null,
 		letterSpacing: null,
 		color: 'text-primary',
 	},
 	label: {
 		fontSize: 'sm',
 		fontWeight: 'medium',
-		lineHeight: 'tight',
+		lineHeight: null,
 		letterSpacing: null,
 		color: 'text-primary',
 	},
 	overline: {
-		fontSize: 'xxs',
+		fontSize: 'xs',
 		fontWeight: 'semibold',
-		lineHeight: 'tight',
-		letterSpacing: 'wider',
+		lineHeight: null,
+		letterSpacing: null,
 		color: 'text-primary',
 	},
 };
@@ -241,21 +266,35 @@ function getResolvedRows(
 	const cfg = roleConfigs[role];
 	const sk = sizeOverride || cfg.fontSize;
 	const wk = weightOverride || cfg.fontWeight;
-	const lk = lineHeightOverride || cfg.lineHeight;
-	const lsk = letterSpacingOverride || cfg.letterSpacing;
+	const lk = lineHeightOverride || undefined;
+	const lsk = letterSpacingOverride || undefined;
 	const color = colorOverride || cfg.color;
 	const rows: ResolvedRow[] = [
 		{ property: 'font-size', token: `fontSize.${sk}`, value: `${fontSizeValues[sk]}px` },
 		{ property: 'font-weight', token: `fontWeight.${wk}`, value: `${fontWeightValues[wk]}` },
-		{ property: 'line-height', token: `lineHeight.${lk}`, value: `${lineHeightValues[lk]}` },
+		lk
+			? { property: 'line-height', token: `lineHeight.${lk}`, value: `${lineHeightValues[lk]}` }
+			: {
+					property: 'line-height',
+					token: `fontSize.${sk}.lineHeightPx`,
+					value: `${lineHeightPxValues[sk]}px`,
+				},
 	];
-	if (lsk)
+	if (lsk) {
 		rows.push({
 			property: 'letter-spacing',
 			token: `letterSpacing.${lsk}`,
 			value: letterSpacingValues[lsk] || 'normal',
 		});
-	else rows.push({ property: 'letter-spacing', token: '-', value: 'normal' });
+	} else if (sizeLetterSpacing[sk]) {
+		rows.push({
+			property: 'letter-spacing',
+			token: `fontSize.${sk}.letterSpacing`,
+			value: sizeLetterSpacing[sk],
+		});
+	} else {
+		rows.push({ property: 'letter-spacing', token: '-', value: 'normal' });
+	}
 	rows.push({ property: 'font-family', token: 'fontFamily', value: fontFamilyValue });
 	rows.push({ property: 'color', token: `colorTokens.${color}`, value: color });
 	return rows;
@@ -344,14 +383,16 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 					}}
 				>
 					<Typography role="caption" color="text-secondary">
-						{`<${tag}>`} — fontSize: {cfg.fontSize} ({fontSizeValues[cfg.fontSize]}px), weight:{' '}
-						{cfg.fontWeight} ({fontWeightValues[cfg.fontWeight]}), lineHeight: {cfg.lineHeight} (
-						{lineHeightValues[cfg.lineHeight]})
+						{`<${tag}>`}: fontSize: {cfg.fontSize} ({fontSizeValues[cfg.fontSize]}px), weight:{' '}
+						{cfg.fontWeight} ({fontWeightValues[cfg.fontWeight]}), lineHeight:{' '}
+						{lineHeightPxValues[cfg.fontSize]}px (from size)
 						{cfg.letterSpacing ? (
 							<>
 								, letterSpacing: {cfg.letterSpacing} ({letterSpacingValues[cfg.letterSpacing]})
 							</>
-						) : null}
+						) : (
+							<>, letterSpacing: {sizeLetterSpacing[cfg.fontSize] ?? 'normal'}</>
+						)}
 					</Typography>
 				</Box>
 				{/* Controls */}
@@ -360,13 +401,11 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 						<Select
 							label="Role"
 							id="tw-role"
-							value={role}
-							onChange={(e) => setRole(e.target.value as TypographyRole)}
+							selectedKey={role}
+							onChange={(key) => setRole(key as TypographyRole)}
 						>
 							{roleOptions.map((r) => (
-								<Select.Item key={r} value={r}>
-									{r}
-								</Select.Item>
+								<Select.Item key={r} id={r} label={r} />
 							))}
 						</Select>
 					</Box>
@@ -374,13 +413,11 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 						<Select
 							label="Size"
 							id="tw-size"
-							value={size}
-							onChange={(e) => setSize(e.target.value)}
+							selectedKey={size}
+							onChange={(key) => setSize(key as string)}
 						>
 							{sizeOptions.map((o) => (
-								<Select.Item key={o.value} value={o.value}>
-									{o.label}
-								</Select.Item>
+								<Select.Item key={o.value} id={o.value} label={o.label} />
 							))}
 						</Select>
 					</Box>
@@ -388,13 +425,11 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 						<Select
 							label="Weight"
 							id="tw-weight"
-							value={weight}
-							onChange={(e) => setWeight(e.target.value)}
+							selectedKey={weight}
+							onChange={(key) => setWeight(key as string)}
 						>
 							{weightOptions.map((o) => (
-								<Select.Item key={o.value} value={o.value}>
-									{o.label}
-								</Select.Item>
+								<Select.Item key={o.value} id={o.value} label={o.label} />
 							))}
 						</Select>
 					</Box>
@@ -402,13 +437,11 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 						<Select
 							label="Line Height"
 							id="tw-lh"
-							value={lineHeight}
-							onChange={(e) => setLineHeight(e.target.value)}
+							selectedKey={lineHeight}
+							onChange={(key) => setLineHeight(key as string)}
 						>
 							{lineHeightOptions.map((o) => (
-								<Select.Item key={o.value} value={o.value}>
-									{o.label}
-								</Select.Item>
+								<Select.Item key={o.value} id={o.value} label={o.label} />
 							))}
 						</Select>
 					</Box>
@@ -416,13 +449,11 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 						<Select
 							label="Letter Spacing"
 							id="tw-ls"
-							value={letterSpacing}
-							onChange={(e) => setLetterSpacing(e.target.value)}
+							selectedKey={letterSpacing}
+							onChange={(key) => setLetterSpacing(key as string)}
 						>
 							{letterSpacingOptions.map((o) => (
-								<Select.Item key={o.value} value={o.value}>
-									{o.label}
-								</Select.Item>
+								<Select.Item key={o.value} id={o.value} label={o.label} />
 							))}
 						</Select>
 					</Box>
@@ -430,13 +461,11 @@ export function TypographyDemo({ fontFamily }: TypographyDemoProps) {
 						<Select
 							label="Color"
 							id="tw-color"
-							value={color}
-							onChange={(e) => setColor(e.target.value)}
+							selectedKey={color}
+							onChange={(key) => setColor(key as string)}
 						>
 							{colorOptions.map((o) => (
-								<Select.Item key={o.value} value={o.value}>
-									{o.label}
-								</Select.Item>
+								<Select.Item key={o.value} id={o.value} label={o.label} />
 							))}
 						</Select>
 					</Box>

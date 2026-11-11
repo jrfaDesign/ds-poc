@@ -11,7 +11,7 @@ type FilterPanelProps = {
 };
 
 export function FilterPanel({ sections, onSectionToggle, onClearAll, onApply }: FilterPanelProps) {
-	const { theme } = useTheme();
+	useTheme();
 
 	return (
 		<Card variant="raised" style={styles.card}>
@@ -46,7 +46,7 @@ type FilterSectionProps = {
 
 function FilterSection({ section, onToggle }: FilterSectionProps) {
 	const [isExpanded, setExpanded] = useState(false);
-	const { theme } = useTheme();
+	useTheme();
 
 	const selectedCount = section.options.filter((o) => o.checked).length;
 	const selectedLabels = section.options.filter((o) => o.checked).map((o) => o.label);
@@ -62,16 +62,16 @@ function FilterSection({ section, onToggle }: FilterSectionProps) {
 		<View style={[styles.section, { borderBottomColor: theme.colorTokens['border-primary'] }]}>
 			<Pressable onPress={() => setExpanded(!isExpanded)} style={styles.sectionHeader}>
 				<Box flex={1} gap="xxs">
-					<Typography role="label" color="text-primary">
+					<Typography variant="label" color="text-primary">
 						{section.label}
 					</Typography>
 					{!isExpanded && (
-						<Typography role="caption" color="text-secondary">
+						<Typography variant="caption" color="text-secondary">
 							{summary}
 						</Typography>
 					)}
 				</Box>
-				<Typography role="caption" color="text-tertiary">
+				<Typography variant="caption" color="text-tertiary">
 					{isExpanded ? '\u25B2' : '\u25BC'}
 				</Typography>
 			</Pressable>

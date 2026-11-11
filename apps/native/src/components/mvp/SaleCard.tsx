@@ -37,7 +37,7 @@ export function SaleCard({ sale }: SaleCardProps) {
 	const access = accessConfig[sale.access];
 	const status = statusConfig[sale.status];
 
-	const cardBorderRadius = theme.contracts.components.cardBorderRadii;
+	const cardBorderRadius = theme.shape.card;
 
 	return (
 		<Card
@@ -57,7 +57,7 @@ export function SaleCard({ sale }: SaleCardProps) {
 				<View style={styles.statusBadgeWrapper}>
 					<View style={[styles.statusBadge, { backgroundColor: status.bgColor }]}>
 						<Typography
-							role="caption"
+							variant="caption"
 							weight={500}
 							style={{ color: status.textColor, fontSize: 11 }}
 						>
@@ -71,10 +71,10 @@ export function SaleCard({ sale }: SaleCardProps) {
 					<View
 						style={[
 							styles.logoContainer,
-							{ backgroundColor: theme.contracts.components.saleCardLogoBg },
+							{ backgroundColor: theme.colorTokens['bg-sale-card-logo'] },
 						]}
 					>
-						<BrandLogo variant="onImage" style={{ height: 14 }} />
+						<BrandLogo style={{ height: 14 }} />
 					</View>
 				</View>
 			</View>
@@ -83,22 +83,24 @@ export function SaleCard({ sale }: SaleCardProps) {
 			<Box gap="sm" padding="lg">
 				{/* Row 1: Flag + Access Badge */}
 				<Box flexDirection="row" alignItems="center" gap="xs">
-					<Typography role="caption">{FLAG_MAP[sale.countryCode] ?? '\u{1F3F3}\uFE0F'}</Typography>
+					<Typography variant="caption">
+						{FLAG_MAP[sale.countryCode] ?? '\u{1F3F3}\uFE0F'}
+					</Typography>
 					<Box flexDirection="row" alignItems="center" gap="xxs">
 						<View style={[styles.dot, { backgroundColor: access.dotColor }]} />
-						<Typography role="caption" color="text-secondary">
+						<Typography variant="caption" color="text-secondary">
 							{access.label}
 						</Typography>
 					</Box>
 				</Box>
 
 				{/* Row 2: Title */}
-				<Typography role="h4" color="text-primary" weight={700}>
+				<Typography variant="headline" color="text-primary" weight={700}>
 					{sale.title}
 				</Typography>
 
 				{/* Row 3: Description */}
-				<Typography role="caption" color="text-tertiary">
+				<Typography variant="caption" color="text-tertiary">
 					{sale.description}
 				</Typography>
 
@@ -112,15 +114,15 @@ export function SaleCard({ sale }: SaleCardProps) {
 
 				{/* Row 5: Starts / Ends */}
 				<Box flexDirection="row" gap="md">
-					<Typography role="caption" color="text-tertiary">
+					<Typography variant="caption" color="text-tertiary">
 						{sale.startsAtLabel.split(': ')[0]}:{' '}
-						<Typography role="caption" color="text-primary" weight={500}>
+						<Typography variant="caption" color="text-primary" weight={500}>
 							{sale.startsAtLabel.split(': ').slice(1).join(': ')}
 						</Typography>
 					</Typography>
-					<Typography role="caption" color="text-tertiary">
+					<Typography variant="caption" color="text-tertiary">
 						{sale.endsAtLabel.split(': ')[0]}:{' '}
-						<Typography role="caption" color="text-primary" weight={500}>
+						<Typography variant="caption" color="text-primary" weight={500}>
 							{sale.endsAtLabel.split(': ').slice(1).join(': ')}
 						</Typography>
 					</Typography>
@@ -132,12 +134,12 @@ export function SaleCard({ sale }: SaleCardProps) {
 				{/* Row 6: Location + Lots */}
 				<Box flexDirection="row" flexWrap="wrap" gap="xs">
 					<View style={[styles.chip, { backgroundColor: theme.colorTokens['bg-tertiary'] }]}>
-						<Typography role="caption" weight={700} color="text-primary">
+						<Typography variant="caption" weight={700} color="text-primary">
 							{sale.location}
 						</Typography>
 					</View>
 					<View style={[styles.chip, { backgroundColor: theme.colorTokens['bg-tertiary'] }]}>
-						<Typography role="caption" weight={700} color="text-primary">
+						<Typography variant="caption" weight={700} color="text-primary">
 							{sale.lotsCount} Lots
 						</Typography>
 					</View>

@@ -31,7 +31,7 @@ export function Alert({
 			]
 				.filter(Boolean)
 				.join(' ')}
-			style={resolveMargin(margin)}
+			style={{ ...resolveMargin(margin), ...style }}
 			role="alert"
 		>
 			{title && <p className="font-semibold text-sm">{title}</p>}

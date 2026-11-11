@@ -1,100 +1,100 @@
-import { useState, useCallback } from 'react';
-import { Typography } from '../Typography/Typography';
-import type { RadioProps } from './Radio.types';
+"use client";
 
-const FOCUS_RING = 'ring-2 ring-text-brand-tertiary-alt';
+import { createContext, useContext } from "react";
+import { Radio as AriaRadio, RadioGroup as AriaRadioGroup } from "react-aria-components";
+import { cx } from "../shared/cx";
+import type { RadioGroupContextType, RadioButtonBaseProps, RadioButtonProps, RadioGroupProps } from "./Radio.types";
+export type { RadioGroupContextType, RadioButtonBaseProps, RadioButtonProps, RadioGroupProps } from "./Radio.types";
 
-const bgClasses = {
-	default: 'bg-selectioncontrol-bg',
-	checked: 'bg-selectioncontrol-bg-checked',
-	hovered: 'bg-selectioncontrol-bg-hover',
-	disabled: 'bg-selectioncontrol-bg-disabled',
+
+const RadioGroupContext = createContext<RadioGroupContextType | null>(null);
+
+
+export const RadioButtonBase = ({ className, isFocusVisible, isSelected, isDisabled, size = "sm" }: RadioButtonBaseProps) => {
+    return (
+        <div
+            className={cx(
+                "flex size-4 shrink-0 cursor-pointer appearance-none items-center justify-center rounded-full bg-primary ring-1 ring-border-primary ring-inset",
+                size === "md" && "size-5",
+                isSelected && "bg-brand-solid ring-bg-brand-solid",
+                isDisabled && "cursor-not-allowed opacity-50",
+                isDisabled && !isSelected && "bg-tertiary",
+                isFocusVisible && "ring-focus",
+                className,
+            )}
+        >
+            <div className={cx("size-1.5 rounded-full bg-fg-white opacity-0 transition", size === "md" && "size-2", isSelected && "opacity-100")} />
+        </div>
+    );
 };
+RadioButtonBase.displayName = "RadioButtonBase";
 
-const borderClasses = {
-	default: 'border-selectioncontrol-border',
-	checked: 'border-selectioncontrol-border-checked',
-	hovered: 'border-selectioncontrol-border-hover',
-	disabled: 'border-selectioncontrol-border-disabled',
+
+export const RadioButton = ({ label, hint, className, size = "sm", ...ariaRadioProps }: RadioButtonProps) => {
+    const context = useContext(RadioGroupContext);
+
+    size = context?.size ?? size;
+
+    const sizes = {
+        sm: {
+            root: "gap-md",
+            textWrapper: "",
+            label: "text-xs font-medium",
+            hint: "text-xs",
+        },
+        md: {
+            root: "gap-lg",
+            textWrapper: "gap-xxs",
+            label: "text-sm font-medium",
+            hint: "text-sm",
+        },
+    };
+
+    return (
+        <AriaRadio
+            {...ariaRadioProps}
+            className={(state) =>
+                cx(
+                    "relative flex items-start",
+                    state.isDisabled && "cursor-not-allowed",
+                    sizes[size].root,
+                    typeof className === "function" ? className(state) : className,
+                )
+            }
+        >
+            {({ isSelected, isDisabled, isFocusVisible }) => (
+                <>
+                    <RadioButtonBase
+                        size={size}
+                        isSelected={isSelected}
+                        isDisabled={isDisabled}
+                        isFocusVisible={isFocusVisible}
+                        className={label || hint ? "mt-xxs" : ""}
+                    />
+                    {(label || hint) && (
+                        <div className={cx("inline-flex flex-col", sizes[size].textWrapper)}>
+                            {label && <p className={cx("text-secondary select-none", sizes[size].label)}>{label}</p>}
+                            {hint && (
+                                <span className={cx("text-tertiary", sizes[size].hint)} onClick={(event) => event.stopPropagation()}>
+                                    {hint}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </>
+            )}
+        </AriaRadio>
+    );
 };
+RadioButton.displayName = "RadioButton";
 
-export function Radio({
-	checked: controlled,
-	defaultChecked = false,
-	onChange,
-	disabled = false,
-	label,
-	name,
-	id,
-}: RadioProps) {
-	const [uncontrolled, setUncontrolled] = useState(defaultChecked);
-	const [hovered, setHovered] = useState(false);
-	const [focused, setFocused] = useState(false);
-	const isChecked = controlled ?? uncontrolled;
 
-	const handleChange = useCallback(() => {
-		if (disabled) return;
-		const next = !isChecked;
-		setUncontrolled(next);
-		onChange?.(next);
-	}, [isChecked, disabled, onChange]);
-
-	const bgColor = disabled
-		? bgClasses.disabled
-		: isChecked
-			? bgClasses.checked
-			: hovered
-				? bgClasses.hovered
-				: bgClasses.default;
-
-	const borderColor = disabled
-		? borderClasses.disabled
-		: isChecked
-			? borderClasses.checked
-			: hovered
-				? borderClasses.hovered
-				: borderClasses.default;
-
-	const indicatorClasses = [
-		'w-[18px] h-[18px] shrink-0 flex items-center justify-center',
-		'border-2 border-solid rounded-full transition-[background-color,border-color] duration-150',
-		bgColor,
-		borderColor,
-	]
-		.filter(Boolean)
-		.join(' ');
-
-	return (
-		<label
-			htmlFor={id}
-			className="flex items-center gap-xs select-none cursor-pointer"
-			onMouseEnter={() => setHovered(true)}
-			onMouseLeave={() => setHovered(false)}
-		>
-			<input
-				type="radio"
-				id={id}
-				name={name}
-				checked={isChecked}
-				onChange={handleChange}
-				onFocus={() => setFocused(true)}
-				onBlur={() => setFocused(false)}
-				disabled={disabled}
-				className="sr-only"
-			/>
-			<span className={[indicatorClasses, focused ? FOCUS_RING : ''].filter(Boolean).join(' ')}>
-				{isChecked && (
-					<span className="w-[10px] h-[10px] rounded-full bg-selectioncontrol-on-checked" />
-				)}
-			</span>
-			{label && (
-				<Typography
-					role="label"
-					className={disabled ? 'text-selectioncontrol-on-disabled' : undefined}
-				>
-					{label}
-				</Typography>
-			)}
-		</label>
-	);
-}
+export const RadioGroup = ({ children, className, size = "sm", ...props }: RadioGroupProps) => {
+    return (
+        <RadioGroupContext.Provider value={{ size }}>
+            <AriaRadioGroup {...props} className={cx("flex flex-col gap-xl", className)}>
+                {children}
+            </AriaRadioGroup>
+        </RadioGroupContext.Provider>
+    );
+};

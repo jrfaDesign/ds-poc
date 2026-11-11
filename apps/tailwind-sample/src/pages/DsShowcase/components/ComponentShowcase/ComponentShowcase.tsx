@@ -3,16 +3,17 @@ import {
 	Button,
 	Card,
 	Checkbox,
-	Radio,
+	RadioButton,
+	RadioGroup,
 	Select,
 	Toggle,
 	Input,
 	PageSection,
 	Typography,
 } from '@repo/ui-web-tailwind';
-import type { ButtonVariant, CardVariant } from '@repo/ui-web-tailwind';
+import type { CardVariant } from '@repo/ui-web-tailwind';
 
-const BUTTON_VARIANTS: ButtonVariant[] = ['primary', 'secondary', 'tertiary', 'ghost', 'link'];
+const BUTTON_COLORS = ['primary', 'secondary', 'tertiary', 'link-gray', 'link-color'] as const;
 const CARD_VARIANTS: CardVariant[] = ['surface', 'raised', 'alt', 'brand'];
 
 export function ComponentShowcase() {
@@ -23,7 +24,7 @@ export function ComponentShowcase() {
 					<Typography role="h2">Component Showcase</Typography>
 					<Typography role="p" color="text-secondary" className="max-w-prose">
 						Switch themes to see how components adapt. Border radii, colors, and contrast all change
-						based on the active theme — on both web and native.
+						based on the active theme: on both web and native.
 					</Typography>
 				</Box>
 
@@ -31,12 +32,12 @@ export function ComponentShowcase() {
 				<Box display="flex" flexDirection="column" gap="md">
 					<Typography role="h3">Buttons</Typography>
 					<Box display="flex" flexWrap="wrap" alignItems="center" gap="sm">
-						{BUTTON_VARIANTS.map((variant) => (
-							<Button key={variant} variant={variant}>
-								{variant.charAt(0).toUpperCase() + variant.slice(1)}
+						{BUTTON_COLORS.map((color) => (
+							<Button key={color} color={color}>
+								{color.charAt(0).toUpperCase() + color.slice(1)}
 							</Button>
 						))}
-						<Button variant="primary" disabled>
+						<Button color="primary" isDisabled>
 							Disabled
 						</Button>
 					</Box>
@@ -61,30 +62,21 @@ export function ComponentShowcase() {
 				<Box display="flex" flexDirection="column" gap="md">
 					<Typography role="h3">Input Fields</Typography>
 					<Typography role="p" color="text-secondary" className="max-w-prose">
-						Inputs use the surface contract — alt surface by default. The <code>surface</code> prop
-						selects an alternate surface. The <code>status</code> prop applies full feedback states
-						— bg, border, text, label, and placeholder all change.
+						Inputs expose label, hint and validation state. The <code>isInvalid</code> prop applies
+						the full error treatment: border, label, and hint all change.
 					</Typography>
 					<Box display="flex" flexWrap="wrap" gap="md">
 						<Box className="min-w-[200px]">
-							<Input label="Alt (default)" placeholder="alt surface..." id="i-default" />
+							<Input label="Default" placeholder="Type here..." id="i-default" />
 						</Box>
 						<Box className="min-w-[200px]">
-							<Input
-								label="Sunken surface"
-								surface="sunken"
-								placeholder="sunken..."
-								id="i-sunken"
-							/>
+							<Input label="With hint" hint="Helper text" placeholder="Type here..." id="i-hint" />
 						</Box>
 						<Box className="min-w-[200px]">
-							<Input label="Error" status="error" placeholder="invalid..." id="i-error" />
+							<Input label="Error" isInvalid placeholder="invalid..." id="i-error" />
 						</Box>
 						<Box className="min-w-[200px]">
-							<Input label="Success" status="success" placeholder="valid..." id="i-success" />
-						</Box>
-						<Box className="min-w-[200px]">
-							<Input label="Disabled" placeholder="disabled..." disabled id="i-disabled" />
+							<Input label="Disabled" placeholder="disabled..." isDisabled id="i-disabled" />
 						</Box>
 					</Box>
 				</Box>
@@ -94,17 +86,10 @@ export function ComponentShowcase() {
 					<Typography role="h3">Select</Typography>
 					<Box display="flex" flexWrap="wrap" gap="md">
 						<Box className="min-w-[180px]">
-							<Select label="Alt (default)" id="s-default">
-								<Select.Item value="a">Option A</Select.Item>
-								<Select.Item value="b">Option B</Select.Item>
-								<Select.Item value="c">Option C</Select.Item>
-							</Select>
-						</Box>
-						<Box className="min-w-[180px]">
-							<Select label="Sunken surface" surface="sunken" id="s-sunken">
-								<Select.Item value="a">Option A</Select.Item>
-								<Select.Item value="b">Option B</Select.Item>
-								<Select.Item value="c">Option C</Select.Item>
+							<Select label="Options" id="s-default">
+								<Select.Item id="a" label="Option A" />
+								<Select.Item id="b" label="Option B" />
+								<Select.Item id="c" label="Option C" />
 							</Select>
 						</Box>
 					</Box>
@@ -116,22 +101,24 @@ export function ComponentShowcase() {
 					<Box display="flex" flexWrap="wrap" gap="xl">
 						<Box display="flex" flexDirection="column" gap="sm">
 							<Typography role="label">Checkboxes</Typography>
-							<Checkbox defaultChecked label="Checked" id="sc-1" />
+							<Checkbox defaultSelected label="Checked" id="sc-1" />
 							<Checkbox label="Unchecked" id="sc-2" />
-							<Checkbox disabled label="Disabled" id="sc-3" />
-							<Checkbox defaultChecked disabled label="Checked & disabled" id="sc-4" />
+							<Checkbox isDisabled label="Disabled" id="sc-3" />
+							<Checkbox defaultSelected isDisabled label="Checked & disabled" id="sc-4" />
 						</Box>
 						<Box display="flex" flexDirection="column" gap="sm">
 							<Typography role="label">Radio Buttons</Typography>
-							<Radio defaultChecked label="Selected" name="demo-radio" id="r-1" />
-							<Radio label="Unselected" name="demo-radio" id="r-2" />
-							<Radio disabled label="Disabled" name="demo-radio" id="r-3" />
+							<RadioGroup aria-label="Demo radio" defaultValue="r-1">
+								<RadioButton value="r-1" label="Selected" id="r-1" />
+								<RadioButton value="r-2" label="Unselected" id="r-2" />
+								<RadioButton value="r-3" label="Disabled" id="r-3" isDisabled />
+							</RadioGroup>
 						</Box>
 						<Box display="flex" flexDirection="column" gap="sm">
 							<Typography role="label">Toggles</Typography>
-							<Toggle defaultChecked label="On" id="t-1" />
+							<Toggle defaultSelected label="On" id="t-1" />
 							<Toggle label="Off" id="t-2" />
-							<Toggle disabled label="Disabled" id="t-3" />
+							<Toggle isDisabled label="Disabled" id="t-3" />
 						</Box>
 					</Box>
 				</Box>

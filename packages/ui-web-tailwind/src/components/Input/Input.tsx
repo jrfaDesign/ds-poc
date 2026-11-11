@@ -1,125 +1,254 @@
-import { useState } from 'react';
-import { Typography } from '../Typography/Typography';
-import type { InputProps } from './Input.types';
+"use client";
 
-const sizeClasses: Record<'sm' | 'md' | 'lg', string> = {
-	sm: 'text-xs min-h-[30px]',
-	md: 'text-sm min-h-[40px]',
-	lg: 'text-md min-h-[50px]',
+import { createContext, useContext, useState } from "react";
+import { Eye, EyeOff, HelpCircle, InfoCircle } from "@untitledui/icons";
+import type { InputProps as AriaInputProps } from "react-aria-components";
+import { Button as AriaButton, Group as AriaGroup, Input as AriaInput, TextField as AriaTextField } from "react-aria-components";
+import { HintText } from "./hint-text";
+import { Label } from "./label";
+import { Tooltip, TooltipTrigger } from "../Tooltip/Tooltip";
+import { cx, sortCx } from "../shared/cx";
+import type { InputBaseProps, TextFieldContextProps, TextFieldProps, InputProps } from "./Input.types";
+export type { InputBaseProps, TextFieldContextProps, TextFieldProps, InputProps } from "./Input.types";
+
+
+export const InputBase = ({
+    ref,
+    tooltip,
+    shortcut,
+    groupRef,
+    size = "md",
+    isInvalid,
+    isDisabled,
+    isRequired,
+    icon: Icon,
+    placeholder,
+    wrapperClassName,
+    tooltipClassName,
+    inputClassName,
+    iconClassName,
+    type = "text",
+    ...inputProps
+}: InputBaseProps) => {
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Check if the input has a leading icon or tooltip
+    const hasTrailingIcon = tooltip || isInvalid;
+    const hasLeadingIcon = Icon;
+
+    // If the input is inside a `TextFieldContext`, use its context to simplify applying styles
+    const context = useContext(TextFieldContext);
+
+    const inputSize = context?.size || size;
+
+    const sizes = sortCx({
+        sm: {
+            root: cx("px-lg py-md text-xs", hasLeadingIcon && "pl-5xl", hasTrailingIcon && "pr-5xl"),
+            iconLeading: "left-3 size-4 stroke-[2.25px]",
+            iconTrailing: "right-3",
+            shortcut: "pr-sm",
+        },
+        md: {
+            root: cx("px-lg py-md text-sm", hasLeadingIcon && "pl-5xl", hasTrailingIcon && "pr-5xl"),
+            iconLeading: "left-3 size-5",
+            iconTrailing: "right-3",
+            shortcut: "pr-md",
+        },
+        lg: {
+            root: cx("px-xl py-lg text-sm", hasLeadingIcon && "pl-5xl", hasTrailingIcon && "pr-5xl"),
+            iconLeading: "left-3.5 size-5",
+            iconTrailing: "right-3.5",
+            shortcut: "pr-lg",
+        },
+    });
+
+    return (
+        <AriaGroup
+            {...{ isDisabled, isInvalid }}
+            ref={groupRef}
+            className={({ isFocusWithin, isDisabled, isInvalid }) =>
+                cx(
+                    "group/input relative flex w-full flex-row place-content-center place-items-center rounded-input bg-primary shadow-xs transition-shadow duration-100 ease-linear ring-inset",
+
+                    // UntitledUI text inputs thicken the inset ring to 2px in the brand (error) color on focus: not an outline
+                    isFocusWithin && !isDisabled
+                        ? isInvalid
+                            ? "ring-2 ring-border-error"
+                            : "ring-2 ring-border-brand"
+                        : isInvalid
+                          ? "ring-1 ring-border-error-subtle"
+                          : "ring-1 ring-border-primary",
+
+                    // Disabled state styles
+                    isDisabled && "cursor-not-allowed opacity-50",
+                    "group-disabled:cursor-not-allowed group-disabled:opacity-50",
+
+                    // Invalid state styles (group variants override the ring colors above)
+                    !isFocusWithin && "group-invalid:ring-border-error-subtle",
+                    isFocusWithin && "group-invalid:ring-border-error",
+
+                    context?.wrapperClassName,
+                    wrapperClassName,
+                )
+            }
+        >
+            {/* Leading icon and Payment icon */}
+            {Icon && (
+                <Icon className={cx("pointer-events-none absolute text-fg-quaternary", sizes[inputSize].iconLeading, context?.iconClassName, iconClassName)} />
+            )}
+
+            {/* Input field */}
+            <AriaInput
+                {...(inputProps as AriaInputProps)}
+                ref={ref}
+                required={isRequired}
+                type={type === "password" && isPasswordVisible ? "text" : type}
+                placeholder={placeholder}
+                className={cx(
+                    "m-0 w-full bg-transparent text-primary ring-0 outline-hidden placeholder:text-placeholder autofill:rounded-input autofill:text-primary disabled:cursor-not-allowed",
+                    sizes[inputSize].root,
+                    context?.inputClassName,
+                    inputClassName,
+                )}
+            />
+
+            {/* Tooltip and help icon */}
+            {tooltip && type !== "password" && (
+                <Tooltip title={tooltip} placement="top">
+                    <TooltipTrigger
+                        className={cx(
+                            "absolute cursor-pointer text-fg-quaternary transition duration-100 ease-linear group-invalid/input:hidden hover:text-fg-quaternary-hover focus:text-fg-quaternary-hover",
+                            sizes[inputSize].iconTrailing,
+                            context?.tooltipClassName,
+                            tooltipClassName,
+                        )}
+                    >
+                        <HelpCircle className="size-4 stroke-[2.25px]" />
+                    </TooltipTrigger>
+                </Tooltip>
+            )}
+
+            {/* Invalid icon */}
+            {type !== "password" && (
+                <InfoCircle
+                    className={cx(
+                        "pointer-events-none absolute hidden size-4 stroke-[2.25px] text-fg-error-secondary group-invalid/input:block",
+                        sizes[inputSize].iconTrailing,
+                        context?.tooltipClassName,
+                        tooltipClassName,
+                    )}
+                />
+            )}
+
+            {/* Password visibility toggle */}
+            {type === "password" && (
+                <AriaButton
+                    aria-label="Toggle password visibility"
+                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                    className={cx(
+                        "absolute flex cursor-pointer items-center justify-center text-fg-quaternary transition duration-100 ease-linear hover:text-fg-quaternary-hover focus:text-fg-quaternary-hover focus:outline-hidden",
+                        sizes[inputSize].iconTrailing,
+                    )}
+                >
+                    {isPasswordVisible ? <EyeOff className="size-4 stroke-[2.25px]" /> : <Eye className="size-4 stroke-[2.25px]" />}
+                </AriaButton>
+            )}
+
+            {/* Shortcut */}
+            {shortcut && (
+                <div
+                    className={cx(
+                        "pointer-events-none absolute inset-y-0.5 right-0.5 z-10 hidden items-center rounded-r-[inherit] bg-linear-to-r from-transparent to-bg-primary to-40% pl-4xl md:flex",
+                        sizes[inputSize].shortcut,
+                    )}
+                >
+                    <span
+                        aria-hidden="true"
+                        className="pointer-events-none rounded px-xs py-px text-xxs font-medium text-quaternary ring-1 ring-border-secondary select-none ring-inset"
+                    >
+                        {typeof shortcut === "string" ? shortcut : "⌘K"}
+                    </span>
+                </div>
+            )}
+        </AriaGroup>
+    );
 };
 
-const sizeInlineStyles: Record<'sm' | 'md' | 'lg', React.CSSProperties> = {
-	sm: {
-		paddingTop: '2px',
-		paddingBottom: '2px',
-		paddingLeft: 'var(--ds-spacing-sm)',
-		paddingRight: 'var(--ds-spacing-sm)',
-	},
-	md: {
-		paddingTop: 'var(--ds-spacing-xs)',
-		paddingBottom: 'var(--ds-spacing-xs)',
-		paddingLeft: 'var(--ds-spacing-3xl)',
-		paddingRight: 'var(--ds-spacing-3xl)',
-	},
-	lg: {
-		paddingTop: 'var(--ds-spacing-sm)',
-		paddingBottom: 'var(--ds-spacing-sm)',
-		paddingLeft: 'var(--ds-spacing-3xl)',
-		paddingRight: 'var(--ds-spacing-3xl)',
-	},
+InputBase.displayName = "InputBase";
+
+
+const TextFieldContext = createContext<TextFieldContextProps>({});
+
+
+export const TextField = ({ className, size = "md", inputClassName, wrapperClassName, iconClassName, tooltipClassName, ...props }: TextFieldProps) => {
+    return (
+        <TextFieldContext.Provider value={{ inputClassName, wrapperClassName, iconClassName, tooltipClassName, size }}>
+            <AriaTextField
+                {...props}
+                data-input-wrapper
+                data-input-size={size}
+                className={(state) =>
+                    cx("group flex h-max w-full flex-col items-start justify-start gap-sm", typeof className === "function" ? className(state) : className)
+                }
+            />
+        </TextFieldContext.Provider>
+    );
 };
 
-const surfaceClasses = {
-	alt: 'bg-surface-alt-bg text-surface-alt-on border-surface-alt-border',
-	base: 'bg-surface-base-bg text-surface-base-on border-surface-base-border',
-	raised: 'bg-surface-raised-bg text-surface-raised-on border-surface-raised-border',
-	sunken: 'bg-surface-sunken-bg text-surface-sunken-on border-surface-sunken-border',
-	brand: 'bg-surface-brand-bg text-surface-brand-on border-surface-brand-border',
-	inverse: 'bg-surface-inverse-bg text-surface-inverse-on border-surface-inverse-border',
+TextField.displayName = "TextField";
+
+
+export const Input = ({
+    size = "md",
+    placeholder,
+    icon: Icon,
+    label,
+    hint,
+    shortcut,
+    hideRequiredIndicator,
+    className,
+    ref,
+    groupRef,
+    tooltip,
+    iconClassName,
+    inputClassName,
+    wrapperClassName,
+    tooltipClassName,
+    type = "text",
+    ...props
+}: InputProps) => {
+    return (
+        <TextField aria-label={!label ? placeholder : undefined} {...props} size={size} className={className}>
+            {({ isRequired, isInvalid }) => (
+                <>
+                    {label && (
+                        <Label isRequired={hideRequiredIndicator ? !hideRequiredIndicator : isRequired} isInvalid={isInvalid}>
+                            {label}
+                        </Label>
+                    )}
+
+                    <InputBase
+                        {...{
+                            ref,
+                            groupRef,
+                            size,
+                            placeholder,
+                            icon: Icon,
+                            shortcut,
+                            iconClassName,
+                            inputClassName,
+                            wrapperClassName,
+                            tooltipClassName,
+                            tooltip,
+                            type,
+                        }}
+                    />
+
+                    {hint && <HintText isInvalid={isInvalid}>{hint}</HintText>}
+                </>
+            )}
+        </TextField>
+    );
 };
 
-const feedbackClasses = {
-	error: 'bg-feedback-error-bg text-feedback-error-on border-feedback-error-border',
-	success: 'bg-feedback-success-bg text-feedback-success-on border-feedback-success-border',
-};
-
-const surfaceLabelColor = {
-	alt: 'text-surface-alt-on',
-	base: 'text-surface-base-on',
-	raised: 'text-surface-raised-on',
-	sunken: 'text-surface-sunken-on',
-	brand: 'text-surface-brand-on',
-	inverse: 'text-surface-inverse-on',
-};
-
-const feedbackLabelColor = {
-	error: 'text-feedback-error-on',
-	success: 'text-feedback-success-on',
-};
-
-export function Input({
-	label,
-	placeholder,
-	type = 'text',
-	size = 'md',
-	surface = 'alt',
-	status = 'default',
-	value,
-	defaultValue,
-	onChange,
-	id,
-	disabled,
-	className,
-	style,
-}: InputProps) {
-	const [focused, setFocused] = useState(false);
-	const [hovered, setHovered] = useState(false);
-
-	const baseSurface = disabled ? 'sunken' : surface;
-	const isFeedback = status === 'error' || status === 'success';
-
-	const fieldClasses = [
-		'w-full rounded-inputBorderRadii border border-solid outline-none cursor-text',
-		'transition-[border-color,box-shadow] duration-150',
-		'placeholder:text-placeholder',
-		disabled ? 'opacity-50 cursor-not-allowed' : '',
-		isFeedback
-			? feedbackClasses[status]
-			: focused
-				? 'border-surface-brand-border ring-focus'
-				: hovered && !disabled
-					? 'border-surface-raised-border'
-					: surfaceClasses[baseSurface],
-		sizeClasses[size],
-		className, // user overrides
-	]
-		.filter(Boolean)
-		.join(' ');
-
-	const labelClass = isFeedback ? feedbackLabelColor[status] : surfaceLabelColor[baseSurface];
-
-	return (
-		<div className="flex flex-col gap-xxs">
-			{label && (
-				<Typography role="label" className={labelClass}>
-					{label}
-				</Typography>
-			)}
-			<input
-				type={type}
-				placeholder={placeholder}
-				value={value}
-				defaultValue={defaultValue}
-				onChange={onChange}
-				id={id}
-				disabled={disabled}
-				onFocus={() => setFocused(true)}
-				onBlur={() => setFocused(false)}
-				onMouseEnter={() => setHovered(true)}
-				onMouseLeave={() => setHovered(false)}
-				style={{ ...sizeInlineStyles[size], ...style }} // user can override with !px-0 etc.
-				className={fieldClasses}
-			/>
-		</div>
-	);
-}
+Input.displayName = "Input";

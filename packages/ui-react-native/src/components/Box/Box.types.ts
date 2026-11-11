@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { ViewStyle, DimensionValue } from 'react-native';
-import type { SpacingToken, RadiiToken, ColorToken } from '@repo/foundations';
+import type { SpacingToken, RadiiToken, ColorToken } from '@repo/core';
 import type { MarginProps, PaddingProps } from '../shared/spacing';
 
 export type BoxProps = MarginProps &

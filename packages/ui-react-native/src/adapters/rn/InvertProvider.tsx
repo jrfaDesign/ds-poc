@@ -12,7 +12,7 @@ export type InvertProviderProps = {
  *
  * Re-resolves the current theme with the opposite `isDark` value and
  * provides it via a nested `ThemeContext`. All descendant components
- * calling `useTheme()` will automatically see inverted colors — the
+ * calling `useTheme()` will automatically see inverted colors: the
  * same semantic behavior as the `ds-invert` CSS class on web.
  */
 export function InvertProvider({ children }: InvertProviderProps) {

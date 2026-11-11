@@ -23,51 +23,85 @@ function getInitialThemeKey(keys: string[]): string {
 
 export type StaticThemeResolver = { themes: Record<string, Tokens> };
 export type AsyncThemeResolver = { resolver: (key: string) => Promise<Tokens>; fallback: Tokens };
+/**
+ * Config mode: the app owns a `ThemeConfig` (from the theme API) and passes a
+ * resolver; every config change re-resolves and re-applies the theme.
+ * `fallback` is used when the resolver throws (e.g. a corrupt stored config).
+ */
+export type ConfigThemeMode<C> = {
+	config: C;
+	resolve: (config: C) => Tokens;
+	fallback: Tokens;
+};
 
-export type ThemeProviderProps = {
+export type ThemeProviderProps<C = unknown> = {
 	children: ReactNode;
 	defaultKey?: string;
-} & (StaticThemeResolver | AsyncThemeResolver);
+} & (StaticThemeResolver | AsyncThemeResolver | ConfigThemeMode<C>);
 
-function isStatic(props: StaticThemeResolver | AsyncThemeResolver): props is StaticThemeResolver {
-	return 'themes' in props;
+function resolveConfigSafe<C>(mode: ConfigThemeMode<C>): Tokens {
+	try {
+		return mode.resolve(mode.config);
+	} catch (err) {
+		console.error('[Theme] config resolve failed:', err);
+		return mode.fallback;
+	}
 }
 
 /**
  * Web design-system ThemeProvider.
  *
- * Two modes:
+ * Three modes:
  * - **Static:** pass `themes` map. All themes bundled at build time.
  * - **Async:** pass `resolver` function + `fallback`. Themes fetched on demand.
+ * - **Config:** pass `config` + `resolve` + `fallback`. The app's theme config
+ *   (from the theme API) re-resolves on every change: used by the config tester.
  *
  * FOUC prevention: reads localStorage synchronously, applies theme via
  * `useLayoutEffect` (before browser paint).
  *
- * Error boundary: malformed API responses caught by `safeParseTheme`,
- * falling back to default theme.
+ * Error boundary: malformed API responses caught by `safeParseTheme` /
+ * `resolveConfigSafe`, falling back to the default theme.
  */
-export function ThemeProvider({ children, defaultKey, ...rest }: ThemeProviderProps) {
-	const staticMode = isStatic(rest);
+export function ThemeProvider<C = unknown>({
+	children,
+	defaultKey,
+	...rest
+}: ThemeProviderProps<C>) {
+	// The three modes are mutually exclusive; narrow once here for readable consumers.
+	const staticProps = 'themes' in rest ? (rest as StaticThemeResolver) : null;
+	const configProps = !staticProps && 'config' in rest ? (rest as ConfigThemeMode<C>) : null;
+	const asyncProps = !staticProps && !configProps ? (rest as AsyncThemeResolver) : null;
+
+	// Config mode: resolve during render (pure function of the config props).
+	// Static/async modes keep their theme in state.
+	const configTheme = configProps ? resolveConfigSafe(configProps) : null;
 
 	const availableKeys = useMemo(() => {
-		if (staticMode) return Object.keys(rest.themes);
+		if (configProps) return ['config'];
+		if (staticProps) return Object.keys(staticProps.themes);
 		return defaultKey ? [defaultKey] : [];
-	}, [staticMode, rest, defaultKey]);
+	}, [configProps, staticProps, defaultKey]);
 
 	const [themeKey, setThemeKeyState] = useState<string>(
 		() => defaultKey ?? getInitialThemeKey(availableKeys)
 	);
 	const [darkMode, setDarkMode] = useState<boolean>(getInitialDark);
-	const [theme, setTheme] = useState<Tokens>(() => {
-		if (staticMode) {
-			const fallback = Object.values(rest.themes)[0];
+	const [stateTheme, setStateTheme] = useState<Tokens>(() => {
+		if (staticProps) {
+			const fallback = Object.values(staticProps.themes)[0];
 			if (!fallback) throw new Error('ThemeProvider: static themes map is empty');
-			return rest.themes[themeKey] ?? fallback;
+			return staticProps.themes[themeKey] ?? fallback;
 		}
-		return rest.fallback;
+		// Async and config modes both carry a fallback theme.
+		const fallback = asyncProps?.fallback ?? configProps?.fallback;
+		if (!fallback) throw new Error('ThemeProvider: missing theme fallback');
+		return fallback;
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
+
+	const theme = configTheme ?? stateTheme;
 
 	useLayoutEffect(() => {
 		applyTheme(theme);
@@ -79,32 +113,32 @@ export function ThemeProvider({ children, defaultKey, ...rest }: ThemeProviderPr
 
 	// Static mode: resolve theme from map
 	useEffect(() => {
-		if (!staticMode) return;
-		const found = rest.themes[themeKey];
+		if (!staticProps) return;
+		const found = staticProps.themes[themeKey];
 		if (found) {
-			setTheme(found);
+			setStateTheme(found);
 			setError(null);
 		}
-	}, [themeKey, staticMode, rest]);
+	}, [themeKey, staticProps]);
 
 	// Async mode: fetch theme from resolver
 	useEffect(() => {
-		if (staticMode) return;
+		if (!asyncProps) return;
+		const { resolver, fallback } = asyncProps;
 		let cancelled = false;
 		setLoading(true);
 
-		rest
-			.resolver(themeKey)
+		resolver(themeKey)
 			.then((data) => {
 				if (cancelled) return;
-				setTheme(safeParseTheme(data, rest.fallback));
+				setStateTheme(safeParseTheme(data, fallback));
 				setError(null);
 			})
 			.catch((err) => {
 				if (cancelled) return;
 				console.error('[Theme] Fetch failed:', err);
 				setError(err instanceof Error ? err : new Error(String(err)));
-				setTheme(rest.fallback);
+				setStateTheme(fallback);
 			})
 			.finally(() => {
 				if (!cancelled) setLoading(false);
@@ -113,11 +147,12 @@ export function ThemeProvider({ children, defaultKey, ...rest }: ThemeProviderPr
 		return () => {
 			cancelled = true;
 		};
-	}, [themeKey, staticMode, rest]);
+	}, [themeKey, asyncProps]);
 
 	useEffect(() => {
-		if (typeof window !== 'undefined') localStorage.setItem(STORAGE_THEME, themeKey);
-	}, [themeKey]);
+		if (configProps || typeof window === 'undefined') return;
+		localStorage.setItem(STORAGE_THEME, themeKey);
+	}, [themeKey, configProps]);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') localStorage.setItem(STORAGE_DARK, String(darkMode));

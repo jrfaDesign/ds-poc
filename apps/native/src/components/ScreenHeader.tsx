@@ -19,7 +19,7 @@ export function ScreenHeader({ navigation, options, back }: ScreenHeaderProps) {
 				styles.container,
 				{
 					paddingTop: insets.top,
-					backgroundColor: theme.contracts.components.headerBg,
+					backgroundColor: theme.colorTokens['bg-header'],
 					borderBottomWidth: 1,
 					borderBottomColor: theme.colorTokens['border-primary'],
 				},

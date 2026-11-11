@@ -1,0 +1,230 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from '../web/Button.stories';
+
+<Meta title="Intro/Getting started (Web)" />
+
+# Getting started (Web)
+
+From an empty React + Tailwind app to themed design-system components: install,
+wire Tailwind, apply a theme before first paint, and render.
+
+## Purpose
+
+This is the integration recipe for **web apps**. Follow it once and every
+component in this Storybook's **Web** section is usable in your app, re-themable
+without touching component code, and flash-free on load.
+
+## When to Use
+
+- Green-field React app that should adopt the design system.
+- Existing Tailwind app migrating onto the system's tokens and components.
+- Any app that must re-brand at runtime (white-label config from an API).
+
+## When Not to Use
+
+- **React Native / Expo apps**: follow
+  [Getting started (Mobile)](?path=/docs/intro-getting-started-mobile--docs)
+  instead; Tailwind wiring does not apply there.
+- **Changing the system itself** (new tokens, new components): that happens in
+  this monorepo's packages, not in your app. See
+  [Ways of working](?path=/docs/intro-ways-of-working--docs).
+
+## Prerequisites
+
+The three workspace packages from [Setup & packages](?path=/docs/intro-setup-packages--docs):
+
+```jsonc
+{
+	"dependencies": {
+		"@repo/foundations": "workspace:*",
+		"@repo/core": "workspace:*",
+		"@repo/ui-web-tailwind": "workspace:*",
+	},
+}
+```
+
+## Step 1: Wire Tailwind
+
+One CSS entry file owns the whole pipeline. Three lines matter:
+
+```css
+/* src/index.css */
+@import 'tailwindcss';
+@import '@repo/ui-web-tailwind/theme.css';
+
+/* Scan the component package source so Tailwind detects class names used
+   inside components (which live outside this app's root). */
+@source '../../packages/ui-web-tailwind/src';
+
+@layer base {
+	body {
+		background-color: var(--ct-bg-primary);
+		color: var(--ct-text-primary);
+	}
+}
+```
+
+Why each line exists:
+
+- `tailwindcss`: Tailwind v4 itself.
+- `@repo/ui-web-tailwind/theme.css`: the generated theme layer. Every token
+  becomes a Tailwind utility (`bg-action-primary-bg`, `rounded-button`,
+  `ring-focus`, ...). Never hand-edit it; it is regenerated from
+  `@repo/foundations`.
+- `@source`: Tailwind generates utilities **on demand** by scanning source
+  files. Component classes live in the package, not your app, so without this
+  line your components silently render unstyled. Adjust the relative path to
+  wherever `packages/ui-web-tailwind` sits from your CSS file.
+- The `@layer base` block is optional but recommended: page background and text
+  start from the same tokens every component uses.
+
+## Step 2: Apply the theme before first paint
+
+CSS variables must exist before the first frame or the page flashes unstyled
+(FOUC). Resolve the config and call `applyTheme` synchronously, before
+`createRoot`:
+
+```tsx
+// main.tsx
+import { createRoot } from 'react-dom/client';
+import { resolveThemeConfig, type ThemeConfig } from '@repo/foundations';
+import { applyTheme } from '@repo/ui-web-tailwind';
+import './index.css';
+import App from './App';
+
+// What a theme API would return. Validate it at the edge:
+// themeConfigSchema.parse(response)
+const config: ThemeConfig = { version: 1, tier: 'basic' };
+
+applyTheme(resolveThemeConfig(config)); // writes CSS variables to :root, before React mounts
+
+createRoot(document.getElementById('root')!).render(<App />);
+```
+
+`applyTheme` is the Tailwind adapter: it walks the resolved `Tokens` and emits
+`--ct-*` / `--ds-*` custom properties (mode-aware pairs included). You rarely
+call it yourself, because `ThemeProvider` re-calls it on every theme change,
+but the one boot-time call is what makes first paint safe.
+
+## Step 3: Wrap the app in ThemeProvider
+
+```tsx
+import { ThemeProvider, useTheme } from '@repo/ui-web-tailwind';
+import { defaultTheme, resolveThemeConfig } from '@repo/foundations';
+
+<ThemeProvider config={config} resolve={resolveThemeConfig} fallback={defaultTheme}>
+	<App />
+</ThemeProvider>;
+```
+
+### Which mode to pass
+
+The provider takes exactly one of three shapes. Pick by where themes come from:
+
+- **Config (white-label)**: pass `config` + `resolve` + `fallback`. Use
+  when your API returns a `ThemeConfig` (the usual case for a themed product:
+  the app re-resolves whenever the config changes).
+- **Static**: pass a `themes` map (plus an optional `defaultKey`). Use when
+  every theme is bundled at build time and switching stays local.
+- **Async**: pass `resolver(key)` + `fallback`. Use when themes are fetched
+  on demand by key.
+
+Every mode guards its input, so a corrupt response degrades to the default
+theme instead of crashing: config resolution failures fall back to
+`fallback`, and async results go through `safeParseTheme` (Zod).
+
+## Step 4: Render a component
+
+This page runs inside the same pipeline your app gets. The button below is
+rendered through `ThemeProvider` with the active theme:
+
+<Canvas of={ButtonStories.Default} />
+
+```tsx
+import { Button } from '@repo/ui-web-tailwind';
+
+<Button color="primary" size="md" onClick={() => save()}>
+	Save changes
+</Button>;
+```
+
+Inside your own components, read the resolved theme with `useTheme()`:
+
+```tsx
+import { useTheme } from '@repo/ui-web-tailwind';
+
+const { theme, darkMode, toggleDark } = useTheme();
+```
+
+## Theming with the packages' exports
+
+### ThemeConfig: the white-label contract
+
+```ts
+type ThemeConfig = {
+	version: number;
+	tier: 'basic' | 'medium' | 'enterprise';
+	logo?: string;
+	colors?: { primary600?: string; secondary600?: string }; // brand picks ONE step
+	style?: 'sharp' | 'soft' | 'rounded' | 'full'; // shape preset for button/input/card
+	fonts?: { body?: string; heading?: string };
+};
+```
+
+- **`tier`** decides how much is overridden: `basic` = default theme,
+  `medium` = derived colors/shape/fonts, `enterprise` = reserved.
+- **`resolveThemeConfig(config)`** (from `@repo/foundations`) turns the config
+  into full `Tokens`, deriving the whole primary/secondary ramps from the two
+  600-step hexes, then applying the shape preset and fonts.
+- **`themeConfigSchema.parse(...)`** validates anything from storage or the
+  network before it reaches the provider.
+- **`mergeTheme(defaultTheme, overrides)`**: for a token tweak without a full
+  config (dashboards, previews, tests).
+- **`defaultTheme`**: the fallback theme and the base for overrides.
+
+### Reading tokens in components
+
+Components read semantic values (contracts and color tokens), never raw hex:
+
+```tsx
+const { theme } = useTheme();
+// theme.contracts.actions.primary  -> semantic action colors
+// theme.colorTokens['bg-primary']  -> mode-aware color token value
+```
+
+On the class side, every token is also a utility (`text-fg-secondary`,
+`rounded-input`, `bg-surface-base-bg`) because `theme.css` exposes them.
+
+## Dark mode
+
+`ThemeProvider` owns the `dark` class on the document element (persisted in
+`localStorage`, seeded from `prefers-color-scheme` on first visit), and the
+generated CSS maps `dark:` utilities to that class, so mode switching is class
+toggling plus variable swaps, no rebuild:
+
+```tsx
+const { darkMode, toggleDark } = useTheme();
+<button onClick={toggleDark}>{darkMode ? 'Light' : 'Dark'}</button>;
+```
+
+Always check both modes after a color change: use this Storybook's **Mode**
+toolbar to do exactly that.
+
+## Accessibility
+
+- Keep the `applyTheme` boot call synchronous: deferring it reintroduces the
+  flash of unstyled content.
+- Never remove the `@source` line: missing utilities fail silently (the page
+  "works" but looks broken), which is worse than a build error.
+- Validate configs at the boundary (`themeConfigSchema.parse`) so a bad API
+  payload fails in your fetch layer with a clear error, not mid-render.
+
+## Design notes
+
+- Only one primary button should lead a local action group. The same
+  decision-making rule applies to tokens: if you need a new one, check
+  [Ways of working](?path=/docs/intro-ways-of-working--docs) first. Most needs
+  are answered by existing contracts.
+- The white-label flow never lets your app hardcode brand values: brand data
+  enters as `ThemeConfig`, and everything else is derived. That is what keeps
+  re-branding a config swap instead of a code change.

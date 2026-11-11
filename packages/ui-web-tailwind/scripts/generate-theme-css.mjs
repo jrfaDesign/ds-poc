@@ -28,15 +28,11 @@ import {
 	fontWeightKeys,
 	lineHeightKeys,
 	letterSpacingKeys,
-	fontFamilyKeys,
 	shadowKeys,
-	typographyContractKeys,
 	breakpoints,
-	CONTRACT_STRUCTURE,
 	CONTRACT_PREFIX,
 	CONTRACT_VARIANTS,
 	NESTED_CONTRACT_PROPERTIES,
-	FLAT_CONTRACT_PROPERTIES,
 } from '@repo/foundations/codegen';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -61,12 +57,18 @@ const semanticColorKeys = [
 
 const lines = [];
 
+// Class-based dark variant: matches ThemeProvider toggling 'dark' on <html>
+// (Tailwind v4 defaults dark: to prefers-color-scheme, which would ignore our toggle).
+lines.push('@custom-variant dark (&:where(.dark, .dark *));');
+// React Aria Components data-attribute variants (group-invalid:, group-disabled:, ...): same plugin UntitledUI ships.
+lines.push('@plugin "tailwindcss-react-aria-components";');
+
 // --- @layer base ---
 lines.push('@layer base {');
 lines.push('  :root { color-scheme: light; }');
 lines.push('  :root.dark { color-scheme: dark; }');
 lines.push('  body { margin: 0; font-family: var(--typography-fontFamilies-body); }');
-lines.push("  /* Input placeholder colors — inherit status color from the input's inline color */");
+lines.push("  /* Input placeholder colors: inherit status color from the input's inline color */");
 lines.push('  input::placeholder,');
 lines.push('  textarea::placeholder {');
 lines.push('    color: inherit;');
@@ -77,12 +79,12 @@ lines.push('  }');
 // Always emitted so inline styles resolve at runtime.
 lines.push('');
 lines.push('  /*');
-lines.push('   * Contract bridge variables — always emitted so inline styles resolve at');
+lines.push('   * Contract bridge variables: always emitted so inline styles resolve at');
 lines.push('   * runtime.  Tailwind v4 @theme inline only emits variables that are');
 lines.push('   * referenced by a generated utility class; inline-style references like');
 lines.push('   * surfaceVars(), feedbackVars(), scVar(), toggleVar() are not enough.');
 lines.push('   * applyTheme() sets the unprefixed runtime vars (--surface-*, --feedback-*,');
-lines.push('   * etc.) on :root — these declarations bridge them to the --color-* names');
+lines.push('   * etc.) on :root: these declarations bridge them to the --color-* names');
 lines.push('   * that the component helpers expect.');
 lines.push('   */');
 lines.push('  :root {');
@@ -100,17 +102,6 @@ for (const contractName of Object.keys(CONTRACT_VARIANTS)) {
 				`    --color-${prefix}-${variant}-${kebab}: var(--${prefix}-${variant}-${kebab});`
 			);
 		}
-	}
-}
-
-// Emit bridges for all flat contracts
-for (const contractName of Object.keys(FLAT_CONTRACT_PROPERTIES)) {
-	const prefix = CONTRACT_PREFIX[contractName] ?? contractName;
-	const props = FLAT_CONTRACT_PROPERTIES[contractName];
-	lines.push(`    /* ${contractName} contracts */`);
-	for (const prop of props) {
-		const kebab = toKebab(prop);
-		lines.push(`    --color-${prefix}-${kebab}: var(--${prefix}-${kebab});`);
 	}
 }
 
@@ -152,24 +143,6 @@ for (const surface of CONTRACT_VARIANTS.surfaces) {
 	}
 }
 
-lines.push('  /* inputField contracts */');
-for (const prop of FLAT_CONTRACT_PROPERTIES.inputField) {
-	const kebab = toKebab(prop);
-	lines.push(`  --color-inputfield-${kebab}: var(--inputfield-${kebab});`);
-}
-
-lines.push('  /* selectionControl contracts */');
-for (const prop of FLAT_CONTRACT_PROPERTIES.selectionControl) {
-	const kebab = toKebab(prop);
-	lines.push(`  --color-selectioncontrol-${kebab}: var(--selectioncontrol-${kebab});`);
-}
-
-lines.push('  /* toggle contracts */');
-for (const prop of FLAT_CONTRACT_PROPERTIES.toggle) {
-	const kebab = toKebab(prop);
-	lines.push(`  --color-toggle-${kebab}: var(--toggle-${kebab});`);
-}
-
 // spacing
 lines.push('  /* spacing */');
 spacingKeys.forEach((k) => {
@@ -195,9 +168,13 @@ layoutKeys.forEach((k) => {
 });
 
 // typography
-lines.push('  /* typography - font size */');
+lines.push('  /* typography - font size (+ Super Charge DS line-height / letter-spacing tuples) */');
 fontSizeKeys.forEach((k) => {
 	lines.push(`  --text-${k}: var(--typography-fontSize-${k});`);
+	lines.push(`  --text-${k}--line-height: var(--typography-fontSize-${k}-lineHeight);`);
+	lines.push(
+		`  --text-${k}--letter-spacing: var(--typography-fontSize-${k}-letterSpacing, normal);`
+	);
 });
 
 lines.push('  /* typography - font weight */');
@@ -262,7 +239,7 @@ borderColorKeys.forEach((k) => {
 
 // --- Contract @utility classes ---
 // Color properties (bg, on, border) are handled automatically by @theme inline
-// above — Tailwind generates bg-*, text-*, border-* utilities from --color-* vars.
+// above: Tailwind generates bg-*, text-*, border-* utilities from --color-* vars.
 // Here we only emit @utility rules for NON-COLOR contract properties that
 // have no Tailwind namespace (border-width, border-radius, structural radii).
 
@@ -279,45 +256,16 @@ for (const intent of CONTRACT_VARIANTS.feedback) {
 	);
 }
 
-// Component contract utilities — auto-generated from FLAT_CONTRACT_PROPERTIES.components
-// Utility names use camelCase property name directly (e.g. bg-headerBg, rounded-buttonBorderRadii)
+// Shape preset utilities: border radius per element bucket (from theme.style)
 lines.push('');
-lines.push('/* --- component contract utilities (auto-generated) --- */');
-for (const prop of FLAT_CONTRACT_PROPERTIES.components) {
-	const kebab = toKebab(prop);
-	if (prop.endsWith('Radii')) {
-		lines.push(`@utility rounded-${prop} { border-radius: var(--components-${kebab}); }`);
-	} else {
-		lines.push(`@utility bg-${prop} { background-color: var(--components-${kebab}); }`);
-	}
-}
+lines.push('/* shape preset utilities (theme.style -> --shape-*) */');
+lines.push('@utility rounded-button { border-radius: var(--shape-button); }');
+lines.push('@utility rounded-input { border-radius: var(--shape-input); }');
+lines.push('@utility rounded-card { border-radius: var(--shape-card); }');
 
-// Focus ring utility (box-shadow with ring color)
-lines.push('@utility ring-focus { box-shadow: var(--focusring-focus-ring); }');
-lines.push('@utility ring-focus-error { box-shadow: var(--focusring-focus-ring-error); }');
-
-// --- Typography role presets: type-{role} ---
-const headingRoles = ['h1', 'h2', 'h3', 'h4'];
-lines.push('');
-lines.push('/* typography role presets: type-{role} */');
-typographyContractKeys.forEach((role) => {
-	const c = `--typography-contract-${role}`;
-	const ffFallback = headingRoles.includes(role)
-		? 'var(--typography-fontFamilies-heading)'
-		: 'var(--typography-fontFamilies-body)';
-	lines.push(`@utility type-${role} {`);
-	lines.push(`  font-family: var(${c}-fontFamily, ${ffFallback});`);
-	lines.push(`  font-size: var(${c}-fontSize);`);
-	lines.push(`  font-weight: var(${c}-fontWeight);`);
-	lines.push(`  line-height: var(${c}-lineHeight);`);
-	lines.push(`  letter-spacing: var(${c}-letterSpacing, normal);`);
-	lines.push(`  color: var(${c}-color, var(--ct-text-primary));`);
-	lines.push(`  margin: 0;`);
-	if (role === 'overline') {
-		lines.push(`  text-transform: uppercase;`);
-	}
-	lines.push('}');
-});
+// Focus ring utility per the UntitledUI spec: 2px outline + 2px offset, color from the focus-ring tokens
+lines.push('@utility ring-focus { outline: 2px solid var(--focusring-focus-ring); outline-offset: 2px; }');
+lines.push('@utility ring-focus-error { outline: 2px solid var(--focusring-focus-ring-error); outline-offset: 2px; }');
 lines.push('');
 
 // ---------------------------------------------------------------------------

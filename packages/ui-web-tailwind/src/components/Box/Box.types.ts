@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { SpacingToken, RadiiToken, ShadowToken, ColorTokenName } from '@repo/foundations';
+import type { SpacingToken, RadiiToken, ShadowToken, ColorTokenName } from '@repo/core';
 import type { MarginProps, PaddingProps } from '../shared/spacing';
 import type { BorderProp } from '../shared/border';
 
@@ -22,7 +22,7 @@ export type BoxProps = MarginProps &
 		as?: BoxTag;
 		/** CSS display value (e.g. `'flex'`, `'grid'`, `'block'`). */
 		display?: CSSProperties['display'];
-		/** Flex shorthand — sets `flex-basis`, `flex-grow`, and `flex-shrink`. */
+		/** Flex shorthand: sets `flex-basis`, `flex-grow`, and `flex-shrink`. */
 		flex?: CSSProperties['flex'];
 		/** Initial main-axis size of a flex item. */
 		flexBasis?: CSSProperties['flexBasis'];
@@ -86,9 +86,9 @@ export type BoxProps = MarginProps &
 		borderRadius?: RadiiToken;
 		/** Elevation shadow (shadow token). */
 		shadow?: ShadowToken;
-		/** Border shorthand — `{width}-{colorToken}-{style}` (e.g. `'1px-border-primary-solid'`). */
+		/** Border shorthand: `{width}-{colorToken}-{style}` (e.g. `'1px-border-primary-solid'`). */
 		border?: BorderProp;
-		/** Flip light/dark values for this subtree — a dark section on a light page (or vice-versa). */
+		/** Flip light/dark values for this subtree: a dark section on a light page (or vice-versa). */
 		invert?: boolean;
 		/** Force light or dark mode colors. Bypasses invert when provided. */
 		mode?: 'light' | 'dark';
@@ -96,6 +96,6 @@ export type BoxProps = MarginProps &
 		className?: string;
 		/** Inline style overrides. Applied after token-resolved styles. */
 		style?: CSSProperties;
-		/** HTML `title` attribute — shown as tooltip on hover. */
+		/** HTML `title` attribute: shown as tooltip on hover. */
 		title?: string;
 	};

@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { TopNavBar, Select, Toggle, Typography, useTheme } from '@repo/ui-web-tailwind';
+import { TopNavBar, Toggle, Typography, useTheme } from '@repo/ui-web-tailwind';
 import { FiHelpCircle, FiGlobe, FiSettings, FiHeart } from 'react-icons/fi';
 import { BrandLogo } from '../../../components/BrandLogo';
+import { ThemeConfigPanel } from '../../../components/ThemeConfigPanel';
 
 export function AppHeader() {
-	const { themeKey, setThemeKey, darkMode, toggleDark } = useTheme();
+	const { darkMode, toggleDark } = useTheme();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -57,28 +58,12 @@ export function AppHeader() {
 					BM
 				</Typography>
 			</div>
-			<div className="px-sm py-xxs">
-				<Typography role="caption" color="text-secondary" className="mb-xxs block">
-					Theme
-				</Typography>
-				<Select
-					value={themeKey}
-					onChange={(e) => setThemeKey(e.target.value)}
-					id="header-theme-select"
-				>
-					<Select.Item value="default">Default</Select.Item>
-					<Select.Item value="cag">CAG</Select.Item>
-					<Select.Item value="bca">BCA</Select.Item>
-					<Select.Item value="byd">BYD</Select.Item>
-					<Select.Item value="byd_premium">BYD Premium</Select.Item>
-					<Select.Item value="caos">CAOS</Select.Item>
-				</Select>
-			</div>
+			<ThemeConfigPanel />
 			<div className="px-sm py-xxs flex items-center justify-between">
 				<Typography role="caption" color="text-secondary">
 					Dark Mode
 				</Typography>
-				<Toggle checked={darkMode} onChange={toggleDark} />
+				<Toggle isSelected={darkMode} onChange={toggleDark} />
 			</div>
 			<div className="border-t border-surface-base-border px-sm py-xxs">
 				<button
@@ -93,13 +78,7 @@ export function AppHeader() {
 
 	return (
 		<TopNavBar
-			logo={
-				<BrandLogo
-					themeKey={themeKey}
-					className="h-6 cursor-pointer"
-					onClick={() => navigate('/')}
-				/>
-			}
+			logo={<BrandLogo className="h-6 cursor-pointer" onClick={() => navigate('/')} />}
 			items={navItems}
 			activeItemId={activeNavId}
 			onItemClick={handleNavClick}

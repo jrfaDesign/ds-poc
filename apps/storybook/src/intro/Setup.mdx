@@ -1,0 +1,126 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Intro/Setup & packages" />
+
+# Setup & packages
+
+Set up this design system in a project: which packages to install, what each
+one is for, and why the system is split the way it is.
+
+## Purpose
+
+Everything visual in this system is defined once in TypeScript and consumed by
+platform adapters. This page gets you from "empty app" to "ready for the
+platform guide" without assuming you know the repo.
+
+## When to Use
+
+- A developer integrating the design system into an application.
+- Answering "why are there four packages instead of one?"
+
+## When Not to Use
+
+- **Changing the design system itself** (tokens, components, themes): read
+  [Architecture](?path=/docs/intro-architecture--docs) and
+  [Ways of working](?path=/docs/intro-ways-of-working--docs) instead. They
+  cover the folder structure and development workflow.
+
+## The packages
+
+Install only what your platform consumes. Every package is consumed as a Yarn
+workspace dependency today: the packages are private (nothing is published to
+npm yet), so integration happens inside this monorepo.
+
+### `@repo/foundations`
+
+- **Gives you:** token schemas, the default theme, the white-label
+  `ThemeConfig` resolver (`resolveThemeConfig`), validation
+  (`TokensSchema`, `themeConfigSchema`), helpers (`mergeTheme`,
+  `deriveColorScale`).
+- **Depends on:** only `zod`. No React, so it runs in scripts, tests and
+  build tooling.
+
+### `@repo/core`
+
+- **Gives you:** shared prop shapes and enums that mean the same thing on
+  both platforms (`ButtonSharedProps`, `ButtonVariant`, `Tokens`
+  re-exports, margin/padding props).
+- **Depends on:** type-only on foundations. Importing it pulls nothing into
+  your bundle and keeps both platforms agreeing on one definition.
+
+### `@repo/ui-web-tailwind`
+
+- **Gives you:** web components, `ThemeProvider`, `useTheme`, `applyTheme`,
+  and the generated `theme.css` with every token as a utility class.
+- **Depends on:** foundations, core, React and the Tailwind toolchain.
+
+### `@repo/ui-react-native`
+
+- **Gives you:** React Native components, `AppProvider`, `useTheme`,
+  `applyTheme`.
+- **Depends on:** foundations, core and React Native.
+
+### Why foundations and core are separate from the UI packages
+
+- **`@repo/foundations` is the single source of truth.** Schemas, default
+  values and the white-label resolver must run anywhere: a build script, a
+  test, a future platform. Keeping it free of React keeps it runnable
+  everywhere.
+- **`@repo/core` exists so the two platforms agree.** A prop like
+  `size="sm"` or an enum like `ButtonVariant` means the same thing on web and
+  native. Those shapes live in core as plain TypeScript, so neither platform
+  re-declares them and drift can't happen. It is type-only: importing it pulls
+  nothing into your bundle.
+- **The UI packages are adapters.** They are the only packages that know what
+  a component is. Mechanics differ per platform (`className` vs `style`,
+  `onClick` vs `onPress`), so they live where they are used, and either one
+  can be replaced without touching foundations.
+
+### Install
+
+Add the workspace dependencies your app needs:
+
+```jsonc
+// package.json (your app)
+{
+	"dependencies": {
+		"@repo/foundations": "workspace:*",
+		"@repo/core": "workspace:*",
+		"@repo/ui-web-tailwind": "workspace:*", // web apps; use "@repo/ui-react-native" for mobile
+	},
+}
+```
+
+Then run `yarn install` from the repo root.
+
+Not required for everyday use, but available when you need them directly:
+
+- `mergeTheme(base, overrides)`: deep-merge a partial token override onto a
+  theme (validated afterwards with `TokensSchema.parse`).
+- `defaultTheme`: the built-in theme, useful as a fallback or as the base for
+  an override.
+- `applyTheme(tokens)`: the low-level adapter call. The providers do this for
+  you; call it yourself only for FOUC-safe first paint, as the web guide shows.
+
+## Choosing a platform guide
+
+- **Web (React + Tailwind):** continue to
+  [Getting started (Web)](?path=/docs/intro-getting-started-web--docs) to
+  install, wire `theme.css`, render with `ThemeProvider`, and theme with
+  `ThemeConfig`.
+- **Mobile (React Native / Expo):** continue to
+  [Getting started (Mobile)](?path=/docs/intro-getting-started-mobile--docs)
+  to install, wrap with `AppProvider`, and theme with the same `ThemeConfig`.
+
+## Design notes
+
+- **Dependency direction only ever points down:** apps → UI packages →
+  core/foundations. Foundations never imports React; core never imports
+  React Native; the UI packages never own theme config: the app resolves it
+  and passes tokens in.
+- **One config, every platform.** `ThemeConfig` (what a brand sends) is
+  resolved by `resolveThemeConfig` into the same `Tokens` on web, native and
+  in this Storybook. If you write your own resolution path, you will drift.
+- Validate anything that comes from storage or an API with
+  `themeConfigSchema.parse` / `TokensSchema.parse` before it reaches a
+  provider: malformed data should fail at the edge, not inside a render.

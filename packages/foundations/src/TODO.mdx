@@ -1,15 +1,15 @@
 ---
-title: 'Design System White-Label — Analysis & Improvement Plan'
+title: 'Design System White-Label: Analysis & Improvement Plan'
 description: 'Viability assessment and prioritized improvements for API-driven theme loading in the white-label design system.'
 ---
 
-# Design System White-Label — Analysis & Improvement Plan
+# Design System White-Label: Analysis & Improvement Plan
 
 ## Architecture Viability Assessment
 
-### Verdict: **VIABLE** — with targeted improvements
+### Verdict: **VIABLE**, with targeted improvements
 
-The current MVP architecture is **fundamentally sound** for white-label with API-driven theme loading. The core design decisions — Zod validation, runtime CSS variables, deep merge capability, and the contract system — provide a strong foundation. However, several gaps must be addressed before production deployment.
+The current MVP architecture is **fundamentally sound** for white-label with API-driven theme loading. The core design decisions (Zod validation, runtime CSS variables, deep merge capability, and the contract system) provide a strong foundation. However, several gaps must be addressed before production deployment.
 
 ### What Works Well
 
@@ -24,29 +24,29 @@ The current MVP architecture is **fundamentally sound** for white-label with API
 | **Generic contract resolution**             | Both Tailwind and RN adapters resolve any flat contract property automatically. Adding/removing tokens requires zero adapter edits.    |
 | **Auto-derived types**                      | `ResolvedComponents` type is derived from the Zod schema. Radii → `number`, colors → `string`. Full type safety with zero maintenance. |
 
-### ~~Critical Issues Found~~ — Resolved Items
+### ~~Critical Issues Found~~: Resolved Items
 
-1. ~~`codegen.js` is out of sync with `index.ts`~~ ✅ **RESOLVED** — auto-generated via TS Compiler API
-2. **No dynamic theme loading infrastructure** — themes are hardcoded imports, not fetchable from API
-3. **No FOUC prevention** — async theme loading causes flash of unstyled content
-4. ~~Incomplete `CONTRACT_PREFIX` mapping in `applyTheme.ts`~~ ✅ **RESOLVED** — imported from `@repo/foundations`
+1. ~~`codegen.js` is out of sync with `index.ts`~~ ✅ **RESOLVED**: auto-generated via TS Compiler API
+2. **No dynamic theme loading infrastructure**: themes are hardcoded imports, not fetchable from API
+3. **No FOUC prevention**: async theme loading causes flash of unstyled content
+4. ~~Incomplete `CONTRACT_PREFIX` mapping in `applyTheme.ts`~~ ✅ **RESOLVED**: imported from `@repo/foundations`
 
 ---
 
 ## Improvement Plan
 
-### HIGH PRIORITY — Must Fix for White-Label
+### HIGH PRIORITY: Must Fix for White-Label
 
-#### ✅ 1. Fix `codegen.js` sync with `index.ts` — DONE
+#### ✅ 1. Fix `codegen.js` sync with `index.ts`: DONE
 
 **Problem:** `codegen.js` is manually maintained and has drifted from the canonical TypeScript arrays.
 
 **Solution implemented:**
 
-- `packages/foundations/scripts/generate-codegen.mjs` — parses `index.ts` via the TypeScript Compiler API, extracts all exported const arrays and objects, writes `codegen.js`
-- `packages/foundations/scripts/verify-codegen.mjs` — CI check that fails if `codegen.js` is out of sync
-- `packages/foundations/package.json` — `generate:codegen`, `generate:tokens`, `verify:codegen` scripts
-- `FLAT_CONTRACT_PROPERTIES.components` — **auto-derived** from `ComponentsPresetSchema` property names by the generate script, eliminating the need to maintain a separate manual array
+- `packages/foundations/scripts/generate-codegen.mjs`: parses `index.ts` via the TypeScript Compiler API, extracts all exported const arrays and objects, writes `codegen.js`
+- `packages/foundations/scripts/verify-codegen.mjs`: CI check that fails if `codegen.js` is out of sync
+- `packages/foundations/package.json`: `generate:codegen`, `generate:tokens`, `verify:codegen` scripts
+- `FLAT_CONTRACT_PROPERTIES.components`: **auto-derived** from `ComponentsPresetSchema` property names by the generate script, eliminating the need to maintain a separate manual array
 
 ---
 
@@ -76,7 +76,7 @@ const themes: Record<ThemeKey, Tokens> = { default: defaultTheme, ... };
    - Re-fetches when brand ID changes
    - Provides `refetch` for manual refresh
 
-3. **Update `applyTheme`** to be idempotent and safe for re-invocation (already is — verified)
+3. **Update `applyTheme`** to be idempotent and safe for re-invocation (already is, verified)
 
 **Proposed API:**
 
@@ -130,7 +130,7 @@ useLayoutEffect(() => {
 
 ---
 
-#### ✅ 4. Complete `CONTRACT_PREFIX` mapping — DONE
+#### ✅ 4. Complete `CONTRACT_PREFIX` mapping: DONE
 
 **Problem:** `applyTheme.ts` had a local `CONTRACT_PREFIX` missing entries for `feedback`, `toggle`, and `components`.
 
@@ -138,7 +138,7 @@ useLayoutEffect(() => {
 
 ---
 
-#### ✅ 4b. Generic contract resolution (React Native) — DONE
+#### ✅ 4b. Generic contract resolution (React Native): DONE
 
 **Problem:** The RN adapter had 10 lines of manual per-property resolution code for `components`. Adding a new property required editing the adapter.
 
@@ -151,7 +151,7 @@ useLayoutEffect(() => {
 
 ---
 
-#### ✅ 4c. Auto-derived `ResolvedComponents` type — DONE
+#### ✅ 4c. Auto-derived `ResolvedComponents` type: DONE
 
 **Problem:** The RN adapter used `Record<string, string | number>` for `components`, providing no type safety.
 
@@ -172,7 +172,7 @@ export type ResolvedComponents = {
 
 ---
 
-#### ✅ 4d. Auto-generated component `@utility` classes — DONE
+#### ✅ 4d. Auto-generated component `@utility` classes: DONE
 
 **Problem:** Component CSS utility classes (`bg-components-*`, `rounded-*`) were hardcoded in `generate-theme-css.mjs`. Adding a new property required a manual CSS edit.
 
@@ -184,7 +184,7 @@ export type ResolvedComponents = {
 
 ---
 
-### MEDIUM PRIORITY — Should Fix
+### MEDIUM PRIORITY: Should Fix
 
 #### 5. Optimize `applyTheme` performance
 
@@ -245,7 +245,7 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 **Problem:** `resolveAlpha` in `index.ts` and `hexToRgba` in `applyTheme.ts` are nearly identical.
 
-**Status:** Still open. This is the only remaining Phase 1 item. Low priority — the duplication is contained (one function in each file) and doesn't affect correctness.
+**Status:** Still open. This is the only remaining Phase 1 item. Low priority: the duplication is contained (one function in each file) and doesn't affect correctness.
 
 **Solution:** Export `hexToRgba` from `@repo/foundations` and import in `applyTheme.ts`.
 
@@ -256,7 +256,7 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 ---
 
-### LOW PRIORITY — Nice to Have
+### LOW PRIORITY: Nice to Have
 
 #### 9. Add SSR support
 
@@ -296,7 +296,7 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 ---
 
-#### ✅ 12. Typography contract letter spacing handling — DONE
+#### ✅ 12. Typography contract letter spacing handling: DONE
 
 **Problem:** `letterSpacing` is optional in `TypographyContractValueSchema`, but `@theme inline` always emitted the variable, producing empty CSS values.
 
@@ -322,12 +322,12 @@ function safeParseTheme(data: unknown, fallback: Tokens): Tokens {
 
 | Change                      | Risk                                | Mitigation                                    |
 | --------------------------- | ----------------------------------- | --------------------------------------------- |
-| Auto-generated `codegen.js` | **Low** — AST extraction            | `verify:codegen` CI check catches drift       |
-| Generic contract resolution | **Low** — runtime resolution        | `ResolvedComponents` type derives from schema |
-| Add `ThemeProvider`         | **Medium** — new API surface        | Keep backward-compatible `useTheme` hook      |
-| Optimize `applyTheme`       | **Low** — internal refactor         | Verify all tokens still emit correctly        |
-| Add SSR support             | **Medium** — new rendering path     | Guard `document` access, test in Next.js      |
-| Simplify CSS bridge         | **High** — breaks component helpers | Keep bridge layer, deprecate gradually        |
+| Auto-generated `codegen.js` | **Low**: AST extraction            | `verify:codegen` CI check catches drift       |
+| Generic contract resolution | **Low**: runtime resolution        | `ResolvedComponents` type derives from schema |
+| Add `ThemeProvider`         | **Medium**: new API surface        | Keep backward-compatible `useTheme` hook      |
+| Optimize `applyTheme`       | **Low**: internal refactor         | Verify all tokens still emit correctly        |
+| Add SSR support             | **Medium**: new rendering path     | Guard `document` access, test in Next.js      |
+| Simplify CSS bridge         | **High**: breaks component helpers | Keep bridge layer, deprecate gradually        |
 
 ---
 

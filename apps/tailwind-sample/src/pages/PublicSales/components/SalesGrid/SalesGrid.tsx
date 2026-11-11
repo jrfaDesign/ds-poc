@@ -30,7 +30,7 @@ export function SalesGrid({ sales }: SalesGridProps) {
 			{/* Load More */}
 			{hasMore && (
 				<div className="flex justify-center mt-lg">
-					<Button variant="tertiary" className="min-w-79" onClick={loadMore}>
+					<Button color="tertiary" className="min-w-79" onClick={loadMore}>
 						Load More Sales
 					</Button>
 				</div>

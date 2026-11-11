@@ -20,10 +20,10 @@ export function Button({
 	...margin
 }: ButtonProps) {
 	const theme = useTheme();
-	const { spacing, contracts } = theme.theme;
+	const { spacing, contracts, shape } = theme.theme;
 	const sizeConfig = sizeStyles[size];
 
-	const borderRadius = contracts.components.buttonBorderRadii;
+	const borderRadius = shape.button;
 
 	const isLink = variant === 'link';
 	const actions = contracts.actions;

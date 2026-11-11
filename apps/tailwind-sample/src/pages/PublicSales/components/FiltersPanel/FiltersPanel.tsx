@@ -33,7 +33,7 @@ export function FiltersPanel({
 	return (
 		<Card
 			variant="raised"
-			className="sticky top-23 self-start overflow-hidden w-full gap-sm bg-salesCardBg rounded-saleCardRadii"
+			className="sticky top-23 self-start overflow-hidden w-full gap-sm bg-sales-card rounded-card"
 			ref={ref}
 		>
 			<div className="flex flex-col">
@@ -50,10 +50,10 @@ export function FiltersPanel({
 			</div>
 
 			<div className="flex items-center gap-sm px-md pb-md pt-sm">
-				<Button variant="secondary" size={size} onClick={onClearAll} className="flex-1">
+				<Button color="secondary" size={size} onClick={onClearAll} className="flex-1">
 					<TrashIcon /> Clear All
 				</Button>
-				<Button variant="primary" size={size} onClick={onApply} className="flex-1">
+				<Button color="primary" size={size} onClick={onApply} className="flex-1">
 					Apply Filter
 				</Button>
 			</div>

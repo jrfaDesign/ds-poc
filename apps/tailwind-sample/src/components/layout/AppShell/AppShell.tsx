@@ -7,7 +7,7 @@ export function AppShell({ children }: AppShellProps) {
 	return (
 		<Box background="bg-secondary" className="min-h-screen flex flex-col ">
 			<AppHeader />
-			<Box paddingY="2xl" className="flex-1 bg-appShellBg">
+			<Box paddingY="2xl" className="flex-1 bg-app-shell">
 				{children}
 			</Box>
 			<AppFooter />

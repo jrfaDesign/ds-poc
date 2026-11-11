@@ -18,7 +18,7 @@ type TabBarIconProps = {
 export function TabBar() {
 	const { theme } = useTheme();
 
-	const active = theme.contracts.components.activeTabIndicator;
+	const active = theme.colorTokens['bg-tab-indicator'];
 	const inactive = theme.colorTokens['text-tertiary'];
 
 	return (
@@ -26,7 +26,7 @@ export function TabBar() {
 			screenOptions={{
 				headerShown: false,
 				tabBarStyle: {
-					backgroundColor: theme.contracts.components.footerBg,
+					backgroundColor: theme.colorTokens['bg-footer'],
 				},
 				tabBarActiveTintColor: active,
 				tabBarInactiveTintColor: inactive,

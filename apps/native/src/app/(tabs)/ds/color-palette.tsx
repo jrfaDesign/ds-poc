@@ -18,18 +18,18 @@ export default function ColorPaletteScreen() {
 			<PageSection padding="lg">
 				<Box gap="xl">
 					<Box gap="sm">
-						<Typography role="h2" color="text-primary">
+						<Typography variant="title" color="text-primary">
 							Color Palette
 						</Typography>
-						<Typography role="p" color="text-secondary">
-							Raw color tokens — the foundation palette shared by every theme.
+						<Typography variant="body" color="text-secondary">
+							Raw color tokens: the foundation palette shared by every theme.
 						</Typography>
 					</Box>
 
 					<Card variant="surface" style={cardStyle}>
 						{FAMILIES.map((family) => (
 							<Box key={family} gap="xs">
-								<Typography role="caption" color="text-secondary" style={styles.capitalize}>
+								<Typography variant="caption" color="text-secondary" style={styles.capitalize}>
 									{family}
 								</Typography>
 								<Box flexDirection="row" gap="xxs" flexWrap="wrap">
@@ -50,7 +50,7 @@ export default function ColorPaletteScreen() {
 						))}
 
 						<Box gap="xs">
-							<Typography role="caption" color="text-secondary">
+							<Typography variant="caption" color="text-secondary">
 								Base
 							</Typography>
 							<Box flexDirection="row" gap="xxs">
@@ -68,12 +68,12 @@ export default function ColorPaletteScreen() {
 						</Box>
 
 						<Box gap="xs">
-							<Typography role="caption" color="text-tertiary">
+							<Typography variant="caption" color="text-tertiary">
 								Scale
 							</Typography>
 							<Box flexDirection="row" gap="xxs" flexWrap="wrap">
 								{SCALES.map((scale) => (
-									<Typography key={scale} role="caption" color="text-tertiary" style={scaleLabelStyle}>
+									<Typography key={scale} variant="caption" color="text-tertiary" style={scaleLabelStyle}>
 										{scale}
 									</Typography>
 								))}
